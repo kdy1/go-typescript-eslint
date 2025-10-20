@@ -6,6 +6,8 @@ package ast
 // ==================== TypeScript Type Keywords ====================
 
 // TSAnyKeyword represents the 'any' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSAnyKeyword struct {
 	BaseNode
 }
@@ -14,6 +16,8 @@ type TSAnyKeyword struct {
 func (n *TSAnyKeyword) TSTypeNode() {}
 
 // TSBigIntKeyword represents the 'bigint' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSBigIntKeyword struct {
 	BaseNode
 }
@@ -22,6 +26,8 @@ type TSBigIntKeyword struct {
 func (n *TSBigIntKeyword) TSTypeNode() {}
 
 // TSBooleanKeyword represents the 'boolean' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSBooleanKeyword struct {
 	BaseNode
 }
@@ -30,6 +36,8 @@ type TSBooleanKeyword struct {
 func (n *TSBooleanKeyword) TSTypeNode() {}
 
 // TSIntrinsicKeyword represents the 'intrinsic' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSIntrinsicKeyword struct {
 	BaseNode
 }
@@ -38,6 +46,8 @@ type TSIntrinsicKeyword struct {
 func (n *TSIntrinsicKeyword) TSTypeNode() {}
 
 // TSNeverKeyword represents the 'never' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSNeverKeyword struct {
 	BaseNode
 }
@@ -46,6 +56,8 @@ type TSNeverKeyword struct {
 func (n *TSNeverKeyword) TSTypeNode() {}
 
 // TSNullKeyword represents the 'null' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSNullKeyword struct {
 	BaseNode
 }
@@ -54,6 +66,8 @@ type TSNullKeyword struct {
 func (n *TSNullKeyword) TSTypeNode() {}
 
 // TSNumberKeyword represents the 'number' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSNumberKeyword struct {
 	BaseNode
 }
@@ -62,6 +76,8 @@ type TSNumberKeyword struct {
 func (n *TSNumberKeyword) TSTypeNode() {}
 
 // TSObjectKeyword represents the 'object' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSObjectKeyword struct {
 	BaseNode
 }
@@ -70,6 +86,8 @@ type TSObjectKeyword struct {
 func (n *TSObjectKeyword) TSTypeNode() {}
 
 // TSStringKeyword represents the 'string' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSStringKeyword struct {
 	BaseNode
 }
@@ -78,6 +96,8 @@ type TSStringKeyword struct {
 func (n *TSStringKeyword) TSTypeNode() {}
 
 // TSSymbolKeyword represents the 'symbol' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSSymbolKeyword struct {
 	BaseNode
 }
@@ -86,6 +106,8 @@ type TSSymbolKeyword struct {
 func (n *TSSymbolKeyword) TSTypeNode() {}
 
 // TSUndefinedKeyword represents the 'undefined' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSUndefinedKeyword struct {
 	BaseNode
 }
@@ -94,6 +116,8 @@ type TSUndefinedKeyword struct {
 func (n *TSUndefinedKeyword) TSTypeNode() {}
 
 // TSUnknownKeyword represents the 'unknown' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSUnknownKeyword struct {
 	BaseNode
 }
@@ -102,6 +126,8 @@ type TSUnknownKeyword struct {
 func (n *TSUnknownKeyword) TSTypeNode() {}
 
 // TSVoidKeyword represents the 'void' type keyword.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSVoidKeyword struct {
 	BaseNode
 }
@@ -112,6 +138,8 @@ func (n *TSVoidKeyword) TSTypeNode() {}
 // ==================== TypeScript Type Expressions ====================
 
 // TSArrayType represents an array type (T[]).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSArrayType struct {
 	BaseNode
 	ElementType TSNode `json:"elementType"`
@@ -121,6 +149,8 @@ type TSArrayType struct {
 func (n *TSArrayType) TSTypeNode() {}
 
 // TSTupleType represents a tuple type ([T, U]).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTupleType struct {
 	BaseNode
 	ElementTypes []TSNode `json:"elementTypes"` // Can include TSNamedTupleMember
@@ -130,6 +160,8 @@ type TSTupleType struct {
 func (n *TSTupleType) TSTypeNode() {}
 
 // TSUnionType represents a union type (T | U).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSUnionType struct {
 	BaseNode
 	Types []TSNode `json:"types"`
@@ -139,6 +171,8 @@ type TSUnionType struct {
 func (n *TSUnionType) TSTypeNode() {}
 
 // TSIntersectionType represents an intersection type (T & U).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSIntersectionType struct {
 	BaseNode
 	Types []TSNode `json:"types"`
@@ -148,6 +182,8 @@ type TSIntersectionType struct {
 func (n *TSIntersectionType) TSTypeNode() {}
 
 // TSConditionalType represents a conditional type (T extends U ? X : Y).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSConditionalType struct {
 	BaseNode
 	CheckType   TSNode `json:"checkType"`
@@ -160,6 +196,8 @@ type TSConditionalType struct {
 func (n *TSConditionalType) TSTypeNode() {}
 
 // TSInferType represents an infer type (infer T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSInferType struct {
 	BaseNode
 	TypeParameter *TSTypeParameter `json:"typeParameter"`
@@ -169,6 +207,8 @@ type TSInferType struct {
 func (n *TSInferType) TSTypeNode() {}
 
 // TSTypeReference represents a type reference (Foo, Array<T>).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeReference struct {
 	BaseNode
 	TypeName       interface{}                   `json:"typeName"` // Identifier | TSQualifiedName
@@ -180,6 +220,8 @@ type TSTypeReference struct {
 func (n *TSTypeReference) TSTypeNode() {}
 
 // TSTypeQuery represents a typeof type query (typeof x).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeQuery struct {
 	BaseNode
 	ExprName       interface{}                   `json:"exprName"` // Identifier | TSQualifiedName | TSImportType
@@ -191,6 +233,8 @@ type TSTypeQuery struct {
 func (n *TSTypeQuery) TSTypeNode() {}
 
 // TSTypeLiteral represents a type literal ({a: string}).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeLiteral struct {
 	BaseNode
 	// TSPropertySignature | TSMethodSignature | TSCallSignatureDeclaration |
@@ -202,6 +246,8 @@ type TSTypeLiteral struct {
 func (n *TSTypeLiteral) TSTypeNode() {}
 
 // TSFunctionType represents a function type ((x: T) => U).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSFunctionType struct {
 	BaseNode
 	Params         []Pattern                   `json:"params"`
@@ -213,6 +259,8 @@ type TSFunctionType struct {
 func (n *TSFunctionType) TSTypeNode() {}
 
 // TSConstructorType represents a constructor type (new () => T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSConstructorType struct {
 	BaseNode
 	Params         []Pattern                   `json:"params"`
@@ -225,6 +273,8 @@ type TSConstructorType struct {
 func (n *TSConstructorType) TSTypeNode() {}
 
 // TSMappedType represents a mapped type ({[K in T]: U}).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSMappedType struct {
 	BaseNode
 	TypeParameter  *TSTypeParameter  `json:"typeParameter"`
@@ -238,6 +288,8 @@ type TSMappedType struct {
 func (n *TSMappedType) TSTypeNode() {}
 
 // TSLiteralType represents a literal type ('foo', 42).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSLiteralType struct {
 	BaseNode
 	Literal interface{} `json:"literal"` // Literal | UnaryExpression | UpdateExpression
@@ -247,6 +299,8 @@ type TSLiteralType struct {
 func (n *TSLiteralType) TSTypeNode() {}
 
 // TSIndexedAccessType represents an indexed access type (T[K]).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSIndexedAccessType struct {
 	BaseNode
 	ObjectType TSNode `json:"objectType"`
@@ -257,6 +311,8 @@ type TSIndexedAccessType struct {
 func (n *TSIndexedAccessType) TSTypeNode() {}
 
 // TSOptionalType represents an optional type (T?).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSOptionalType struct {
 	BaseNode
 	TypeAnnotation TSNode `json:"typeAnnotation"`
@@ -266,6 +322,8 @@ type TSOptionalType struct {
 func (n *TSOptionalType) TSTypeNode() {}
 
 // TSRestType represents a rest type (...T[]).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSRestType struct {
 	BaseNode
 	TypeAnnotation TSNode `json:"typeAnnotation"`
@@ -275,6 +333,8 @@ type TSRestType struct {
 func (n *TSRestType) TSTypeNode() {}
 
 // TSThisType represents the 'this' type.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSThisType struct {
 	BaseNode
 }
@@ -283,6 +343,8 @@ type TSThisType struct {
 func (n *TSThisType) TSTypeNode() {}
 
 // TSTypeOperator represents a type operator (keyof T, readonly T, unique T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeOperator struct {
 	BaseNode
 	Operator       string `json:"operator"` // "keyof" | "readonly" | "unique"
@@ -293,6 +355,8 @@ type TSTypeOperator struct {
 func (n *TSTypeOperator) TSTypeNode() {}
 
 // TSTemplateLiteralType represents a template literal type.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTemplateLiteralType struct {
 	BaseNode
 	Quasis []TemplateElement `json:"quasis"`
@@ -303,6 +367,8 @@ type TSTemplateLiteralType struct {
 func (n *TSTemplateLiteralType) TSTypeNode() {}
 
 // TSImportType represents an import type (import('module').Type).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSImportType struct {
 	BaseNode
 	Argument       *TSLiteralType                `json:"argument"`            // Module specifier
@@ -318,6 +384,8 @@ func (n *TSImportType) TSTypeNode() {}
 // ==================== TypeScript Type Annotations ====================
 
 // TSTypeAnnotation represents a type annotation (: T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeAnnotation struct {
 	BaseNode
 	TypeAnnotation TSNode `json:"typeAnnotation"`
@@ -326,6 +394,8 @@ type TSTypeAnnotation struct {
 // ==================== TypeScript Type Declarations ====================
 
 // TSTypeAliasDeclaration represents a type alias declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeAliasDeclaration struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -338,6 +408,8 @@ func (n *TSTypeAliasDeclaration) statementNode()   {}
 func (n *TSTypeAliasDeclaration) declarationNode() {}
 
 // TSInterfaceDeclaration represents an interface declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSInterfaceDeclaration struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -353,6 +425,8 @@ func (n *TSInterfaceDeclaration) statementNode()   {}
 func (n *TSInterfaceDeclaration) declarationNode() {}
 
 // TSInterfaceBody represents the body of an interface.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSInterfaceBody struct {
 	BaseNode
 	// TSPropertySignature | TSMethodSignature | TSCallSignatureDeclaration |
@@ -361,6 +435,8 @@ type TSInterfaceBody struct {
 }
 
 // TSInterfaceHeritage represents an interface extends clause.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSInterfaceHeritage struct {
 	BaseNode
 	Expression     Expression                    `json:"expression"`
@@ -369,6 +445,8 @@ type TSInterfaceHeritage struct {
 }
 
 // TSEnumDeclaration represents an enum declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSEnumDeclaration struct {
 	BaseNode
 	ID      *Identifier    `json:"id"`
@@ -381,6 +459,8 @@ func (n *TSEnumDeclaration) statementNode()   {}
 func (n *TSEnumDeclaration) declarationNode() {}
 
 // TSEnumMember represents a member of an enum.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSEnumMember struct {
 	BaseNode
 	ID          interface{} `json:"id"` // Identifier | Literal
@@ -389,6 +469,8 @@ type TSEnumMember struct {
 }
 
 // TSModuleDeclaration represents a module or namespace declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSModuleDeclaration struct {
 	BaseNode
 	ID      interface{} `json:"id"`   // Identifier | Literal (for string module names)
@@ -402,6 +484,8 @@ func (n *TSModuleDeclaration) statementNode()   {}
 func (n *TSModuleDeclaration) declarationNode() {}
 
 // TSModuleBlock represents the body of a module.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSModuleBlock struct {
 	BaseNode
 	Body []Statement `json:"body"`
@@ -412,6 +496,8 @@ func (n *TSModuleBlock) statementNode() {}
 // ==================== TypeScript Type Parameters ====================
 
 // TSTypeParameter represents a type parameter (<T>).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeParameter struct {
 	BaseNode
 	Name       *Identifier `json:"name"`
@@ -423,12 +509,16 @@ type TSTypeParameter struct {
 }
 
 // TSTypeParameterDeclaration represents a type parameter declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeParameterDeclaration struct {
 	BaseNode
 	Params []TSTypeParameter `json:"params"`
 }
 
 // TSTypeParameterInstantiation represents a type parameter instantiation.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeParameterInstantiation struct {
 	BaseNode
 	Params []TSNode `json:"params"`
@@ -437,6 +527,8 @@ type TSTypeParameterInstantiation struct {
 // ==================== TypeScript Type Signatures ====================
 
 // TSCallSignatureDeclaration represents a call signature.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSCallSignatureDeclaration struct {
 	BaseNode
 	Params         []Pattern                   `json:"params"`
@@ -445,6 +537,8 @@ type TSCallSignatureDeclaration struct {
 }
 
 // TSConstructSignatureDeclaration represents a construct signature.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSConstructSignatureDeclaration struct {
 	BaseNode
 	Params         []Pattern                   `json:"params"`
@@ -453,6 +547,8 @@ type TSConstructSignatureDeclaration struct {
 }
 
 // TSPropertySignature represents a property signature in a type.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSPropertySignature struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -467,6 +563,8 @@ type TSPropertySignature struct {
 }
 
 // TSMethodSignature represents a method signature in a type.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSMethodSignature struct {
 	BaseNode
 	Key            Expression                  `json:"key"`
@@ -483,6 +581,8 @@ type TSMethodSignature struct {
 }
 
 // TSIndexSignature represents an index signature.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSIndexSignature struct {
 	BaseNode
 	Parameters     []Pattern         `json:"parameters"`
@@ -494,6 +594,8 @@ type TSIndexSignature struct {
 }
 
 // TSNamedTupleMember represents a named tuple member.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSNamedTupleMember struct {
 	BaseNode
 	Label       *Identifier `json:"label"`
@@ -504,6 +606,8 @@ type TSNamedTupleMember struct {
 // ==================== TypeScript Type Assertions & Expressions ====================
 
 // TSAsExpression represents a type assertion using 'as' (x as T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSAsExpression struct {
 	BaseNode
 	Expression     Expression `json:"expression"`
@@ -513,6 +617,8 @@ type TSAsExpression struct {
 func (n *TSAsExpression) expressionNode() {}
 
 // TSTypeAssertion represents a type assertion using angle brackets (<T>x).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypeAssertion struct {
 	BaseNode
 	Expression     Expression `json:"expression"`
@@ -522,6 +628,8 @@ type TSTypeAssertion struct {
 func (n *TSTypeAssertion) expressionNode() {}
 
 // TSNonNullExpression represents a non-null assertion (x!).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSNonNullExpression struct {
 	BaseNode
 	Expression Expression `json:"expression"`
@@ -530,6 +638,8 @@ type TSNonNullExpression struct {
 func (n *TSNonNullExpression) expressionNode() {}
 
 // TSSatisfiesExpression represents a satisfies expression (x satisfies T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSSatisfiesExpression struct {
 	BaseNode
 	Expression     Expression `json:"expression"`
@@ -539,6 +649,8 @@ type TSSatisfiesExpression struct {
 func (n *TSSatisfiesExpression) expressionNode() {}
 
 // TSInstantiationExpression represents a type instantiation (Foo<T>).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSInstantiationExpression struct {
 	BaseNode
 	Expression     Expression                    `json:"expression"`
@@ -551,6 +663,8 @@ func (n *TSInstantiationExpression) expressionNode() {}
 // ==================== TypeScript Type Predicates ====================
 
 // TSTypePredicate represents a type predicate (x is T).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSTypePredicate struct {
 	BaseNode
 	ParameterName  interface{}       `json:"parameterName"` // Identifier | TSThisType
@@ -564,6 +678,8 @@ func (n *TSTypePredicate) TSTypeNode() {}
 // ==================== TypeScript Abstract Members ====================
 
 // TSAbstractAccessorProperty represents an abstract accessor property.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSAbstractAccessorProperty struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -577,6 +693,8 @@ type TSAbstractAccessorProperty struct {
 }
 
 // TSAbstractMethodDefinition represents an abstract method.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSAbstractMethodDefinition struct {
 	BaseNode
 	Key           Expression          `json:"key"`
@@ -591,6 +709,8 @@ type TSAbstractMethodDefinition struct {
 }
 
 // TSAbstractPropertyDefinition represents an abstract property.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSAbstractPropertyDefinition struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -610,6 +730,8 @@ type TSAbstractPropertyDefinition struct {
 // ==================== TypeScript Import/Export ====================
 
 // TSImportEqualsDeclaration represents an import = declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSImportEqualsDeclaration struct {
 	BaseNode
 	ID              *Identifier `json:"id"`
@@ -621,12 +743,16 @@ type TSImportEqualsDeclaration struct {
 func (n *TSImportEqualsDeclaration) statementNode() {}
 
 // TSExternalModuleReference represents an external module reference.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSExternalModuleReference struct {
 	BaseNode
 	Expression Expression `json:"expression"`
 }
 
 // TSExportAssignment represents an export = statement.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSExportAssignment struct {
 	BaseNode
 	Expression Expression `json:"expression"`
@@ -635,6 +761,8 @@ type TSExportAssignment struct {
 func (n *TSExportAssignment) statementNode() {}
 
 // TSNamespaceExportDeclaration represents a namespace export declaration.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSNamespaceExportDeclaration struct {
 	BaseNode
 	ID *Identifier `json:"id"`
@@ -645,6 +773,8 @@ func (n *TSNamespaceExportDeclaration) statementNode() {}
 // ==================== TypeScript Other ====================
 
 // TSQualifiedName represents a qualified name (A.B.C).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSQualifiedName struct {
 	BaseNode
 	Left  interface{} `json:"left"` // Identifier | TSQualifiedName
@@ -652,6 +782,8 @@ type TSQualifiedName struct {
 }
 
 // TSParameterProperty represents a parameter property in a constructor.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSParameterProperty struct {
 	BaseNode
 	Parameter     Pattern     `json:"parameter"`               // Identifier | AssignmentPattern
@@ -665,6 +797,8 @@ type TSParameterProperty struct {
 func (n *TSParameterProperty) patternNode() {}
 
 // TSDeclareFunction represents a declare function statement.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSDeclareFunction struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -679,6 +813,8 @@ type TSDeclareFunction struct {
 func (n *TSDeclareFunction) statementNode() {}
 
 // TSEmptyBodyFunctionExpression represents a function with no body.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSEmptyBodyFunctionExpression struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -692,6 +828,8 @@ type TSEmptyBodyFunctionExpression struct {
 func (n *TSEmptyBodyFunctionExpression) expressionNode() {}
 
 // TSClassImplements represents a class implements clause.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSClassImplements struct {
 	BaseNode
 	Expression     Expression                    `json:"expression"`
@@ -700,6 +838,8 @@ type TSClassImplements struct {
 }
 
 // TSEnumBody is an alias kept for compatibility.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TSEnumBody struct {
 	BaseNode
 	Members []TSEnumMember `json:"members"`

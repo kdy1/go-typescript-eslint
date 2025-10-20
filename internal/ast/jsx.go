@@ -107,6 +107,8 @@ type JSXEmptyExpression struct {
 func (n *JSXEmptyExpression) expressionNode() {}
 
 // JSXText represents JSX text content.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXText struct {
 	BaseNode
 	Value string `json:"value"`
@@ -114,6 +116,8 @@ type JSXText struct {
 }
 
 // JSXSpreadChild represents a JSX spread child ({...children}).
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXSpreadChild struct {
 	BaseNode
 	Expression Expression `json:"expression"`
