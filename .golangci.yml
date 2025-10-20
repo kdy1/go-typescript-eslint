@@ -20,9 +20,9 @@ run:
 
 # Output configuration
 output:
-  # The formats used to render issues
+  # The formats used to render issues (v2 format)
   formats:
-    - format: colored-line-number
+    colored-line-number:
       path: stdout
 
   # Print lines of code with issue
