@@ -1,6 +1,8 @@
 # golangci-lint configuration
 # Documentation: https://golangci-lint.run/usage/configuration/
 
+version: "2"
+
 run:
   # Timeout for analysis
   timeout: 5m
@@ -18,16 +20,18 @@ run:
 
 # Output configuration
 output:
-  # Format: colored-line-number|line-number|json|tab|checkstyle|code-climate|junit-xml|github-actions
+  # The formats used to render issues
   formats:
-    - format: colored-line-number
+    # Text format with colors and line numbers (default format)
+    text:
+      # Output path: stdout, stderr, or a file path
       path: stdout
-
-  # Print lines of code with issue
-  print-issued-lines: true
-
-  # Print linter name in the end of issue text
-  print-linter-name: true
+      # Print lines of code with issue
+      print-issued-lines: true
+      # Print linter name at the end of issue text
+      print-linter-name: true
+      # Use colors in output
+      colors: true
 
   # Make issues output unique by line
   uniq-by-line: true
@@ -51,18 +55,6 @@ linters-settings:
     # Disable specific analyzers
     disable:
       - shadow  # Reports variables that shadow other variables
-
-  gofmt:
-    # Simplify code: gofmt with `-s` option
-    simplify: true
-
-  goimports:
-    # Put imports beginning with prefix after 3rd-party packages
-    local-prefixes: github.com/kdy1/go-typescript-eslint
-
-  golint:
-    # Minimal confidence for issues
-    min-confidence: 0.8
 
   gocyclo:
     # Minimal code complexity to report
@@ -201,16 +193,24 @@ linters-settings:
       - G505 # Import blocklist: crypto/sha1
       - G601 # Implicit memory aliasing of items from a range statement
 
+# Formatters settings (moved from linters-settings in v2)
+formatters-settings:
+  gofmt:
+    # Simplify code: gofmt with `-s` option
+    simplify: true
+
+  goimports:
+    # Put imports beginning with prefix after 3rd-party packages
+    local-prefixes: github.com/kdy1/go-typescript-eslint
+
 linters:
-  disable-all: true
+  default: none
   enable:
     # Enabled by default linters:
     - errcheck # Errcheck is a program for checking for unchecked errors in go programs
-    - gosimple # Linter for Go source code that specializes in simplifying code
     - govet # Vet examines Go source code and reports suspicious constructs
     - ineffassign # Detects when assignments to existing variables are not used
-    - staticcheck # It's a set of rules from staticcheck
-    - typecheck # Like the front-end of a Go compiler, parses and type-checks Go code
+    - staticcheck # It's a set of rules from staticcheck (includes gosimple and stylecheck in v2)
     - unused # Checks Go code for unused constants, variables, functions and types
 
     # Additional linters:
@@ -224,9 +224,8 @@ linters:
     - durationcheck # Check for two durations multiplied together
     - errname # Checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # Find code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    - execinquery # Checks query string in Query function which reads your Go src files and warning it finds
     - exhaustive # Check exhaustiveness of enum switch statements
-    - exportloopref # Checks for pointers to enclosing loop variables
+    - copyloopvar # A linter detects places where loop variables are copied (replaces exportloopref)
     - forbidigo # Forbids identifiers
     - funlen # Tool for detection of long functions
     - gocheckcompilerdirectives # Checks that go compiler directive comments (//go:) are valid
@@ -236,11 +235,8 @@ linters:
     - gocritic # Provides diagnostics that check for bugs, performance and style issues
     - gocyclo # Computes and checks the cyclomatic complexity of functions
     - godox # Tool for detection of FIXME, TODO and other comment keywords
-    - gofmt # Gofmt checks whether code was gofmt-ed
-    - gofumpt # Gofumpt checks whether code was gofumpt-ed
     - goheader # Checks is file header matches to pattern
-    - goimports # Check import statements are formatted according to the 'goimport' command
-    - gomnd # An analyzer to detect magic numbers
+    - mnd # An analyzer to detect magic numbers (replaces gomnd)
     - gomoddirectives # Manage the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - gomodguard # Allow and block list linter for direct Go module dependencies
     - goprintffuncname # Checks that printf-like functions are named with f at the end
@@ -267,8 +263,6 @@ linters:
     - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go
     - rowserrcheck # Checks whether Err of rows is checked successfully
     - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed
-    - stylecheck # Stylecheck is a replacement for golint
-    - tenv # Tenv is analyzer that detects using os.Setenv instead of t.Setenv since Go1.17
     - testableexamples # Checks if examples are testable (have an expected output)
     - thelper # Thelper detects Go test helpers without t.Helper() call and checks the consistency of test helpers
     - tparallel # Tparallel detects inappropriate usage of t.Parallel() method in your Go test codes
@@ -277,6 +271,13 @@ linters:
     - usestdlibvars # A linter that detect the possibility to use variables/constants from the Go standard library
     - wastedassign # Wastedassign finds wasted assignment statements
     - whitespace # Tool for detection of leading and trailing whitespace
+
+# Formatters configuration (gofmt, gofumpt, goimports moved here in v2)
+formatters:
+  enable:
+    - gofmt # Gofmt checks whether code was gofmt-ed
+    - gofumpt # Gofumpt checks whether code was gofumpt-ed
+    - goimports # Check import statements are formatted according to the 'goimport' command
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
