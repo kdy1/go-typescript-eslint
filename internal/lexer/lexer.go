@@ -2,8 +2,8 @@ package lexer
 
 // Lexer represents a lexical analyzer for TypeScript source code.
 type Lexer struct {
-	tokens []Token
 	source string
+	tokens []Token
 	pos    int
 	line   int
 	column int

@@ -35,11 +35,11 @@ type ParseOptions struct {
 // AST represents the Abstract Syntax Tree produced by parsing.
 // This is a placeholder and will be expanded with proper node types.
 type AST struct {
+	Loc      *Location `json:"loc,omitempty"`
+	Range    *[2]int   `json:"range,omitempty"`
 	Body     []ASTNode `json:"body"`
 	Comments []Comment `json:"comments,omitempty"`
 	Tokens   []Token   `json:"tokens,omitempty"`
-	Loc      *Location `json:"loc,omitempty"`
-	Range    *[2]int   `json:"range,omitempty"`
 	Type     string    `json:"type"`
 }
 

@@ -1,3 +1,4 @@
+//nolint:revive // Package name "types" is appropriate for type definitions
 package types
 
 // Type represents a TypeScript type.

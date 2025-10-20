@@ -69,5 +69,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	_, _ = io.WriteString(os.Stdout, string(output)+"\n")
+	if _, err := io.WriteString(os.Stdout, string(output)+"\n"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
+		os.Exit(1)
+	}
 }
