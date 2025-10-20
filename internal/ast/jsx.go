@@ -37,7 +37,6 @@ type JSXOpeningElement struct {
 }
 
 // JSXClosingElement represents a JSX closing element (</div>).
-//
 type JSXClosingElement struct {
 	BaseNode
 	Name interface{} `json:"name"` // JSXIdentifier | JSXMemberExpression | JSXNamespacedName
@@ -56,7 +55,6 @@ type JSXClosingFragment struct {
 // ==================== JSX Attributes ====================
 
 // JSXAttribute represents a JSX attribute.
-//
 type JSXAttribute struct {
 	BaseNode
 	Name  interface{} `json:"name"`  // JSXIdentifier | JSXNamespacedName
@@ -64,7 +62,6 @@ type JSXAttribute struct {
 }
 
 // JSXSpreadAttribute represents a JSX spread attribute ({...props}).
-//
 type JSXSpreadAttribute struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -73,14 +70,12 @@ type JSXSpreadAttribute struct {
 // ==================== JSX Names ====================
 
 // JSXIdentifier represents a JSX identifier.
-//
 type JSXIdentifier struct {
 	BaseNode
 	Name string `json:"name"`
 }
 
 // JSXNamespacedName represents a JSX namespaced name (ns:name).
-//
 type JSXNamespacedName struct {
 	BaseNode
 	Namespace *JSXIdentifier `json:"namespace"`
@@ -88,7 +83,6 @@ type JSXNamespacedName struct {
 }
 
 // JSXMemberExpression represents a JSX member expression (obj.prop).
-//
 type JSXMemberExpression struct {
 	BaseNode
 	Object   interface{}    `json:"object"` // JSXIdentifier | JSXMemberExpression
@@ -98,7 +92,6 @@ type JSXMemberExpression struct {
 // ==================== JSX Content ====================
 
 // JSXExpressionContainer represents a JSX expression container {expr}.
-//
 type JSXExpressionContainer struct {
 	BaseNode
 	Expression interface{} `json:"expression"` // Expression | JSXEmptyExpression

@@ -15,7 +15,6 @@ type Node interface {
 
 // BaseNode provides common fields for all AST nodes.
 // It should be embedded in all concrete node types.
-//
 type BaseNode struct {
 	NodeType string          `json:"type"`
 	Loc      *SourceLocation `json:"loc,omitempty"`
