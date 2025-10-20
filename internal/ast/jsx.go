@@ -107,7 +107,6 @@ type JSXEmptyExpression struct {
 func (n *JSXEmptyExpression) expressionNode() {}
 
 // JSXText represents JSX text content.
-//
 type JSXText struct {
 	BaseNode
 	Value string `json:"value"`
@@ -115,7 +114,6 @@ type JSXText struct {
 }
 
 // JSXSpreadChild represents a JSX spread child ({...children}).
-//
 type JSXSpreadChild struct {
 	BaseNode
 	Expression Expression `json:"expression"`

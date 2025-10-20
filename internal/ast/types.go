@@ -20,7 +20,6 @@ type TSNode interface {
 
 // Program represents the root node of an AST.
 // It contains the entire program source.
-//
 type Program struct {
 	BaseNode
 	SourceType   string      `json:"sourceType"` // "script" or "module"
@@ -34,7 +33,6 @@ type Program struct {
 // ==================== Identifiers ====================
 
 // Identifier represents an identifier (variable name, function name, etc.).
-//
 type Identifier struct {
 	BaseNode
 	Name           string            `json:"name"`
@@ -47,7 +45,6 @@ func (n *Identifier) expressionNode() {}
 func (n *Identifier) patternNode()    {}
 
 // PrivateIdentifier represents a private identifier (#field).
-//
 type PrivateIdentifier struct {
 	BaseNode
 	Name string `json:"name"` // Without the # prefix
@@ -58,7 +55,6 @@ func (n *PrivateIdentifier) expressionNode() {}
 // ==================== Literals ====================
 
 // Literal represents a literal value.
-//
 type Literal struct {
 	BaseNode
 	Value  interface{} `json:"value"` // Actual value (string, number, boolean, null)
@@ -70,7 +66,6 @@ type Literal struct {
 func (n *Literal) expressionNode() {}
 
 // RegexInfo contains information about a regular expression literal.
-//
 type RegexInfo struct {
 	Pattern string `json:"pattern"`
 	Flags   string `json:"flags"`
@@ -79,7 +74,6 @@ type RegexInfo struct {
 // ==================== Expressions ====================
 
 // ThisExpression represents the 'this' keyword.
-//
 type ThisExpression struct {
 	BaseNode
 }
@@ -87,7 +81,6 @@ type ThisExpression struct {
 func (n *ThisExpression) expressionNode() {}
 
 // Super represents the 'super' keyword.
-//
 type Super struct {
 	BaseNode
 }
@@ -95,7 +88,6 @@ type Super struct {
 func (n *Super) expressionNode() {}
 
 // ArrayExpression represents an array literal [1, 2, 3].
-//
 type ArrayExpression struct {
 	BaseNode
 	Elements []Expression `json:"elements"` // Can include nil for holes in sparse arrays
@@ -104,7 +96,6 @@ type ArrayExpression struct {
 func (n *ArrayExpression) expressionNode() {}
 
 // ObjectExpression represents an object literal {a: 1, b: 2}.
-//
 type ObjectExpression struct {
 	BaseNode
 	Properties []interface{} `json:"properties"` // Property | SpreadElement
@@ -113,7 +104,6 @@ type ObjectExpression struct {
 func (n *ObjectExpression) expressionNode() {}
 
 // Property represents a property in an object expression or pattern.
-//
 type Property struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -128,7 +118,6 @@ type Property struct {
 }
 
 // FunctionExpression represents a function expression.
-//
 type FunctionExpression struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -146,7 +135,6 @@ type FunctionExpression struct {
 func (n *FunctionExpression) expressionNode() {}
 
 // ArrowFunctionExpression represents an arrow function expression.
-//
 type ArrowFunctionExpression struct {
 	BaseNode
 	Params         []Pattern                   `json:"params"`
@@ -161,7 +149,6 @@ type ArrowFunctionExpression struct {
 func (n *ArrowFunctionExpression) expressionNode() {}
 
 // ClassExpression represents a class expression.
-//
 type ClassExpression struct {
 	BaseNode
 	ID                  *Identifier                   `json:"id"`
@@ -178,7 +165,6 @@ type ClassExpression struct {
 func (n *ClassExpression) expressionNode() {}
 
 // UnaryExpression represents a unary operation (+x, -x, !x, ~x, typeof x, void x, delete x).
-//
 type UnaryExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "+", "-", "!", "~", "typeof", "void", "delete"
@@ -189,7 +175,6 @@ type UnaryExpression struct {
 func (n *UnaryExpression) expressionNode() {}
 
 // UpdateExpression represents an update expression (++x, x++, --x, x--).
-//
 type UpdateExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "++" | "--"
@@ -200,7 +185,6 @@ type UpdateExpression struct {
 func (n *UpdateExpression) expressionNode() {}
 
 // BinaryExpression represents a binary operation (x + y, x - y, x * y, etc.).
-//
 type BinaryExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "+", "-", "*", "/", "%", "**", etc.
@@ -211,7 +195,6 @@ type BinaryExpression struct {
 func (n *BinaryExpression) expressionNode() {}
 
 // LogicalExpression represents a logical operation (x && y, x || y, x ?? y).
-//
 type LogicalExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "&&" | "||" | "??"
@@ -222,7 +205,6 @@ type LogicalExpression struct {
 func (n *LogicalExpression) expressionNode() {}
 
 // AssignmentExpression represents an assignment (x = y, x += y, etc.).
-//
 type AssignmentExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "=", "+=", "-=", etc.
@@ -233,7 +215,6 @@ type AssignmentExpression struct {
 func (n *AssignmentExpression) expressionNode() {}
 
 // ConditionalExpression represents a ternary conditional (x ? y : z).
-//
 type ConditionalExpression struct {
 	BaseNode
 	Test       Expression `json:"test"`
@@ -244,7 +225,6 @@ type ConditionalExpression struct {
 func (n *ConditionalExpression) expressionNode() {}
 
 // SequenceExpression represents a sequence of expressions (x, y, z).
-//
 type SequenceExpression struct {
 	BaseNode
 	Expressions []Expression `json:"expressions"`
@@ -253,7 +233,6 @@ type SequenceExpression struct {
 func (n *SequenceExpression) expressionNode() {}
 
 // MemberExpression represents a member access (obj.prop, obj[prop]).
-//
 type MemberExpression struct {
 	BaseNode
 	Object   Expression `json:"object"`
@@ -266,7 +245,6 @@ func (n *MemberExpression) expressionNode() {}
 func (n *MemberExpression) patternNode()    {}
 
 // CallExpression represents a function call.
-//
 type CallExpression struct {
 	BaseNode
 	Callee         Expression                    `json:"callee"`
@@ -279,7 +257,6 @@ type CallExpression struct {
 func (n *CallExpression) expressionNode() {}
 
 // NewExpression represents a new expression (new Foo()).
-//
 type NewExpression struct {
 	BaseNode
 	Callee         Expression                    `json:"callee"`
@@ -291,7 +268,6 @@ type NewExpression struct {
 func (n *NewExpression) expressionNode() {}
 
 // MetaProperty represents a meta property (new.target, import.meta).
-//
 type MetaProperty struct {
 	BaseNode
 	Meta     *Identifier `json:"meta"`
@@ -301,7 +277,6 @@ type MetaProperty struct {
 func (n *MetaProperty) expressionNode() {}
 
 // YieldExpression represents a yield expression.
-//
 type YieldExpression struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -311,7 +286,6 @@ type YieldExpression struct {
 func (n *YieldExpression) expressionNode() {}
 
 // AwaitExpression represents an await expression.
-//
 type AwaitExpression struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -320,7 +294,6 @@ type AwaitExpression struct {
 func (n *AwaitExpression) expressionNode() {}
 
 // ChainExpression represents an optional chaining expression (obj?.prop).
-//
 type ChainExpression struct {
 	BaseNode
 	Expression Expression `json:"expression"` // MemberExpression | CallExpression
@@ -329,7 +302,6 @@ type ChainExpression struct {
 func (n *ChainExpression) expressionNode() {}
 
 // ImportExpression represents a dynamic import expression import().
-//
 type ImportExpression struct {
 	BaseNode
 	Source     Expression        `json:"source"`
@@ -339,14 +311,12 @@ type ImportExpression struct {
 func (n *ImportExpression) expressionNode() {}
 
 // SpreadElement represents a spread element (...x).
-//
 type SpreadElement struct {
 	BaseNode
 	Argument Expression `json:"argument"`
 }
 
 // TemplateLiteral represents a template literal `hello ${world}`.
-//
 type TemplateLiteral struct {
 	BaseNode
 	Quasis      []TemplateElement `json:"quasis"`
@@ -356,7 +326,6 @@ type TemplateLiteral struct {
 func (n *TemplateLiteral) expressionNode() {}
 
 // TaggedTemplateExpression represents a tagged template expression.
-//
 type TaggedTemplateExpression struct {
 	BaseNode
 	Tag            Expression                    `json:"tag"`
@@ -368,7 +337,6 @@ type TaggedTemplateExpression struct {
 func (n *TaggedTemplateExpression) expressionNode() {}
 
 // TemplateElement represents an element in a template literal.
-//
 type TemplateElement struct {
 	BaseNode
 	Tail  bool                 `json:"tail"`
@@ -376,7 +344,6 @@ type TemplateElement struct {
 }
 
 // TemplateElementValue contains the cooked and raw values of a template element.
-//
 type TemplateElementValue struct {
 	Cooked *string `json:"cooked"` // Processed value (nil if contains invalid escape)
 	Raw    string  `json:"raw"`    // Original source text
@@ -385,7 +352,6 @@ type TemplateElementValue struct {
 // ==================== Statements ====================
 
 // BlockStatement represents a block of statements {}.
-//
 type BlockStatement struct {
 	BaseNode
 	Body []Statement `json:"body"`
@@ -394,7 +360,6 @@ type BlockStatement struct {
 func (n *BlockStatement) statementNode() {}
 
 // ExpressionStatement represents an expression used as a statement.
-//
 type ExpressionStatement struct {
 	BaseNode
 	Expression Expression `json:"expression"`
@@ -404,7 +369,6 @@ type ExpressionStatement struct {
 func (n *ExpressionStatement) statementNode() {}
 
 // EmptyStatement represents an empty statement (;).
-//
 type EmptyStatement struct {
 	BaseNode
 }
@@ -412,7 +376,6 @@ type EmptyStatement struct {
 func (n *EmptyStatement) statementNode() {}
 
 // DebuggerStatement represents a debugger statement.
-//
 type DebuggerStatement struct {
 	BaseNode
 }
@@ -420,7 +383,6 @@ type DebuggerStatement struct {
 func (n *DebuggerStatement) statementNode() {}
 
 // ReturnStatement represents a return statement.
-//
 type ReturnStatement struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -429,7 +391,6 @@ type ReturnStatement struct {
 func (n *ReturnStatement) statementNode() {}
 
 // BreakStatement represents a break statement.
-//
 type BreakStatement struct {
 	BaseNode
 	Label *Identifier `json:"label"`
@@ -438,7 +399,6 @@ type BreakStatement struct {
 func (n *BreakStatement) statementNode() {}
 
 // ContinueStatement represents a continue statement.
-//
 type ContinueStatement struct {
 	BaseNode
 	Label *Identifier `json:"label"`
@@ -447,7 +407,6 @@ type ContinueStatement struct {
 func (n *ContinueStatement) statementNode() {}
 
 // LabeledStatement represents a labeled statement.
-//
 type LabeledStatement struct {
 	BaseNode
 	Label *Identifier `json:"label"`
@@ -457,7 +416,6 @@ type LabeledStatement struct {
 func (n *LabeledStatement) statementNode() {}
 
 // IfStatement represents an if statement.
-//
 type IfStatement struct {
 	BaseNode
 	Test       Expression `json:"test"`
@@ -468,7 +426,6 @@ type IfStatement struct {
 func (n *IfStatement) statementNode() {}
 
 // SwitchStatement represents a switch statement.
-//
 type SwitchStatement struct {
 	BaseNode
 	Discriminant Expression   `json:"discriminant"`
@@ -478,7 +435,6 @@ type SwitchStatement struct {
 func (n *SwitchStatement) statementNode() {}
 
 // SwitchCase represents a case or default clause in a switch statement.
-//
 type SwitchCase struct {
 	BaseNode
 	Test       Expression  `json:"test"` // nil for default case
@@ -486,7 +442,6 @@ type SwitchCase struct {
 }
 
 // WhileStatement represents a while loop.
-//
 type WhileStatement struct {
 	BaseNode
 	Test Expression `json:"test"`
@@ -496,7 +451,6 @@ type WhileStatement struct {
 func (n *WhileStatement) statementNode() {}
 
 // DoWhileStatement represents a do-while loop.
-//
 type DoWhileStatement struct {
 	BaseNode
 	Body Statement  `json:"body"`
@@ -506,7 +460,6 @@ type DoWhileStatement struct {
 func (n *DoWhileStatement) statementNode() {}
 
 // ForStatement represents a for loop.
-//
 type ForStatement struct {
 	BaseNode
 	Init   interface{} `json:"init"` // VariableDeclaration | Expression | nil
@@ -518,7 +471,6 @@ type ForStatement struct {
 func (n *ForStatement) statementNode() {}
 
 // ForInStatement represents a for-in loop.
-//
 type ForInStatement struct {
 	BaseNode
 	Left  interface{} `json:"left"` // VariableDeclaration | Pattern
@@ -529,7 +481,6 @@ type ForInStatement struct {
 func (n *ForInStatement) statementNode() {}
 
 // ForOfStatement represents a for-of loop.
-//
 type ForOfStatement struct {
 	BaseNode
 	Await bool        `json:"await"`
@@ -541,7 +492,6 @@ type ForOfStatement struct {
 func (n *ForOfStatement) statementNode() {}
 
 // ThrowStatement represents a throw statement.
-//
 type ThrowStatement struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -550,7 +500,6 @@ type ThrowStatement struct {
 func (n *ThrowStatement) statementNode() {}
 
 // TryStatement represents a try-catch-finally statement.
-//
 type TryStatement struct {
 	BaseNode
 	Block     *BlockStatement `json:"block"`
@@ -561,7 +510,6 @@ type TryStatement struct {
 func (n *TryStatement) statementNode() {}
 
 // CatchClause represents a catch clause.
-//
 type CatchClause struct {
 	BaseNode
 	Param Pattern         `json:"param"`
@@ -569,7 +517,6 @@ type CatchClause struct {
 }
 
 // WithStatement represents a with statement.
-//
 type WithStatement struct {
 	BaseNode
 	Object Expression `json:"object"`
@@ -581,7 +528,6 @@ func (n *WithStatement) statementNode() {}
 // ==================== Declarations ====================
 
 // VariableDeclaration represents a variable declaration (var, let, const).
-//
 type VariableDeclaration struct {
 	BaseNode
 	Declarations []VariableDeclarator `json:"declarations"`
@@ -593,7 +539,6 @@ func (n *VariableDeclaration) statementNode()   {}
 func (n *VariableDeclaration) declarationNode() {}
 
 // VariableDeclarator represents a variable declarator.
-//
 type VariableDeclarator struct {
 	BaseNode
 	ID       Pattern    `json:"id"`
@@ -602,7 +547,6 @@ type VariableDeclarator struct {
 }
 
 // FunctionDeclaration represents a function declaration.
-//
 type FunctionDeclaration struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -622,7 +566,6 @@ func (n *FunctionDeclaration) statementNode()   {}
 func (n *FunctionDeclaration) declarationNode() {}
 
 // ClassDeclaration represents a class declaration.
-//
 type ClassDeclaration struct {
 	BaseNode
 	ID                  *Identifier                   `json:"id"`
@@ -640,14 +583,12 @@ func (n *ClassDeclaration) statementNode()   {}
 func (n *ClassDeclaration) declarationNode() {}
 
 // ClassBody represents the body of a class.
-//
 type ClassBody struct {
 	BaseNode
 	Body []interface{} `json:"body"` // MethodDefinition | PropertyDefinition | StaticBlock | TSIndexSignature
 }
 
 // MethodDefinition represents a method in a class.
-//
 type MethodDefinition struct {
 	BaseNode
 	Key           Expression          `json:"key"`
@@ -662,7 +603,6 @@ type MethodDefinition struct {
 }
 
 // PropertyDefinition represents a property in a class.
-//
 type PropertyDefinition struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -680,7 +620,6 @@ type PropertyDefinition struct {
 }
 
 // AccessorProperty represents an accessor property (getter/setter shorthand).
-//
 type AccessorProperty struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -694,7 +633,6 @@ type AccessorProperty struct {
 }
 
 // StaticBlock represents a static initialization block in a class.
-//
 type StaticBlock struct {
 	BaseNode
 	Body []Statement `json:"body"`
@@ -703,7 +641,6 @@ type StaticBlock struct {
 // ==================== Module Import/Export ====================
 
 // ImportDeclaration represents an import declaration.
-//
 type ImportDeclaration struct {
 	BaseNode
 	// ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier
@@ -717,7 +654,6 @@ type ImportDeclaration struct {
 func (n *ImportDeclaration) statementNode() {}
 
 // ImportSpecifier represents a named import specifier.
-//
 type ImportSpecifier struct {
 	BaseNode
 	Imported   *Identifier `json:"imported"`
@@ -726,21 +662,18 @@ type ImportSpecifier struct {
 }
 
 // ImportDefaultSpecifier represents a default import specifier.
-//
 type ImportDefaultSpecifier struct {
 	BaseNode
 	Local *Identifier `json:"local"`
 }
 
 // ImportNamespaceSpecifier represents a namespace import specifier (* as x).
-//
 type ImportNamespaceSpecifier struct {
 	BaseNode
 	Local *Identifier `json:"local"`
 }
 
 // ImportAttribute represents an import attribute (with clause).
-//
 type ImportAttribute struct {
 	BaseNode
 	Key   interface{} `json:"key"` // Identifier | Literal
@@ -748,7 +681,6 @@ type ImportAttribute struct {
 }
 
 // ExportNamedDeclaration represents a named export declaration.
-//
 type ExportNamedDeclaration struct {
 	BaseNode
 	Declaration Declaration       `json:"declaration"`
@@ -762,7 +694,6 @@ type ExportNamedDeclaration struct {
 func (n *ExportNamedDeclaration) statementNode() {}
 
 // ExportDefaultDeclaration represents a default export declaration.
-//
 type ExportDefaultDeclaration struct {
 	BaseNode
 	Declaration interface{} `json:"declaration"` // Declaration | Expression
@@ -772,7 +703,6 @@ type ExportDefaultDeclaration struct {
 func (n *ExportDefaultDeclaration) statementNode() {}
 
 // ExportAllDeclaration represents an export * declaration.
-//
 type ExportAllDeclaration struct {
 	BaseNode
 	Source     *Literal          `json:"source"`
@@ -785,7 +715,6 @@ type ExportAllDeclaration struct {
 func (n *ExportAllDeclaration) statementNode() {}
 
 // ExportSpecifier represents an export specifier.
-//
 type ExportSpecifier struct {
 	BaseNode
 	Local      interface{} `json:"local"`    // Identifier | Literal (for string exports)
@@ -796,7 +725,6 @@ type ExportSpecifier struct {
 // ==================== Patterns (Destructuring) ====================
 
 // ArrayPattern represents an array destructuring pattern.
-//
 type ArrayPattern struct {
 	BaseNode
 	Elements       []Pattern         `json:"elements"` // Can include nil for holes
@@ -808,7 +736,6 @@ type ArrayPattern struct {
 func (n *ArrayPattern) patternNode() {}
 
 // ObjectPattern represents an object destructuring pattern.
-//
 type ObjectPattern struct {
 	BaseNode
 	Properties     []interface{}     `json:"properties"` // Property | RestElement
@@ -820,7 +747,6 @@ type ObjectPattern struct {
 func (n *ObjectPattern) patternNode() {}
 
 // RestElement represents a rest element in destructuring (...rest).
-//
 type RestElement struct {
 	BaseNode
 	Argument       Pattern           `json:"argument"`
@@ -833,7 +759,6 @@ type RestElement struct {
 func (n *RestElement) patternNode() {}
 
 // AssignmentPattern represents a default value in destructuring (x = 1).
-//
 type AssignmentPattern struct {
 	BaseNode
 	Left           Pattern           `json:"left"`
@@ -848,7 +773,6 @@ func (n *AssignmentPattern) patternNode() {}
 // ==================== Comments and Tokens ====================
 
 // Comment represents a comment in the source code.
-//
 type Comment struct {
 	Type  string          `json:"type"` // "Line" | "Block"
 	Value string          `json:"value"`
@@ -857,7 +781,6 @@ type Comment struct {
 }
 
 // Token represents a token in the source code.
-//
 type Token struct {
 	Type  string          `json:"type"`
 	Value string          `json:"value"`
@@ -868,7 +791,6 @@ type Token struct {
 // ==================== Decorators ====================
 
 // Decorator represents a decorator (@decorator).
-//
 type Decorator struct {
 	BaseNode
 	Expression Expression `json:"expression"`
