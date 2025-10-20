@@ -1,4 +1,7 @@
+// Package parser provides TypeScript ESLint parsing functionality.
 package parser
+
+import "errors"
 
 // Parser represents a TypeScript ESLint parser
 type Parser struct {
@@ -12,8 +15,11 @@ func New(options map[string]interface{}) *Parser {
 	}
 }
 
+// ErrNotImplemented is returned when a feature is not yet implemented.
+var ErrNotImplemented = errors.New("not yet implemented")
+
 // Parse parses TypeScript code
-func (p *Parser) Parse(source string) (interface{}, error) {
+func (p *Parser) Parse(_ string) (interface{}, error) {
 	// TODO: Implement TypeScript parsing logic
-	return nil, nil
+	return nil, ErrNotImplemented
 }

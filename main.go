@@ -1,7 +1,10 @@
+// Package main provides the entry point for the go-typescript-eslint application.
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 func main() {
-	fmt.Println("go-typescript-eslint")
+	log.Println("go-typescript-eslint")
 }
