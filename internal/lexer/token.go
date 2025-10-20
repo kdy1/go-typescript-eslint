@@ -11,11 +11,11 @@ const (
 	COMMENT
 
 	// Literals
-	IDENT  // identifier
-	NUMBER // 123, 0x1A, 3.14, 1_000
-	STRING // "abc", 'abc'
+	IDENT    // identifier
+	NUMBER   // 123, 0x1A, 3.14, 1_000
+	STRING   // "abc", 'abc'
 	TEMPLATE // template string part
-	REGEXP // /pattern/flags
+	REGEXP   // /pattern/flags
 
 	// Keywords
 	BREAK
@@ -84,8 +84,8 @@ const (
 	SET
 	NEVER
 	UNKNOWN
-	STRING_KEYWORD
-	NUMBER_KEYWORD
+	StringKeyword
+	NumberKeyword
 	SYMBOL
 	UNDEFINED
 
@@ -102,22 +102,22 @@ const (
 	SHL // <<
 	SHR // >>
 
-	ADD_ASSIGN // +=
-	SUB_ASSIGN // -=
-	MUL_ASSIGN // *=
-	QUO_ASSIGN // /=
-	REM_ASSIGN // %=
+	AddAssign // +=
+	SubAssign // -=
+	MulAssign // *=
+	QuoAssign // /=
+	RemAssign // %=
 
-	AND_ASSIGN // &=
-	OR_ASSIGN  // |=
-	XOR_ASSIGN // ^=
-	SHL_ASSIGN // <<=
-	SHR_ASSIGN // >>=
+	AndAssign // &=
+	OrAssign  // |=
+	XorAssign // ^=
+	ShlAssign // <<=
+	ShrAssign // >>=
 
-	LAND  // &&
-	LOR   // ||
-	INC   // ++
-	DEC   // --
+	LAND    // &&
+	LOR     // ||
+	INC     // ++
+	DEC     // --
 	NULLISH // ??
 
 	EQL    // ==
@@ -126,11 +126,11 @@ const (
 	ASSIGN // =
 	NOT    // !
 
-	NEQ      // !=
-	LEQ      // <=
-	GEQ      // >=
-	EQL_STRICT // ===
-	NEQ_STRICT // !==
+	NEQ       // !=
+	LEQ       // <=
+	GEQ       // >=
+	EqlStrict // ===
+	NeqStrict // !==
 
 	LPAREN // (
 	LBRACK // [
@@ -145,16 +145,16 @@ const (
 	COLON     // :
 	QUESTION  // ?
 
-	ARROW        // =>
-	ELLIPSIS     // ...
-	OPTIONAL     // ?.
-	NULLISH_ASSIGN // ??=
+	ARROW         // =>
+	ELLIPSIS      // ...
+	OPTIONAL      // ?.
+	NullishAssign // ??=
 )
 
 // Token represents a lexical token.
 type Token struct {
-	Type    TokenType
 	Literal string
+	Type    TokenType
 	Pos     int // byte offset of the token start
 	End     int // byte offset of the token end
 	Line    int // line number (1-based)
@@ -163,6 +163,7 @@ type Token struct {
 
 // String returns a string representation of the token type.
 func (t TokenType) String() string {
+	//nolint:exhaustive // We handle the most common cases and return "UNKNOWN" for others
 	switch t {
 	case EOF:
 		return "EOF"

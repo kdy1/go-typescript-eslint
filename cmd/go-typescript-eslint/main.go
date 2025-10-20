@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/kdy1/go-typescript-eslint/pkg/typescriptestree"
 )
+
+const defaultECMAVersion = 2023
 
 var (
 	formatFlag   = flag.String("format", "json", "Output format: json, pretty")
@@ -27,6 +30,7 @@ func main() {
 	}
 
 	filename := flag.Arg(0)
+	// #nosec G304 - The filename is provided by the user via CLI argument, this is expected behavior for a parser tool
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
@@ -34,7 +38,7 @@ func main() {
 	}
 
 	options := typescriptestree.ParseOptions{
-		ECMAVersion: 2023,
+		ECMAVersion: defaultECMAVersion,
 		SourceType:  "module",
 		Loc:         *locFlag,
 		Range:       *rangeFlag,
@@ -65,5 +69,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(string(output))
+	_, _ = io.WriteString(os.Stdout, string(output)+"\n")
 }

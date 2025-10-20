@@ -9,12 +9,15 @@ var ErrNotImplemented = errors.New("feature not yet implemented")
 
 // ParseOptions configures the parser behavior.
 type ParseOptions struct {
+	// SourceType specifies the source type: "script" or "module".
+	SourceType string
+
+	// FilePath is the path to the file being parsed (for error messages).
+	FilePath string
+
 	// ECMAVersion specifies the ECMAScript version to parse.
 	// Defaults to the latest supported version.
 	ECMAVersion int
-
-	// SourceType specifies the source type: "script" or "module".
-	SourceType string
 
 	// Loc indicates whether to include location information in the AST.
 	Loc bool
@@ -27,20 +30,17 @@ type ParseOptions struct {
 
 	// Tokens indicates whether to include tokens in the AST.
 	Tokens bool
-
-	// FilePath is the path to the file being parsed (for error messages).
-	FilePath string
 }
 
 // AST represents the Abstract Syntax Tree produced by parsing.
 // This is a placeholder and will be expanded with proper node types.
 type AST struct {
-	Type     string      `json:"type"`
-	Body     []ASTNode   `json:"body"`
-	Comments []Comment   `json:"comments,omitempty"`
-	Tokens   []Token     `json:"tokens,omitempty"`
-	Loc      *Location   `json:"loc,omitempty"`
-	Range    *[2]int     `json:"range,omitempty"`
+	Body     []ASTNode `json:"body"`
+	Comments []Comment `json:"comments,omitempty"`
+	Tokens   []Token   `json:"tokens,omitempty"`
+	Loc      *Location `json:"loc,omitempty"`
+	Range    *[2]int   `json:"range,omitempty"`
+	Type     string    `json:"type"`
 }
 
 // ASTNode represents a node in the Abstract Syntax Tree.
@@ -51,18 +51,18 @@ type ASTNode interface {
 
 // Comment represents a comment in the source code.
 type Comment struct {
-	Type  string    `json:"type"`
 	Value string    `json:"value"`
 	Loc   *Location `json:"loc,omitempty"`
 	Range *[2]int   `json:"range,omitempty"`
+	Type  string    `json:"type"`
 }
 
 // Token represents a token in the source code.
 type Token struct {
-	Type  string    `json:"type"`
 	Value string    `json:"value"`
 	Loc   *Location `json:"loc,omitempty"`
 	Range *[2]int   `json:"range,omitempty"`
+	Type  string    `json:"type"`
 }
 
 // Location represents the location of a node in the source code.
@@ -79,7 +79,7 @@ type Position struct {
 
 // Parse parses TypeScript source code into an AST.
 // This is the main entry point for parsing TypeScript code.
-func Parse(source string, options ParseOptions) (*AST, error) {
+func Parse(_ string, _ ParseOptions) (*AST, error) {
 	// TODO: Implement full TypeScript parsing
 	// This will use the internal lexer and parser packages
 	return nil, ErrNotImplemented
@@ -87,7 +87,7 @@ func Parse(source string, options ParseOptions) (*AST, error) {
 
 // ParseAndGenerateServices parses TypeScript source code and generates
 // TypeScript program services for type-aware linting.
-func ParseAndGenerateServices(source string, options ParseOptions) (*AST, error) {
+func ParseAndGenerateServices(_ string, _ ParseOptions) (*AST, error) {
 	// TODO: Implement with TypeScript services support
 	return nil, ErrNotImplemented
 }

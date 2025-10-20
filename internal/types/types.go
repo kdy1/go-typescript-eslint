@@ -37,34 +37,26 @@ const (
 	UnknownType
 )
 
+var primitiveTypeNames = map[PrimitiveType]string{
+	StringType:    "string",
+	NumberType:    "number",
+	BooleanType:   "boolean",
+	NullType:      "null",
+	UndefinedType: "undefined",
+	SymbolType:    "symbol",
+	BigIntType:    "bigint",
+	VoidType:      "void",
+	NeverType:     "never",
+	AnyType:       "any",
+	UnknownType:   "unknown",
+}
+
 // String returns a string representation of the primitive type.
 func (pt PrimitiveType) String() string {
-	switch pt {
-	case StringType:
-		return "string"
-	case NumberType:
-		return "number"
-	case BooleanType:
-		return "boolean"
-	case NullType:
-		return "null"
-	case UndefinedType:
-		return "undefined"
-	case SymbolType:
-		return "symbol"
-	case BigIntType:
-		return "bigint"
-	case VoidType:
-		return "void"
-	case NeverType:
-		return "never"
-	case AnyType:
-		return "any"
-	case UnknownType:
-		return "unknown"
-	default:
-		return "unknown"
+	if name, ok := primitiveTypeNames[pt]; ok {
+		return name
 	}
+	return "unknown"
 }
 
 // Equals checks if this primitive type equals another type.

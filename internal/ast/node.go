@@ -14,11 +14,11 @@ type Node interface {
 
 // BaseNode provides common fields for all AST nodes.
 type BaseNode struct {
-	NodeType  string
-	Start     int
-	EndPos    int
-	Loc       *SourceLocation
-	Range     *[2]int
+	Loc      *SourceLocation
+	Range    *[2]int
+	NodeType string
+	Start    int
+	EndPos   int
 }
 
 // Type returns the type of the node.
@@ -38,9 +38,9 @@ func (n *BaseNode) End() int {
 
 // SourceLocation represents the location of a node in source code.
 type SourceLocation struct {
+	Filename string
 	Start    Position
 	End      Position
-	Filename string
 }
 
 // Position represents a position in source code.
