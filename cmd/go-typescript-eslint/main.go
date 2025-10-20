@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/kdy1/go-typescript-eslint/pkg/typescriptestree"
@@ -69,7 +68,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if _, err := io.WriteString(os.Stdout, string(output)+"\n"); err != nil {
+	if _, err := os.Stdout.WriteString(string(output) + "\n"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
 		os.Exit(1)
 	}
