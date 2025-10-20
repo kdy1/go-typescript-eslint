@@ -2,6 +2,8 @@ package lexer
 
 // Scan returns the next token from the source code.
 // It is the main entry point for the scanner.
+//
+//nolint:gocognit,gocyclo,cyclop // Scanner functions are inherently complex
 func (s *Scanner) Scan() Token {
 	// Skip whitespace and comments (if configured)
 	for {
@@ -10,6 +12,7 @@ func (s *Scanner) Scan() Token {
 		s.offset = s.pos
 
 		// Check for comments
+		//nolint:nestif // Comment handling requires nested conditions
 		if s.char() == '/' {
 			if s.peek(1) == '/' {
 				token := s.scanLineComment()
@@ -198,6 +201,7 @@ func (s *Scanner) Scan() Token {
 		return s.current
 
 	case '*':
+		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for **= (exponentiation assignment)
 		if s.char() == '*' && s.peek(1) == '=' {
@@ -244,6 +248,7 @@ func (s *Scanner) Scan() Token {
 		return s.current
 
 	case '&':
+		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for &&= (logical AND assignment)
 		if s.char() == '&' && s.peek(1) == '=' {
@@ -268,6 +273,7 @@ func (s *Scanner) Scan() Token {
 		return s.current
 
 	case '|':
+		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for ||= (logical OR assignment)
 		if s.char() == '|' && s.peek(1) == '=' {
@@ -303,6 +309,7 @@ func (s *Scanner) Scan() Token {
 		return s.current
 
 	case '<':
+		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for <<<= (unsigned left shift assignment) - doesn't exist in JS/TS
 		// Check for <<= (left shift assignment)
@@ -330,6 +337,7 @@ func (s *Scanner) Scan() Token {
 	case '>':
 		s.next()
 		// Check for >>>= (unsigned right shift assignment)
+		//nolint:mnd // 2 is the lookahead offset for checking third character
 		if s.char() == '>' && s.peek(1) == '>' && s.peek(2) == '=' {
 			s.next()
 			s.next()

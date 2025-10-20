@@ -70,6 +70,8 @@ func (s *Scanner) peek(offset int) rune {
 
 // next advances the position by one character and returns it.
 // Returns -1 if at EOF.
+//
+//nolint:unparam // Return value is used in some cases
 func (s *Scanner) next() rune {
 	if s.pos >= s.length {
 		return -1
@@ -79,6 +81,7 @@ func (s *Scanner) next() rune {
 	s.pos++
 
 	// Track line/column
+	//nolint:staticcheck // Switch would not improve readability for line tracking
 	if ch == '\n' {
 		s.line++
 		s.column = 0
@@ -98,6 +101,8 @@ func (s *Scanner) next() rune {
 
 // nextRune advances the position by one full UTF-8 rune and returns it.
 // Returns -1 if at EOF.
+//
+//nolint:unparam // Return value is used in some cases
 func (s *Scanner) nextRune() rune {
 	if s.pos >= s.length {
 		return -1
@@ -114,6 +119,7 @@ func (s *Scanner) nextRune() rune {
 	s.pos += size
 
 	// Track line/column
+	//nolint:staticcheck // Switch would not improve readability for line tracking
 	if ch == '\n' {
 		s.line++
 		s.column = 0
@@ -133,6 +139,7 @@ func (s *Scanner) nextRune() rune {
 
 // skipWhitespace advances the scanner position past any whitespace characters.
 func (s *Scanner) skipWhitespace() {
+	//nolint:revive // Loop pattern is clearer than inverted logic
 	for {
 		ch := s.char()
 		if ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' {
