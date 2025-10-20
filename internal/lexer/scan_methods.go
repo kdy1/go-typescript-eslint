@@ -320,7 +320,6 @@ func (s *Scanner) scanTemplate() Token {
 	s.next() // consume opening backtick
 
 	var sb strings.Builder
-	hasSubstitution := false
 
 	for {
 		ch := s.char()
@@ -332,7 +331,8 @@ func (s *Scanner) scanTemplate() Token {
 
 		if ch == '`' {
 			s.next() // consume closing backtick
-			break
+			// Template with no substitution
+			return s.createToken(TemplateNoSub, sb.String())
 		}
 
 		if ch == '$' && s.peek(1) == '{' {
@@ -359,13 +359,6 @@ func (s *Scanner) scanTemplate() Token {
 			s.next()
 		}
 	}
-
-	// Template with no substitution
-	if !hasSubstitution {
-		return s.createToken(TemplateNoSub, sb.String())
-	}
-
-	return s.createToken(TemplateTail, sb.String())
 }
 
 // scanLineComment scans a single-line comment (//...).

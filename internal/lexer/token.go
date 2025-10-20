@@ -96,11 +96,12 @@ const (
 	QUO // /
 	REM // %
 
-	AND // &
-	OR  // |
-	XOR // ^
-	SHL // <<
-	SHR // >>
+	AND  // &
+	OR   // |
+	XOR  // ^
+	BNOT // ~ (bitwise NOT)
+	SHL  // <<
+	SHR  // >>
 
 	AddAssign // +=
 	SubAssign // -=

@@ -35,6 +35,8 @@ func (s *Scanner) Scan() Token {
 	}
 
 	s.offset = s.pos
+	s.tokenLine = s.line
+	s.tokenColumn = s.column
 	ch := s.char()
 
 	// EOF
@@ -119,7 +121,7 @@ func (s *Scanner) Scan() Token {
 
 	case '~':
 		s.next()
-		s.current = s.createToken(XOR, "~")
+		s.current = s.createToken(BNOT, "~")
 		return s.current
 
 	// Operators with multiple characters

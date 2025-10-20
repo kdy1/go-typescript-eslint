@@ -33,7 +33,7 @@ func TestScannerBasicTokens(t *testing.T) {
 		{
 			name:     "bitwise operators",
 			input:    "& | ^ ~ << >> >>>",
-			expected: []TokenType{AND, OR, XOR, XOR, SHL, SHR, SHRUnsigned, EOF},
+			expected: []TokenType{AND, OR, XOR, BNOT, SHL, SHR, SHRUnsigned, EOF},
 		},
 		{
 			name:  "assignment operators",

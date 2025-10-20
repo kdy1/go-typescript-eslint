@@ -19,8 +19,10 @@ type Scanner struct {
 	length     int // Length of source in bytes
 
 	// Line/column tracking (1-based line, 0-based column)
-	line   int
-	column int
+	line        int
+	column      int
+	tokenLine   int // Line number at token start
+	tokenColumn int // Column number at token start
 
 	// Configuration
 	skipComments bool // Whether to skip comments
@@ -193,8 +195,8 @@ func (s *Scanner) createToken(typ TokenType, literal string) Token {
 		Literal: literal,
 		Pos:     s.offset,
 		End:     s.pos,
-		Line:    s.line,
-		Column:  s.column - (s.pos - s.offset),
+		Line:    s.tokenLine,
+		Column:  s.tokenColumn,
 	}
 }
 
