@@ -1,4 +1,4 @@
-// Package types provides TypeScript type system representation and
+// Package tstype provides TypeScript type system representation and
 // type checking functionality.
 //
 // This package implements the type system used by TypeScript, including:
