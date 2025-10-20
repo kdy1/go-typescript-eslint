@@ -158,9 +158,9 @@ const (
 	JSXAttributeString // JSX attribute string value
 
 	// Additional operators
-	POWER       // **
-	PowerAssign // **=
-	SHRUnsigned // >>> (unsigned right shift)
+	POWER             // **
+	PowerAssign       // **=
+	SHRUnsigned       // >>> (unsigned right shift)
 	ShrUnsignedAssign // >>>=
 
 	// Template literal tokens

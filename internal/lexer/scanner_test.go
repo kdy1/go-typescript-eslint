@@ -36,9 +36,12 @@ func TestScannerBasicTokens(t *testing.T) {
 			expected: []TokenType{AND, OR, XOR, XOR, SHL, SHR, SHRUnsigned, EOF},
 		},
 		{
-			name:     "assignment operators",
-			input:    "= += -= *= /= %= &= |= ^= <<= >>= >>>=",
-			expected: []TokenType{ASSIGN, AddAssign, SubAssign, MulAssign, QuoAssign, RemAssign, AndAssign, OrAssign, XorAssign, ShlAssign, ShrAssign, ShrUnsignedAssign, EOF},
+			name:  "assignment operators",
+			input: "= += -= *= /= %= &= |= ^= <<= >>= >>>=",
+			expected: []TokenType{
+				ASSIGN, AddAssign, SubAssign, MulAssign, QuoAssign, RemAssign,
+				AndAssign, OrAssign, XorAssign, ShlAssign, ShrAssign, ShrUnsignedAssign, EOF,
+			},
 		},
 		{
 			name:     "special operators",

@@ -9,20 +9,18 @@ import (
 // It uses rune-based scanning for proper Unicode support and maintains detailed
 // position tracking for error reporting and source mapping.
 type Scanner struct {
-	source string // Source code to scan
-	length int    // Length of source in bytes
+	source  string // Source code to scan
+	current Token  // Current token state
 
-	// Position tracking
+	// Position tracking (grouped for better memory alignment)
 	pos        int // Current byte position
 	offset     int // Start of current token
 	fullOffset int // Start including whitespace/comments
+	length     int // Length of source in bytes
 
 	// Line/column tracking (1-based line, 0-based column)
 	line   int
 	column int
-
-	// Current token state
-	current Token
 
 	// Configuration
 	skipComments bool // Whether to skip comments

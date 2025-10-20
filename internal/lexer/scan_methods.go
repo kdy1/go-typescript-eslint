@@ -327,15 +327,12 @@ func (s *Scanner) scanTemplate() Token {
 
 		if ch == '$' && s.peek(1) == '{' {
 			// Template substitution
-			hasSubstitution = true
 			s.next() // consume '$'
 			s.next() // consume '{'
 
-			// Return template head token
+			// Return template head or middle token
 			tokenType := TemplateHead
-			if start == s.offset {
-				tokenType = TemplateHead
-			} else {
+			if start != s.offset {
 				tokenType = TemplateMiddle
 			}
 
