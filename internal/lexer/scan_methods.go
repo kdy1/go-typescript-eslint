@@ -8,7 +8,7 @@ import (
 
 // scanIdentifier scans an identifier or keyword.
 //
-//nolint:gocyclo // Identifier scanning requires checking many character classes
+//nolint:gocyclo,cyclop // Identifier scanning requires checking many character classes
 func (s *Scanner) scanIdentifier() Token {
 	start := s.pos
 	ch := s.char()
@@ -58,7 +58,7 @@ func (s *Scanner) scanIdentifier() Token {
 
 // scanNumber scans a numeric literal (decimal, hex, binary, octal, float, bigint).
 //
-//nolint:gocognit,gocyclo,dupl // Number scanning handles many formats with similar patterns
+//nolint:gocognit,gocyclo,cyclop,dupl // Number scanning handles many formats with similar patterns
 func (s *Scanner) scanNumber() Token {
 	start := s.pos
 	ch := s.char()
@@ -181,7 +181,6 @@ func (s *Scanner) scanString(quote rune) Token {
 			break
 		}
 
-		//nolint:staticcheck // Switch would not improve readability here
 		if ch == '\\' {
 			// Escape sequence
 			s.next()
@@ -202,7 +201,7 @@ func (s *Scanner) scanString(quote rune) Token {
 
 // scanEscapeSequence scans an escape sequence and returns the escaped character.
 //
-//nolint:gocyclo // Escape sequence handling requires many cases
+//nolint:gocyclo,cyclop // Escape sequence handling requires many cases
 func (s *Scanner) scanEscapeSequence() string {
 	ch := s.char()
 	s.next()
@@ -409,7 +408,7 @@ func (s *Scanner) scanBlockComment() Token {
 
 // scanRegExp scans a regular expression literal.
 //
-//nolint:gocyclo // RegExp scanning requires handling many special cases
+//nolint:gocyclo,unused // RegExp scanning requires handling many special cases, will be used in future
 func (s *Scanner) scanRegExp() Token {
 	start := s.pos
 	s.next() // consume opening '/'

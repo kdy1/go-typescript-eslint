@@ -3,7 +3,7 @@ package lexer
 // Scan returns the next token from the source code.
 // It is the main entry point for the scanner.
 //
-//nolint:gocognit,gocyclo,cyclop // Scanner functions are inherently complex
+//nolint:gocognit,gocyclo,cyclop,funlen // Scanner functions are inherently complex
 func (s *Scanner) Scan() Token {
 	// Skip whitespace and comments (if configured)
 	for {
@@ -200,8 +200,8 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(SUB, "-")
 		return s.current
 
+	//nolint:dupl // Similar pattern for different operators
 	case '*':
-		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for **= (exponentiation assignment)
 		if s.char() == '*' && s.peek(1) == '=' {
@@ -247,8 +247,8 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(REM, "%")
 		return s.current
 
+	//nolint:dupl // Similar pattern for different operators
 	case '&':
-		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for &&= (logical AND assignment)
 		if s.char() == '&' && s.peek(1) == '=' {
@@ -272,8 +272,8 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(AND, "&")
 		return s.current
 
+	//nolint:dupl // Similar pattern for different operators
 	case '|':
-		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for ||= (logical OR assignment)
 		if s.char() == '|' && s.peek(1) == '=' {
@@ -308,8 +308,8 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(XOR, "^")
 		return s.current
 
+	//nolint:dupl // Similar pattern for different operators
 	case '<':
-		//nolint:dupl // Similar pattern for different operators
 		s.next()
 		// Check for <<<= (unsigned left shift assignment) - doesn't exist in JS/TS
 		// Check for <<= (left shift assignment)
