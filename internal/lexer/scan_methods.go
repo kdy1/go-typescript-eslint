@@ -58,7 +58,7 @@ func (s *Scanner) scanIdentifier() Token {
 
 // scanNumber scans a numeric literal (decimal, hex, binary, octal, float, bigint).
 //
-//nolint:gocognit,gocyclo,cyclop,dupl // Number scanning handles many formats with similar patterns
+//nolint:gocognit,gocyclo,cyclop,dupl,funlen // Number scanning handles many formats with similar patterns
 func (s *Scanner) scanNumber() Token {
 	start := s.pos
 	ch := s.char()
@@ -181,6 +181,7 @@ func (s *Scanner) scanString(quote rune) Token {
 			break
 		}
 
+		//nolint:staticcheck // Switch would not improve readability here
 		if ch == '\\' {
 			// Escape sequence
 			s.next()
@@ -201,7 +202,7 @@ func (s *Scanner) scanString(quote rune) Token {
 
 // scanEscapeSequence scans an escape sequence and returns the escaped character.
 //
-//nolint:gocyclo,cyclop // Escape sequence handling requires many cases
+//nolint:gocyclo,cyclop,funlen // Escape sequence handling requires many cases
 func (s *Scanner) scanEscapeSequence() string {
 	ch := s.char()
 	s.next()
@@ -408,7 +409,7 @@ func (s *Scanner) scanBlockComment() Token {
 
 // scanRegExp scans a regular expression literal.
 //
-//nolint:gocyclo,unused // RegExp scanning requires handling many special cases, will be used in future
+//nolint:gocyclo,cyclop,unused // RegExp scanning requires handling many special cases, will be used in future
 func (s *Scanner) scanRegExp() Token {
 	start := s.pos
 	s.next() // consume opening '/'
@@ -423,15 +424,13 @@ func (s *Scanner) scanRegExp() Token {
 			return s.createToken(ILLEGAL, s.source[start:s.pos])
 		}
 
-		//nolint:staticcheck // Switch would not improve readability here
+		//nolint:staticcheck // Switch would not improve readability for character class handling
 		if ch == '\\' {
 			// Escaped character
 			s.next()
 			s.next()
 			continue
-		}
-
-		if ch == '[' {
+		} else if ch == '[' {
 			inCharClass = true
 		} else if ch == ']' {
 			inCharClass = false
