@@ -26,6 +26,8 @@ Please be respectful and constructive in all interactions with the community.
 - Go 1.21 or higher
 - Git
 - Make (optional but recommended)
+- golangci-lint v2.2.0 or higher
+- goimports
 
 ### Install Development Tools
 
@@ -36,6 +38,31 @@ make install-tools
 This will install:
 - golangci-lint - for linting
 - goimports - for import management
+
+### Project Structure
+
+Understanding the project layout will help you navigate and contribute:
+
+```
+.
+├── cmd/                         # Command-line applications
+│   └── go-typescript-eslint/   # CLI tool entry point
+├── pkg/                         # Public library packages
+│   └── typescriptestree/       # Main parser API
+├── internal/                    # Private packages
+│   ├── ast/                    # AST node definitions
+│   ├── lexer/                  # Tokenization
+│   ├── parser/                 # Parser implementation
+│   └── types/                  # Type system
+├── examples/                    # Usage examples
+└── .github/workflows/          # CI/CD configuration
+```
+
+**Key Guidelines:**
+- `pkg/` contains packages that external users can import
+- `internal/` contains packages only used within this project
+- Add new functionality to appropriate packages
+- Follow the existing package structure
 
 ## Making Changes
 
@@ -168,10 +195,14 @@ go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 
 # Run specific package tests
-go test ./parser/...
+go test ./internal/parser/...
+go test ./pkg/typescriptestree/...
 
 # Run specific test
 go test -run TestFeature ./...
+
+# Run tests with verbose output
+go test -v ./...
 ```
 
 ## Linting and Code Quality
@@ -226,23 +257,42 @@ Only do this when absolutely necessary and always provide a reason.
 ### Writing Good Godoc
 
 ```go
-// Package parser provides TypeScript parsing functionality.
-package parser
+// Package typescriptestree provides a Go implementation of TypeScript ESTree,
+// which converts TypeScript source code into an ESTree-compatible AST.
+package typescriptestree
 
-// Parser represents a TypeScript ESLint parser that can parse
-// TypeScript source code into an abstract syntax tree.
-type Parser struct {
-    Options map[string]interface{}
+// ParseOptions configures the parser behavior.
+type ParseOptions struct {
+    // ECMAVersion specifies the ECMAScript version to parse.
+    // Defaults to the latest supported version.
+    ECMAVersion int
+
+    // SourceType specifies the source type: "script" or "module".
+    SourceType string
 }
 
-// New creates and initializes a new Parser with the given options.
-// If options is nil, default options will be used.
-func New(options map[string]interface{}) *Parser {
-    return &Parser{
-        Options: options,
-    }
+// Parse parses TypeScript source code into an AST.
+// This is the main entry point for parsing TypeScript code.
+//
+// Example:
+//
+//	source := "const x: number = 42;"
+//	options := ParseOptions{
+//	    ECMAVersion: 2023,
+//	    SourceType:  "module",
+//	}
+//	ast, err := Parse(source, options)
+func Parse(source string, options ParseOptions) (*AST, error) {
+    // Implementation...
 }
 ```
+
+**Documentation Guidelines:**
+- Every exported package must have a package-level doc comment
+- Every exported type, function, constant, and variable needs documentation
+- Use complete sentences starting with the name being documented
+- Include examples for complex APIs
+- Document any non-obvious behavior or edge cases
 
 ## Pull Request Checklist
 
@@ -270,12 +320,86 @@ All pull requests automatically run through our CI pipeline:
 
 PRs must pass all checks before merging.
 
+## Package-Specific Guidelines
+
+### Adding to `pkg/typescriptestree`
+
+This is the public API. Changes here affect external users:
+- Maintain backward compatibility
+- Document all exports thoroughly
+- Consider API design carefully
+- Add examples for new functionality
+
+### Adding to `internal/` packages
+
+Internal packages can change freely but should still be well-documented:
+
+- **`internal/lexer`**: Add new token types in `token.go`, update lexer logic
+- **`internal/parser`**: Add new parsing rules, update grammar implementation
+- **`internal/ast`**: Add new node types following ESTree conventions
+- **`internal/tstype`**: Add type system representations
+
+### Adding Examples
+
+Add new examples to `examples/` directory:
+1. Create a new subdirectory under `examples/`
+2. Add a `main.go` with a complete, runnable example
+3. Update `examples/README.md` with a description
+4. Ensure the example demonstrates a specific use case
+
+## Coding Standards
+
+### Go Best Practices
+
+- Follow [Effective Go](https://go.dev/doc/effective_go)
+- Use `gofmt` and `goimports` for formatting
+- Prefer simple, readable code over clever code
+- Handle all errors explicitly
+- Use meaningful variable and function names
+- Keep functions focused and concise
+
+### TypeScript ESTree Compatibility
+
+When implementing parser features:
+- Reference the [TypeScript ESTree specification](https://github.com/typescript-eslint/typescript-eslint/tree/main/packages/typescript-estree)
+- Match the AST node structure from the reference implementation
+- Ensure compatibility with [ESTree spec](https://github.com/estree/estree)
+- Test against reference implementation outputs when possible
+
+### Error Handling
+
+```go
+// Good: Wrap errors with context
+if err := doSomething(); err != nil {
+    return fmt.Errorf("failed to do something: %w", err)
+}
+
+// Good: Define sentinel errors
+var ErrNotImplemented = errors.New("feature not yet implemented")
+
+// Good: Use error types for complex errors
+type ParseError struct {
+    Message string
+    Pos     int
+    Line    int
+    Column  int
+}
+
+func (e *ParseError) Error() string {
+    return fmt.Sprintf("%s at line %d, column %d", e.Message, e.Line, e.Column)
+}
+```
+
 ## Getting Help
 
 - Check existing issues and PRs
 - Read the documentation in README.md
+- Review the [examples/](examples/) directory
+- Check package documentation (`go doc`)
 - Ask questions in PR comments
 - Open an issue for bugs or feature requests
+- Reference [Go documentation](https://go.dev/doc/)
+- Reference [TypeScript ESTree docs](https://typescript-eslint.io/)
 
 ## License
 
