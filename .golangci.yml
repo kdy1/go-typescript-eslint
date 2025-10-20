@@ -1,5 +1,5 @@
-# golangci-lint configuration
-# Documentation: https://golangci-lint.run/usage/configuration/
+# golangci-lint v2 configuration
+# Documentation: https://golangci-lint.run/docs/configuration/file/
 
 version: "2"
 
@@ -9,11 +9,6 @@ run:
 
   # Include test files
   tests: true
-
-  # Which dirs to skip: issues from them won't be reported
-  skip-dirs:
-    - vendor
-    - third_party
 
   # Allow multiple parallel golangci-lint instances running
   allow-parallel-runners: true
@@ -33,176 +28,7 @@ output:
       # Use colors in output
       colors: true
 
-  # Make issues output unique by line
-  uniq-by-line: true
-
-  # Sort results by: filepath, line and column
-  sort-results: true
-
-# Linters settings
-linters-settings:
-  errcheck:
-    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`
-    check-type-assertions: true
-
-    # Report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`
-    check-blank: true
-
-  govet:
-    # Enable all analyzers
-    enable-all: true
-
-    # Disable specific analyzers
-    disable:
-      - shadow  # Reports variables that shadow other variables
-
-  gocyclo:
-    # Minimal code complexity to report
-    min-complexity: 15
-
-  dupl:
-    # Tokens count to trigger issue
-    threshold: 100
-
-  goconst:
-    # Minimal length of string constant
-    min-len: 3
-    # Minimum occurrences of constant string count to trigger issue
-    min-occurrences: 3
-
-  misspell:
-    # Correct spellings using locale preferences for US or UK
-    locale: US
-
-  lll:
-    # Max line length, lines longer will be reported
-    line-length: 120
-    # Tab width in spaces
-    tab-width: 1
-
-  unused:
-    # Mark all exported identifiers as used
-    exported-is-used: false
-
-  unparam:
-    # Inspect exported functions
-    check-exported: false
-
-  nakedret:
-    # Make an issue if func has more lines of code than this setting and it has naked returns
-    max-func-lines: 30
-
-  prealloc:
-    # Report preallocation suggestions only on simple loops that have no returns/breaks/continues/gotos in them
-    simple: true
-    range-loops: true
-    for-loops: false
-
-  gocritic:
-    # Enable multiple checks by tags
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-
-    disabled-checks:
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
-      - ifElseChain
-      - octalLiteral
-      - whyNoLint
-
-  godox:
-    # Report any comments starting with keywords
-    keywords:
-      - NOTE
-      - OPTIMIZE
-      - HACK
-
-  revive:
-    # See https://github.com/mgechev/revive#available-rules for details
-    ignore-generated-header: true
-    severity: warning
-    rules:
-      - name: atomic
-      - name: blank-imports
-      - name: bool-literal-in-expr
-      - name: confusing-naming
-      - name: constant-logical-expr
-      - name: context-as-argument
-      - name: context-keys-type
-      - name: deep-exit
-      - name: defer
-      - name: dot-imports
-      - name: duplicated-imports
-      - name: early-return
-      - name: empty-block
-      - name: error-naming
-      - name: error-return
-      - name: error-strings
-      - name: errorf
-      - name: exported
-      - name: identical-branches
-      - name: if-return
-      - name: increment-decrement
-      - name: indent-error-flow
-      - name: package-comments
-      - name: range
-      - name: receiver-naming
-      - name: redefines-builtin-id
-      - name: superfluous-else
-      - name: time-naming
-      - name: unexported-return
-      - name: unreachable-code
-      - name: unused-parameter
-      - name: var-declaration
-      - name: var-naming
-
-  gosec:
-    # Available rules: https://github.com/securego/gosec#available-rules
-    includes:
-      - G101 # Look for hard coded credentials
-      - G102 # Bind to all interfaces
-      - G103 # Audit the use of unsafe block
-      - G104 # Audit errors not checked
-      - G106 # Audit the use of ssh.InsecureIgnoreHostKey
-      - G107 # Url provided to HTTP request as taint input
-      - G108 # Profiling endpoint automatically exposed on /debug/pprof
-      - G109 # Potential Integer overflow made by strconv.Atoi result conversion to int16/32
-      - G110 # Potential DoS vulnerability via decompression bomb
-      - G201 # SQL query construction using format string
-      - G202 # SQL query construction using string concatenation
-      - G203 # Use of unescaped data in HTML templates
-      - G204 # Audit use of command execution
-      - G301 # Poor file permissions used when creating a directory
-      - G302 # Poor file permissions used with chmod
-      - G303 # Creating tempfile using a predictable path
-      - G304 # File path provided as taint input
-      - G305 # File traversal when extracting zip/tar archive
-      - G306 # Poor file permissions used when writing to a new file
-      - G307 # Deferring a method which returns an error
-      - G401 # Detect the usage of DES, RC4, MD5 or SHA1
-      - G402 # Look for bad TLS connection settings
-      - G403 # Ensure minimum RSA key length of 2048 bits
-      - G404 # Insecure random number source (rand)
-      - G501 # Import blocklist: crypto/md5
-      - G502 # Import blocklist: crypto/des
-      - G503 # Import blocklist: crypto/rc4
-      - G504 # Import blocklist: net/http/cgi
-      - G505 # Import blocklist: crypto/sha1
-      - G601 # Implicit memory aliasing of items from a range statement
-
-# Formatters settings (moved from linters-settings in v2)
-formatters-settings:
-  gofmt:
-    # Simplify code: gofmt with `-s` option
-    simplify: true
-
-  goimports:
-    # Put imports beginning with prefix after 3rd-party packages
-    local-prefixes: github.com/kdy1/go-typescript-eslint
-
+# Linters configuration
 linters:
   default: none
   enable:
@@ -272,6 +98,184 @@ linters:
     - wastedassign # Wastedassign finds wasted assignment statements
     - whitespace # Tool for detection of leading and trailing whitespace
 
+  # Linter settings
+  settings:
+    errcheck:
+      # Report about not checking of errors in type assertions: `a := b.(MyStruct)`
+      check-type-assertions: true
+      # Report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`
+      check-blank: true
+
+    govet:
+      # Enable all analyzers
+      enable-all: true
+      # Disable specific analyzers
+      disable:
+        - shadow  # Reports variables that shadow other variables
+
+    gocyclo:
+      # Minimal code complexity to report
+      min-complexity: 15
+
+    dupl:
+      # Tokens count to trigger issue
+      threshold: 100
+
+    goconst:
+      # Minimal length of string constant
+      min-len: 3
+      # Minimum occurrences of constant string count to trigger issue
+      min-occurrences: 3
+
+    misspell:
+      # Correct spellings using locale preferences for US or UK
+      locale: US
+
+    lll:
+      # Max line length, lines longer will be reported
+      line-length: 120
+      # Tab width in spaces
+      tab-width: 1
+
+    unparam:
+      # Inspect exported functions
+      check-exported: false
+
+    nakedret:
+      # Make an issue if func has more lines of code than this setting and it has naked returns
+      max-func-lines: 30
+
+    prealloc:
+      # Report preallocation suggestions only on simple loops that have no returns/breaks/continues/gotos in them
+      simple: true
+      range-loops: true
+      for-loops: false
+
+    gocritic:
+      # Enable multiple checks by tags
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+
+      disabled-checks:
+        - dupImport # https://github.com/go-critic/go-critic/issues/845
+        - ifElseChain
+        - octalLiteral
+        - whyNoLint
+
+    godox:
+      # Report any comments starting with keywords
+      keywords:
+        - NOTE
+        - OPTIMIZE
+        - HACK
+
+    revive:
+      # See https://github.com/mgechev/revive#available-rules for details
+      severity: warning
+      rules:
+        - name: atomic
+        - name: blank-imports
+        - name: bool-literal-in-expr
+        - name: confusing-naming
+        - name: constant-logical-expr
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: deep-exit
+        - name: defer
+        - name: dot-imports
+        - name: duplicated-imports
+        - name: early-return
+        - name: empty-block
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: exported
+        - name: identical-branches
+        - name: if-return
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: unused-parameter
+        - name: var-declaration
+        - name: var-naming
+
+    gosec:
+      # Available rules: https://github.com/securego/gosec#available-rules
+      includes:
+        - G101 # Look for hard coded credentials
+        - G102 # Bind to all interfaces
+        - G103 # Audit the use of unsafe block
+        - G104 # Audit errors not checked
+        - G106 # Audit the use of ssh.InsecureIgnoreHostKey
+        - G107 # Url provided to HTTP request as taint input
+        - G108 # Profiling endpoint automatically exposed on /debug/pprof
+        - G109 # Potential Integer overflow made by strconv.Atoi result conversion to int16/32
+        - G110 # Potential DoS vulnerability via decompression bomb
+        - G201 # SQL query construction using format string
+        - G202 # SQL query construction using string concatenation
+        - G203 # Use of unescaped data in HTML templates
+        - G204 # Audit use of command execution
+        - G301 # Poor file permissions used when creating a directory
+        - G302 # Poor file permissions used with chmod
+        - G303 # Creating tempfile using a predictable path
+        - G304 # File path provided as taint input
+        - G305 # File traversal when extracting zip/tar archive
+        - G306 # Poor file permissions used when writing to a new file
+        - G307 # Deferring a method which returns an error
+        - G401 # Detect the usage of DES, RC4, MD5 or SHA1
+        - G402 # Look for bad TLS connection settings
+        - G403 # Ensure minimum RSA key length of 2048 bits
+        - G404 # Insecure random number source (rand)
+        - G501 # Import blocklist: crypto/md5
+        - G502 # Import blocklist: crypto/des
+        - G503 # Import blocklist: crypto/rc4
+        - G504 # Import blocklist: net/http/cgi
+        - G505 # Import blocklist: crypto/sha1
+        - G601 # Implicit memory aliasing of items from a range statement
+
+  # Exclusion rules for linters (moved from issues section in v1)
+  exclusions:
+    # Exclude some linters from running on tests files
+    rules:
+      - path: _test\.go
+        linters:
+          - gocyclo
+          - errcheck
+          - dupl
+          - gosec
+          - funlen
+          - goconst
+          - gocognit
+          - cyclop
+
+      # Exclude known linters from partially hard-vendored code
+      - path: internal/hmac/
+        text: "weak cryptographic primitive"
+        linters:
+          - gosec
+
+      # Exclude some staticcheck messages
+      - linters:
+          - staticcheck
+        text: "SA9003:"
+
+      # Exclude lll issues for long lines with go:generate
+      - linters:
+          - lll
+        source: "^//go:generate "
+
 # Formatters configuration (gofmt, gofumpt, goimports moved here in v2)
 formatters:
   enable:
@@ -279,42 +283,19 @@ formatters:
     - gofumpt # Gofumpt checks whether code was gofumpt-ed
     - goimports # Check import statements are formatted according to the 'goimport' command
 
+  # Formatter settings
+  settings:
+    gofmt:
+      # Simplify code: gofmt with `-s` option
+      simplify: true
+
+    goimports:
+      # Put imports beginning with prefix after 3rd-party packages
+      local-prefixes:
+        - github.com/kdy1/go-typescript-eslint
+
+# Issues configuration
 issues:
-  # Excluding configuration per-path, per-linter, per-text and per-source
-  exclude-rules:
-    # Exclude some linters from running on tests files
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-        - gosec
-        - funlen
-        - goconst
-        - gocognit
-        - cyclop
-
-    # Exclude known linters from partially hard-vendored code
-    - path: internal/hmac/
-      text: "weak cryptographic primitive"
-      linters:
-        - gosec
-
-    # Exclude some staticcheck messages
-    - linters:
-        - staticcheck
-      text: "SA9003:"
-
-    # Exclude lll issues for long lines with go:generate
-    - linters:
-        - lll
-      source: "^//go:generate "
-
-  # Independently of option `exclude` we use default exclude patterns,
-  # it can be disabled by this option. To list all
-  # excluded by default patterns execute `golangci-lint run --help`.
-  exclude-use-default: false
-
   # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
   max-issues-per-linter: 0
 
@@ -327,12 +308,5 @@ issues:
 
 # Configuration for severity
 severity:
-  # Default value is empty string.
-  # Set the default severity for issues. If severity rules are defined and the issues
-  # do not match or no severity is provided to the rule this will be the default
-  # severity applied. Severities should match the supported severity names of the
-  # selected out format.
-  # - Code climate: https://docs.codeclimate.com/docs/issues#issue-severity
-  # - Checkstyle: https://checkstyle.sourceforge.io/property_types.html#severity
-  # - GitHub: https://help.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-error-message
-  default-severity: error
+  # Default severity for issues
+  default: error
