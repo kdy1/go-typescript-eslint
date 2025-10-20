@@ -34,6 +34,8 @@ type ParseOptions struct {
 
 // AST represents the Abstract Syntax Tree produced by parsing.
 // This is a placeholder and will be expanded with proper node types.
+//
+//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type AST struct {
 	Body     []ASTNode `json:"body"`
 	Comments []Comment `json:"comments,omitempty"`
