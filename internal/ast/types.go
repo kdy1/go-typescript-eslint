@@ -21,7 +21,6 @@ type TSNode interface {
 // Program represents the root node of an AST.
 // It contains the entire program source.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Program struct {
 	BaseNode
 	SourceType   string      `json:"sourceType"` // "script" or "module"
@@ -36,7 +35,6 @@ type Program struct {
 
 // Identifier represents an identifier (variable name, function name, etc.).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Identifier struct {
 	BaseNode
 	Name           string            `json:"name"`
@@ -50,7 +48,6 @@ func (n *Identifier) patternNode()    {}
 
 // PrivateIdentifier represents a private identifier (#field).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type PrivateIdentifier struct {
 	BaseNode
 	Name string `json:"name"` // Without the # prefix
@@ -62,7 +59,6 @@ func (n *PrivateIdentifier) expressionNode() {}
 
 // Literal represents a literal value.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Literal struct {
 	BaseNode
 	Value  interface{} `json:"value"` // Actual value (string, number, boolean, null)
@@ -75,7 +71,6 @@ func (n *Literal) expressionNode() {}
 
 // RegexInfo contains information about a regular expression literal.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type RegexInfo struct {
 	Pattern string `json:"pattern"`
 	Flags   string `json:"flags"`
@@ -85,7 +80,6 @@ type RegexInfo struct {
 
 // ThisExpression represents the 'this' keyword.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ThisExpression struct {
 	BaseNode
 }
@@ -94,7 +88,6 @@ func (n *ThisExpression) expressionNode() {}
 
 // Super represents the 'super' keyword.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Super struct {
 	BaseNode
 }
@@ -103,7 +96,6 @@ func (n *Super) expressionNode() {}
 
 // ArrayExpression represents an array literal [1, 2, 3].
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ArrayExpression struct {
 	BaseNode
 	Elements []Expression `json:"elements"` // Can include nil for holes in sparse arrays
@@ -113,7 +105,6 @@ func (n *ArrayExpression) expressionNode() {}
 
 // ObjectExpression represents an object literal {a: 1, b: 2}.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ObjectExpression struct {
 	BaseNode
 	Properties []interface{} `json:"properties"` // Property | SpreadElement
@@ -123,7 +114,6 @@ func (n *ObjectExpression) expressionNode() {}
 
 // Property represents a property in an object expression or pattern.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Property struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -139,7 +129,6 @@ type Property struct {
 
 // FunctionExpression represents a function expression.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type FunctionExpression struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -158,7 +147,6 @@ func (n *FunctionExpression) expressionNode() {}
 
 // ArrowFunctionExpression represents an arrow function expression.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ArrowFunctionExpression struct {
 	BaseNode
 	Params         []Pattern                   `json:"params"`
@@ -174,7 +162,6 @@ func (n *ArrowFunctionExpression) expressionNode() {}
 
 // ClassExpression represents a class expression.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ClassExpression struct {
 	BaseNode
 	ID                  *Identifier                   `json:"id"`
@@ -192,7 +179,6 @@ func (n *ClassExpression) expressionNode() {}
 
 // UnaryExpression represents a unary operation (+x, -x, !x, ~x, typeof x, void x, delete x).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type UnaryExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "+", "-", "!", "~", "typeof", "void", "delete"
@@ -204,7 +190,6 @@ func (n *UnaryExpression) expressionNode() {}
 
 // UpdateExpression represents an update expression (++x, x++, --x, x--).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type UpdateExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "++" | "--"
@@ -216,7 +201,6 @@ func (n *UpdateExpression) expressionNode() {}
 
 // BinaryExpression represents a binary operation (x + y, x - y, x * y, etc.).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type BinaryExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "+", "-", "*", "/", "%", "**", etc.
@@ -228,7 +212,6 @@ func (n *BinaryExpression) expressionNode() {}
 
 // LogicalExpression represents a logical operation (x && y, x || y, x ?? y).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type LogicalExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "&&" | "||" | "??"
@@ -240,7 +223,6 @@ func (n *LogicalExpression) expressionNode() {}
 
 // AssignmentExpression represents an assignment (x = y, x += y, etc.).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type AssignmentExpression struct {
 	BaseNode
 	Operator string     `json:"operator"` // "=", "+=", "-=", etc.
@@ -252,7 +234,6 @@ func (n *AssignmentExpression) expressionNode() {}
 
 // ConditionalExpression represents a ternary conditional (x ? y : z).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ConditionalExpression struct {
 	BaseNode
 	Test       Expression `json:"test"`
@@ -264,7 +245,6 @@ func (n *ConditionalExpression) expressionNode() {}
 
 // SequenceExpression represents a sequence of expressions (x, y, z).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type SequenceExpression struct {
 	BaseNode
 	Expressions []Expression `json:"expressions"`
@@ -274,7 +254,6 @@ func (n *SequenceExpression) expressionNode() {}
 
 // MemberExpression represents a member access (obj.prop, obj[prop]).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type MemberExpression struct {
 	BaseNode
 	Object   Expression `json:"object"`
@@ -288,7 +267,6 @@ func (n *MemberExpression) patternNode()    {}
 
 // CallExpression represents a function call.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type CallExpression struct {
 	BaseNode
 	Callee         Expression                    `json:"callee"`
@@ -302,7 +280,6 @@ func (n *CallExpression) expressionNode() {}
 
 // NewExpression represents a new expression (new Foo()).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type NewExpression struct {
 	BaseNode
 	Callee         Expression                    `json:"callee"`
@@ -315,7 +292,6 @@ func (n *NewExpression) expressionNode() {}
 
 // MetaProperty represents a meta property (new.target, import.meta).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type MetaProperty struct {
 	BaseNode
 	Meta     *Identifier `json:"meta"`
@@ -326,7 +302,6 @@ func (n *MetaProperty) expressionNode() {}
 
 // YieldExpression represents a yield expression.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type YieldExpression struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -337,7 +312,6 @@ func (n *YieldExpression) expressionNode() {}
 
 // AwaitExpression represents an await expression.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type AwaitExpression struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -347,7 +321,6 @@ func (n *AwaitExpression) expressionNode() {}
 
 // ChainExpression represents an optional chaining expression (obj?.prop).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ChainExpression struct {
 	BaseNode
 	Expression Expression `json:"expression"` // MemberExpression | CallExpression
@@ -357,7 +330,6 @@ func (n *ChainExpression) expressionNode() {}
 
 // ImportExpression represents a dynamic import expression import().
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ImportExpression struct {
 	BaseNode
 	Source     Expression        `json:"source"`
@@ -368,7 +340,6 @@ func (n *ImportExpression) expressionNode() {}
 
 // SpreadElement represents a spread element (...x).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type SpreadElement struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -376,7 +347,6 @@ type SpreadElement struct {
 
 // TemplateLiteral represents a template literal `hello ${world}`.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TemplateLiteral struct {
 	BaseNode
 	Quasis      []TemplateElement `json:"quasis"`
@@ -387,7 +357,6 @@ func (n *TemplateLiteral) expressionNode() {}
 
 // TaggedTemplateExpression represents a tagged template expression.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TaggedTemplateExpression struct {
 	BaseNode
 	Tag            Expression                    `json:"tag"`
@@ -400,7 +369,6 @@ func (n *TaggedTemplateExpression) expressionNode() {}
 
 // TemplateElement represents an element in a template literal.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TemplateElement struct {
 	BaseNode
 	Tail  bool                 `json:"tail"`
@@ -409,7 +377,6 @@ type TemplateElement struct {
 
 // TemplateElementValue contains the cooked and raw values of a template element.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TemplateElementValue struct {
 	Cooked *string `json:"cooked"` // Processed value (nil if contains invalid escape)
 	Raw    string  `json:"raw"`    // Original source text
@@ -419,7 +386,6 @@ type TemplateElementValue struct {
 
 // BlockStatement represents a block of statements {}.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type BlockStatement struct {
 	BaseNode
 	Body []Statement `json:"body"`
@@ -429,7 +395,6 @@ func (n *BlockStatement) statementNode() {}
 
 // ExpressionStatement represents an expression used as a statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ExpressionStatement struct {
 	BaseNode
 	Expression Expression `json:"expression"`
@@ -440,7 +405,6 @@ func (n *ExpressionStatement) statementNode() {}
 
 // EmptyStatement represents an empty statement (;).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type EmptyStatement struct {
 	BaseNode
 }
@@ -449,7 +413,6 @@ func (n *EmptyStatement) statementNode() {}
 
 // DebuggerStatement represents a debugger statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type DebuggerStatement struct {
 	BaseNode
 }
@@ -458,7 +421,6 @@ func (n *DebuggerStatement) statementNode() {}
 
 // ReturnStatement represents a return statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ReturnStatement struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -468,7 +430,6 @@ func (n *ReturnStatement) statementNode() {}
 
 // BreakStatement represents a break statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type BreakStatement struct {
 	BaseNode
 	Label *Identifier `json:"label"`
@@ -478,7 +439,6 @@ func (n *BreakStatement) statementNode() {}
 
 // ContinueStatement represents a continue statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ContinueStatement struct {
 	BaseNode
 	Label *Identifier `json:"label"`
@@ -488,7 +448,6 @@ func (n *ContinueStatement) statementNode() {}
 
 // LabeledStatement represents a labeled statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type LabeledStatement struct {
 	BaseNode
 	Label *Identifier `json:"label"`
@@ -499,7 +458,6 @@ func (n *LabeledStatement) statementNode() {}
 
 // IfStatement represents an if statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type IfStatement struct {
 	BaseNode
 	Test       Expression `json:"test"`
@@ -511,7 +469,6 @@ func (n *IfStatement) statementNode() {}
 
 // SwitchStatement represents a switch statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type SwitchStatement struct {
 	BaseNode
 	Discriminant Expression   `json:"discriminant"`
@@ -522,7 +479,6 @@ func (n *SwitchStatement) statementNode() {}
 
 // SwitchCase represents a case or default clause in a switch statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type SwitchCase struct {
 	BaseNode
 	Test       Expression  `json:"test"` // nil for default case
@@ -531,7 +487,6 @@ type SwitchCase struct {
 
 // WhileStatement represents a while loop.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type WhileStatement struct {
 	BaseNode
 	Test Expression `json:"test"`
@@ -542,7 +497,6 @@ func (n *WhileStatement) statementNode() {}
 
 // DoWhileStatement represents a do-while loop.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type DoWhileStatement struct {
 	BaseNode
 	Body Statement  `json:"body"`
@@ -553,7 +507,6 @@ func (n *DoWhileStatement) statementNode() {}
 
 // ForStatement represents a for loop.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ForStatement struct {
 	BaseNode
 	Init   interface{} `json:"init"` // VariableDeclaration | Expression | nil
@@ -566,7 +519,6 @@ func (n *ForStatement) statementNode() {}
 
 // ForInStatement represents a for-in loop.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ForInStatement struct {
 	BaseNode
 	Left  interface{} `json:"left"` // VariableDeclaration | Pattern
@@ -578,7 +530,6 @@ func (n *ForInStatement) statementNode() {}
 
 // ForOfStatement represents a for-of loop.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ForOfStatement struct {
 	BaseNode
 	Await bool        `json:"await"`
@@ -591,7 +542,6 @@ func (n *ForOfStatement) statementNode() {}
 
 // ThrowStatement represents a throw statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ThrowStatement struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -601,7 +551,6 @@ func (n *ThrowStatement) statementNode() {}
 
 // TryStatement represents a try-catch-finally statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type TryStatement struct {
 	BaseNode
 	Block     *BlockStatement `json:"block"`
@@ -613,7 +562,6 @@ func (n *TryStatement) statementNode() {}
 
 // CatchClause represents a catch clause.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type CatchClause struct {
 	BaseNode
 	Param Pattern         `json:"param"`
@@ -622,7 +570,6 @@ type CatchClause struct {
 
 // WithStatement represents a with statement.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type WithStatement struct {
 	BaseNode
 	Object Expression `json:"object"`
@@ -635,7 +582,6 @@ func (n *WithStatement) statementNode() {}
 
 // VariableDeclaration represents a variable declaration (var, let, const).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type VariableDeclaration struct {
 	BaseNode
 	Declarations []VariableDeclarator `json:"declarations"`
@@ -648,7 +594,6 @@ func (n *VariableDeclaration) declarationNode() {}
 
 // VariableDeclarator represents a variable declarator.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type VariableDeclarator struct {
 	BaseNode
 	ID       Pattern    `json:"id"`
@@ -658,7 +603,6 @@ type VariableDeclarator struct {
 
 // FunctionDeclaration represents a function declaration.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type FunctionDeclaration struct {
 	BaseNode
 	ID             *Identifier                 `json:"id"`
@@ -679,7 +623,6 @@ func (n *FunctionDeclaration) declarationNode() {}
 
 // ClassDeclaration represents a class declaration.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ClassDeclaration struct {
 	BaseNode
 	ID                  *Identifier                   `json:"id"`
@@ -698,7 +641,6 @@ func (n *ClassDeclaration) declarationNode() {}
 
 // ClassBody represents the body of a class.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ClassBody struct {
 	BaseNode
 	Body []interface{} `json:"body"` // MethodDefinition | PropertyDefinition | StaticBlock | TSIndexSignature
@@ -706,7 +648,6 @@ type ClassBody struct {
 
 // MethodDefinition represents a method in a class.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type MethodDefinition struct {
 	BaseNode
 	Key           Expression          `json:"key"`
@@ -722,7 +663,6 @@ type MethodDefinition struct {
 
 // PropertyDefinition represents a property in a class.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type PropertyDefinition struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -741,7 +681,6 @@ type PropertyDefinition struct {
 
 // AccessorProperty represents an accessor property (getter/setter shorthand).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type AccessorProperty struct {
 	BaseNode
 	Key            Expression        `json:"key"`
@@ -756,7 +695,6 @@ type AccessorProperty struct {
 
 // StaticBlock represents a static initialization block in a class.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type StaticBlock struct {
 	BaseNode
 	Body []Statement `json:"body"`
@@ -766,7 +704,6 @@ type StaticBlock struct {
 
 // ImportDeclaration represents an import declaration.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ImportDeclaration struct {
 	BaseNode
 	// ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier
@@ -781,7 +718,6 @@ func (n *ImportDeclaration) statementNode() {}
 
 // ImportSpecifier represents a named import specifier.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ImportSpecifier struct {
 	BaseNode
 	Imported   *Identifier `json:"imported"`
@@ -791,7 +727,6 @@ type ImportSpecifier struct {
 
 // ImportDefaultSpecifier represents a default import specifier.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ImportDefaultSpecifier struct {
 	BaseNode
 	Local *Identifier `json:"local"`
@@ -799,7 +734,6 @@ type ImportDefaultSpecifier struct {
 
 // ImportNamespaceSpecifier represents a namespace import specifier (* as x).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ImportNamespaceSpecifier struct {
 	BaseNode
 	Local *Identifier `json:"local"`
@@ -807,7 +741,6 @@ type ImportNamespaceSpecifier struct {
 
 // ImportAttribute represents an import attribute (with clause).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ImportAttribute struct {
 	BaseNode
 	Key   interface{} `json:"key"` // Identifier | Literal
@@ -816,7 +749,6 @@ type ImportAttribute struct {
 
 // ExportNamedDeclaration represents a named export declaration.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ExportNamedDeclaration struct {
 	BaseNode
 	Declaration Declaration       `json:"declaration"`
@@ -831,7 +763,6 @@ func (n *ExportNamedDeclaration) statementNode() {}
 
 // ExportDefaultDeclaration represents a default export declaration.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ExportDefaultDeclaration struct {
 	BaseNode
 	Declaration interface{} `json:"declaration"` // Declaration | Expression
@@ -842,7 +773,6 @@ func (n *ExportDefaultDeclaration) statementNode() {}
 
 // ExportAllDeclaration represents an export * declaration.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ExportAllDeclaration struct {
 	BaseNode
 	Source     *Literal          `json:"source"`
@@ -856,7 +786,6 @@ func (n *ExportAllDeclaration) statementNode() {}
 
 // ExportSpecifier represents an export specifier.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ExportSpecifier struct {
 	BaseNode
 	Local      interface{} `json:"local"`    // Identifier | Literal (for string exports)
@@ -868,7 +797,6 @@ type ExportSpecifier struct {
 
 // ArrayPattern represents an array destructuring pattern.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ArrayPattern struct {
 	BaseNode
 	Elements       []Pattern         `json:"elements"` // Can include nil for holes
@@ -881,7 +809,6 @@ func (n *ArrayPattern) patternNode() {}
 
 // ObjectPattern represents an object destructuring pattern.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type ObjectPattern struct {
 	BaseNode
 	Properties     []interface{}     `json:"properties"` // Property | RestElement
@@ -894,7 +821,6 @@ func (n *ObjectPattern) patternNode() {}
 
 // RestElement represents a rest element in destructuring (...rest).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type RestElement struct {
 	BaseNode
 	Argument       Pattern           `json:"argument"`
@@ -908,7 +834,6 @@ func (n *RestElement) patternNode() {}
 
 // AssignmentPattern represents a default value in destructuring (x = 1).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type AssignmentPattern struct {
 	BaseNode
 	Left           Pattern           `json:"left"`
@@ -924,7 +849,6 @@ func (n *AssignmentPattern) patternNode() {}
 
 // Comment represents a comment in the source code.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Comment struct {
 	Type  string          `json:"type"` // "Line" | "Block"
 	Value string          `json:"value"`
@@ -934,7 +858,6 @@ type Comment struct {
 
 // Token represents a token in the source code.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Token struct {
 	Type  string          `json:"type"`
 	Value string          `json:"value"`
@@ -946,7 +869,6 @@ type Token struct {
 
 // Decorator represents a decorator (@decorator).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type Decorator struct {
 	BaseNode
 	Expression Expression `json:"expression"`
