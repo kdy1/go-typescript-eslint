@@ -424,7 +424,6 @@ func (s *Scanner) scanRegExp() Token {
 			return s.createToken(ILLEGAL, s.source[start:s.pos])
 		}
 
-		//nolint:staticcheck // Switch would not improve readability for character class handling
 		if ch == '\\' {
 			// Escaped character
 			s.next()
