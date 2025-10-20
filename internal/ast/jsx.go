@@ -6,20 +6,17 @@ package ast
 // ==================== JSX Elements ====================
 
 // JSXElement represents a JSX element.
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXElement struct {
 	BaseNode
-	OpeningElement  *JSXOpeningElement  `json:"openingElement"`
-	Children        []interface{}       `json:"children"` // JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement | JSXFragment
-	ClosingElement  *JSXClosingElement  `json:"closingElement"`
+	OpeningElement *JSXOpeningElement `json:"openingElement"`
+	// JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement | JSXFragment
+	Children       []interface{}      `json:"children"`
+	ClosingElement *JSXClosingElement `json:"closingElement"`
 }
 
 func (n *JSXElement) expressionNode() {}
 
 // JSXFragment represents a JSX fragment (<>...</>).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXFragment struct {
 	BaseNode
 	OpeningFragment *JSXOpeningFragment `json:"openingFragment"`
@@ -30,20 +27,16 @@ type JSXFragment struct {
 func (n *JSXFragment) expressionNode() {}
 
 // JSXOpeningElement represents a JSX opening element (<div>).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXOpeningElement struct {
 	BaseNode
 	SelfClosing    bool                          `json:"selfClosing"`
-	Name           interface{}                   `json:"name"` // JSXIdentifier | JSXMemberExpression | JSXNamespacedName
+	Name           interface{}                   `json:"name"`       // JSXIdentifier | JSXMemberExpression | JSXNamespacedName
 	Attributes     []interface{}                 `json:"attributes"` // JSXAttribute | JSXSpreadAttribute
 	TypeArguments  *TSTypeParameterInstantiation `json:"typeArguments,omitempty"`
 	TypeParameters *TSTypeParameterInstantiation `json:"typeParameters,omitempty"` // Deprecated
 }
 
 // JSXClosingElement represents a JSX closing element (</div>).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXClosingElement struct {
 	BaseNode
 	Name interface{} `json:"name"` // JSXIdentifier | JSXMemberExpression | JSXNamespacedName
@@ -62,8 +55,6 @@ type JSXClosingFragment struct {
 // ==================== JSX Attributes ====================
 
 // JSXAttribute represents a JSX attribute.
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXAttribute struct {
 	BaseNode
 	Name  interface{} `json:"name"`  // JSXIdentifier | JSXNamespacedName
@@ -71,8 +62,6 @@ type JSXAttribute struct {
 }
 
 // JSXSpreadAttribute represents a JSX spread attribute ({...props}).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXSpreadAttribute struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -81,16 +70,12 @@ type JSXSpreadAttribute struct {
 // ==================== JSX Names ====================
 
 // JSXIdentifier represents a JSX identifier.
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXIdentifier struct {
 	BaseNode
 	Name string `json:"name"`
 }
 
 // JSXNamespacedName represents a JSX namespaced name (ns:name).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXNamespacedName struct {
 	BaseNode
 	Namespace *JSXIdentifier `json:"namespace"`
@@ -98,19 +83,15 @@ type JSXNamespacedName struct {
 }
 
 // JSXMemberExpression represents a JSX member expression (obj.prop).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXMemberExpression struct {
 	BaseNode
-	Object   interface{}    `json:"object"`   // JSXIdentifier | JSXMemberExpression
+	Object   interface{}    `json:"object"` // JSXIdentifier | JSXMemberExpression
 	Property *JSXIdentifier `json:"property"`
 }
 
 // ==================== JSX Content ====================
 
 // JSXExpressionContainer represents a JSX expression container {expr}.
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXExpressionContainer struct {
 	BaseNode
 	Expression interface{} `json:"expression"` // Expression | JSXEmptyExpression
@@ -126,8 +107,6 @@ type JSXEmptyExpression struct {
 func (n *JSXEmptyExpression) expressionNode() {}
 
 // JSXText represents JSX text content.
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXText struct {
 	BaseNode
 	Value string `json:"value"`
@@ -135,8 +114,6 @@ type JSXText struct {
 }
 
 // JSXSpreadChild represents a JSX spread child ({...children}).
-//
-//nolint:govet // Field order optimized for JSON output readability
 type JSXSpreadChild struct {
 	BaseNode
 	Expression Expression `json:"expression"`
