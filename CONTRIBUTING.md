@@ -337,7 +337,7 @@ Internal packages can change freely but should still be well-documented:
 - **`internal/lexer`**: Add new token types in `token.go`, update lexer logic
 - **`internal/parser`**: Add new parsing rules, update grammar implementation
 - **`internal/ast`**: Add new node types following ESTree conventions
-- **`internal/types`**: Add type system representations
+- **`internal/tstype`**: Add type system representations
 
 ### Adding Examples
 

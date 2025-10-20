@@ -35,4 +35,4 @@
 // This package is internal and should not be imported by external code.
 // Type information is exposed through the public API in pkg/typescriptestree
 // when type-aware parsing is enabled.
-package types
+package tstype

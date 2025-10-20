@@ -1,5 +1,4 @@
-//nolint:revive // Package name "types" is appropriate for type definitions
-package types
+package tstype
 
 // Type represents a TypeScript type.
 type Type interface {
