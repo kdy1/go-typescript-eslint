@@ -16,7 +16,6 @@ type Node interface {
 // BaseNode provides common fields for all AST nodes.
 // It should be embedded in all concrete node types.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type BaseNode struct {
 	NodeType string          `json:"type"`
 	Loc      *SourceLocation `json:"loc,omitempty"`

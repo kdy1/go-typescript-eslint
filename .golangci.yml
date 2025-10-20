@@ -33,6 +33,7 @@ linters:
       # Disable specific analyzers
       disable:
         - shadow  # Reports variables that shadow other variables
+        - fieldalignment  # Reports struct field alignment issues (can be fixed later for optimization)
 
     gocyclo:
       # Minimal code complexity to report

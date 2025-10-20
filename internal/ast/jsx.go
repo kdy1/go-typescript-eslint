@@ -38,7 +38,6 @@ type JSXOpeningElement struct {
 
 // JSXClosingElement represents a JSX closing element (</div>).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXClosingElement struct {
 	BaseNode
 	Name interface{} `json:"name"` // JSXIdentifier | JSXMemberExpression | JSXNamespacedName
@@ -58,7 +57,6 @@ type JSXClosingFragment struct {
 
 // JSXAttribute represents a JSX attribute.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXAttribute struct {
 	BaseNode
 	Name  interface{} `json:"name"`  // JSXIdentifier | JSXNamespacedName
@@ -67,7 +65,6 @@ type JSXAttribute struct {
 
 // JSXSpreadAttribute represents a JSX spread attribute ({...props}).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXSpreadAttribute struct {
 	BaseNode
 	Argument Expression `json:"argument"`
@@ -77,7 +74,6 @@ type JSXSpreadAttribute struct {
 
 // JSXIdentifier represents a JSX identifier.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXIdentifier struct {
 	BaseNode
 	Name string `json:"name"`
@@ -85,7 +81,6 @@ type JSXIdentifier struct {
 
 // JSXNamespacedName represents a JSX namespaced name (ns:name).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXNamespacedName struct {
 	BaseNode
 	Namespace *JSXIdentifier `json:"namespace"`
@@ -94,7 +89,6 @@ type JSXNamespacedName struct {
 
 // JSXMemberExpression represents a JSX member expression (obj.prop).
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXMemberExpression struct {
 	BaseNode
 	Object   interface{}    `json:"object"` // JSXIdentifier | JSXMemberExpression
@@ -105,7 +99,6 @@ type JSXMemberExpression struct {
 
 // JSXExpressionContainer represents a JSX expression container {expr}.
 //
-//nolint:govet // Field order optimized for JSON output readability, not memory alignment
 type JSXExpressionContainer struct {
 	BaseNode
 	Expression interface{} `json:"expression"` // Expression | JSXEmptyExpression
