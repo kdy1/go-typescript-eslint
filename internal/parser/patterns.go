@@ -1,0 +1,369 @@
+package parser
+
+import (
+	"github.com/kdy1/go-typescript-eslint/internal/ast"
+	"github.com/kdy1/go-typescript-eslint/internal/lexer"
+)
+
+// parseBindingPattern parses a binding pattern (identifier, array pattern, or object pattern).
+func (p *Parser) parseBindingPattern() (ast.Pattern, error) {
+	switch p.current.Type {
+	case lexer.LBRACK:
+		return p.parseArrayPattern()
+	case lexer.LBRACE:
+		return p.parseObjectPattern()
+	case lexer.IDENT:
+		start := p.current.Pos
+		name := p.current.Literal
+		p.nextToken()
+		return &ast.Identifier{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeIdentifier.String(),
+				Range:    &ast.Range{start, p.current.Pos},
+			},
+			Name: name,
+		}, nil
+	default:
+		return nil, p.errorAtCurrent("expected binding pattern")
+	}
+}
+
+// parseArrayPattern parses an array destructuring pattern [a, b, c].
+func (p *Parser) parseArrayPattern() (*ast.ArrayPattern, error) {
+	start := p.current.Pos
+	p.nextToken() // consume '['
+
+	elements := []ast.Pattern{}
+
+	for !p.match(lexer.RBRACK) && !p.isAtEnd() {
+		// Handle holes in patterns
+		if p.match(lexer.COMMA) {
+			elements = append(elements, nil)
+			p.nextToken()
+			continue
+		}
+
+		// Handle rest element
+		if p.consume(lexer.ELLIPSIS) {
+			arg, err := p.parseBindingPattern()
+			if err != nil {
+				return nil, err
+			}
+			elements = append(elements, &ast.RestElement{
+				BaseNode: ast.BaseNode{
+					NodeType: ast.NodeTypeRestElement.String(),
+				},
+				Argument: arg,
+			})
+			break
+		}
+
+		element, err := p.parseBindingPattern()
+		if err != nil {
+			return nil, err
+		}
+
+		// Check for default value
+		if p.consume(lexer.ASSIGN) {
+			right, err := p.parseAssignmentExpression()
+			if err != nil {
+				return nil, err
+			}
+			element = &ast.AssignmentPattern{
+				BaseNode: ast.BaseNode{
+					NodeType: ast.NodeTypeAssignmentPattern.String(),
+				},
+				Left:  element,
+				Right: right,
+			}
+		}
+
+		elements = append(elements, element)
+
+		if !p.consume(lexer.COMMA) {
+			break
+		}
+	}
+
+	if err := p.expect(lexer.RBRACK); err != nil {
+		return nil, err
+	}
+
+	return &ast.ArrayPattern{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeArrayPattern.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Elements: elements,
+	}, nil
+}
+
+// parseObjectPattern parses an object destructuring pattern {a, b, c}.
+func (p *Parser) parseObjectPattern() (*ast.ObjectPattern, error) {
+	start := p.current.Pos
+	p.nextToken() // consume '{'
+
+	properties := []*ast.Property{}
+
+	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
+		// Handle rest element
+		if p.consume(lexer.ELLIPSIS) {
+			arg, err := p.parseBindingPattern()
+			if err != nil {
+				return nil, err
+			}
+
+			// Create a property with RestElement as value
+			properties = append(properties, &ast.Property{
+				BaseNode: ast.BaseNode{
+					NodeType: ast.NodeTypeProperty.String(),
+				},
+				Key: nil,
+				Value: &ast.RestElement{
+					BaseNode: ast.BaseNode{
+						NodeType: ast.NodeTypeRestElement.String(),
+					},
+					Argument: arg,
+				},
+				Kind:      "init",
+				Shorthand: false,
+				Computed:  false,
+			})
+			break
+		}
+
+		prop, err := p.parseObjectPatternProperty()
+		if err != nil {
+			return nil, err
+		}
+		properties = append(properties, prop)
+
+		if !p.consume(lexer.COMMA) {
+			break
+		}
+	}
+
+	if err := p.expect(lexer.RBRACE); err != nil {
+		return nil, err
+	}
+
+	return &ast.ObjectPattern{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeObjectPattern.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Properties: properties,
+	}, nil
+}
+
+// parseObjectPatternProperty parses a property in an object pattern.
+func (p *Parser) parseObjectPatternProperty() (*ast.Property, error) {
+	start := p.current.Pos
+
+	// Parse key
+	computed := false
+	var key ast.Expression
+	var err error
+
+	if p.consume(lexer.LBRACK) {
+		computed = true
+		key, err = p.parseAssignmentExpression()
+		if err != nil {
+			return nil, err
+		}
+		if err := p.expect(lexer.RBRACK); err != nil {
+			return nil, err
+		}
+	} else if p.current.Type == lexer.IDENT {
+		key = &ast.Identifier{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeIdentifier.String(),
+				Range:    &ast.Range{p.current.Pos, p.current.End},
+			},
+			Name: p.current.Literal,
+		}
+		p.nextToken()
+	} else if p.current.Type == lexer.STRING || p.current.Type == lexer.NUMBER {
+		key = &ast.Literal{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeLiteral.String(),
+				Range:    &ast.Range{p.current.Pos, p.current.End},
+			},
+			Value: p.current.Literal,
+			Raw:   p.current.Literal,
+		}
+		p.nextToken()
+	} else {
+		return nil, p.errorAtCurrent("expected property key")
+	}
+
+	// Check for shorthand property
+	if !computed && p.match(lexer.COMMA, lexer.RBRACE, lexer.ASSIGN) {
+		if id, ok := key.(*ast.Identifier); ok {
+			value := id
+
+			// Check for default value
+			if p.consume(lexer.ASSIGN) {
+				right, err := p.parseAssignmentExpression()
+				if err != nil {
+					return nil, err
+				}
+				value = &ast.AssignmentPattern{
+					BaseNode: ast.BaseNode{
+						NodeType: ast.NodeTypeAssignmentPattern.String(),
+					},
+					Left:  id,
+					Right: right,
+				}
+			}
+
+			return &ast.Property{
+				BaseNode: ast.BaseNode{
+					NodeType: ast.NodeTypeProperty.String(),
+					Range:    &ast.Range{start, p.current.Pos},
+				},
+				Key:       key,
+				Value:     value,
+				Kind:      "init",
+				Shorthand: true,
+				Computed:  false,
+			}, nil
+		}
+	}
+
+	// Non-shorthand property
+	if err := p.expect(lexer.COLON); err != nil {
+		return nil, err
+	}
+
+	value, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+
+	// Check for default value
+	if p.consume(lexer.ASSIGN) {
+		right, err := p.parseAssignmentExpression()
+		if err != nil {
+			return nil, err
+		}
+		value = &ast.AssignmentPattern{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeAssignmentPattern.String(),
+			},
+			Left:  value,
+			Right: right,
+		}
+	}
+
+	return &ast.Property{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeProperty.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Key:       key,
+		Value:     value,
+		Kind:      "init",
+		Shorthand: false,
+		Computed:  computed,
+	}, nil
+}
+
+// parseTemplateLiteral parses a template literal.
+func (p *Parser) parseTemplateLiteral() (*ast.TemplateLiteral, error) {
+	start := p.current.Pos
+
+	quasis := []*ast.TemplateElement{}
+	expressions := []ast.Expression{}
+
+	// Handle template without substitutions
+	if p.current.Type == lexer.TemplateNoSub {
+		quasis = append(quasis, &ast.TemplateElement{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeTemplateElement.String(),
+				Range:    &ast.Range{p.current.Pos, p.current.End},
+			},
+			Value: &ast.TemplateElementValue{
+				Raw:    p.current.Literal,
+				Cooked: p.current.Literal, // TODO: Unescape
+			},
+			Tail: true,
+		})
+		p.nextToken()
+		return &ast.TemplateLiteral{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeTemplateLiteral.String(),
+				Range:    &ast.Range{start, p.current.Pos},
+			},
+			Quasis:      quasis,
+			Expressions: expressions,
+		}, nil
+	}
+
+	// Handle template head
+	if p.current.Type == lexer.TemplateHead {
+		quasis = append(quasis, &ast.TemplateElement{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeTemplateElement.String(),
+				Range:    &ast.Range{p.current.Pos, p.current.End},
+			},
+			Value: &ast.TemplateElementValue{
+				Raw:    p.current.Literal,
+				Cooked: p.current.Literal, // TODO: Unescape
+			},
+			Tail: false,
+		})
+		p.nextToken()
+
+		// Parse expressions and template parts
+		for {
+			// Parse expression
+			expr, err := p.parseExpression()
+			if err != nil {
+				return nil, err
+			}
+			expressions = append(expressions, expr)
+
+			// Parse template middle or tail
+			if p.current.Type == lexer.TemplateMiddle {
+				quasis = append(quasis, &ast.TemplateElement{
+					BaseNode: ast.BaseNode{
+						NodeType: ast.NodeTypeTemplateElement.String(),
+						Range:    &ast.Range{p.current.Pos, p.current.End},
+					},
+					Value: &ast.TemplateElementValue{
+						Raw:    p.current.Literal,
+						Cooked: p.current.Literal, // TODO: Unescape
+					},
+					Tail: false,
+				})
+				p.nextToken()
+			} else if p.current.Type == lexer.TemplateTail {
+				quasis = append(quasis, &ast.TemplateElement{
+					BaseNode: ast.BaseNode{
+						NodeType: ast.NodeTypeTemplateElement.String(),
+						Range:    &ast.Range{p.current.Pos, p.current.End},
+					},
+					Value: &ast.TemplateElementValue{
+						Raw:    p.current.Literal,
+						Cooked: p.current.Literal, // TODO: Unescape
+					},
+					Tail: true,
+				})
+				p.nextToken()
+				break
+			} else {
+				return nil, p.errorAtCurrent("expected template middle or tail")
+			}
+		}
+	}
+
+	return &ast.TemplateLiteral{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeTemplateLiteral.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Quasis:      quasis,
+		Expressions: expressions,
+	}, nil
+}
