@@ -391,13 +391,18 @@ func GetIdentifierNames(root Node) []string {
 	return names
 }
 
+const (
+	classDeclaration    = "ClassDeclaration"
+	functionDeclaration = "FunctionDeclaration"
+)
+
 // IsDeclarationStatement checks if a node is a declaration statement.
 func IsDeclarationStatement(node Node) bool {
 	if node == nil {
 		return false
 	}
 	t := node.Type()
-	return t == "FunctionDeclaration" || t == "ClassDeclaration" ||
+	return t == functionDeclaration || t == classDeclaration ||
 		t == "VariableDeclaration" || IsTypeScript(node) &&
 		(t == "TSInterfaceDeclaration" || t == "TSTypeAliasDeclaration" ||
 			t == "TSEnumDeclaration" || t == "TSModuleDeclaration")

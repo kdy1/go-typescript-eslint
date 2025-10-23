@@ -71,6 +71,8 @@ func AsDeclaration(node Node) (Declaration, bool) {
 
 // AsTypeScriptNode attempts to convert the node to a TSNode.
 // Returns the TS node and true if successful, nil and false otherwise.
+//
+//nolint:ireturn // Interface types are intentional for AST node conversion
 func AsTypeScriptNode(node Node) (TSNode, bool) {
 	tsNode, ok := node.(TSNode)
 	return tsNode, ok

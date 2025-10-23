@@ -55,6 +55,9 @@ func Walk(node Node, visitor Visitor) {
 
 // traverseField handles traversal of a field value, which may be a node,
 // a slice of nodes, or a pointer to a node.
+//
+//nolint:cyclop // Complexity is inherent to reflection-based traversal
+//nolint:exhaustive // Only specific reflection kinds need handling
 func traverseField(field reflect.Value, visitor Visitor) {
 	switch field.Kind() {
 	case reflect.Ptr:
@@ -178,6 +181,8 @@ func walkWithContextInternal(node Node, visitor ContextVisitor, ctx *TraverseCon
 	}
 }
 
+//nolint:cyclop // Complexity is inherent to reflection-based traversal
+//nolint:exhaustive // Only specific reflection kinds need handling
 func traverseFieldWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
 	switch field.Kind() {
 	case reflect.Ptr:
@@ -261,6 +266,8 @@ func FindByType(root Node, nodeType string) []Node {
 }
 
 // GetParent returns the parent node of the target node, or nil if not found.
+//
+//nolint:ireturn // Interface types are intentional for generic AST node retrieval
 func GetParent(root, target Node) Node {
 	var parent Node
 	TraverseWithContext(root, func(node Node, ctx *TraverseContext) bool {
@@ -295,6 +302,8 @@ func GetAncestors(root, target Node) []Node {
 
 // GetSiblings returns all sibling nodes of the target node.
 // If the target is not found or has no siblings, returns an empty slice.
+//
+//nolint:cyclop // Complexity is inherent to sibling extraction logic
 func GetSiblings(root, target Node) []Node {
 	var siblings []Node
 	var targetParent Node

@@ -23,6 +23,8 @@ const (
 
 // AttachComments attaches comments to their associated nodes based on position.
 // This is typically called after parsing to associate comments with AST nodes.
+//
+//nolint:gocyclo // Complexity is inherent to comment attachment logic
 func AttachComments(root Node, comments []*Comment) []CommentAttachment {
 	if root == nil || len(comments) == 0 {
 		return nil
