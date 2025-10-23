@@ -2,6 +2,15 @@ package ast
 
 import "sort"
 
+// Token type constants
+const (
+	TokenTypeIdentifier = "Identifier"
+	TokenTypeKeyword    = "Keyword"
+	TokenTypePunctuator = "Punctuator"
+	TokenTypeString     = "String"
+	TokenTypeNumeric    = "Numeric"
+)
+
 // TokenUtils provides utilities for working with tokens in the AST.
 
 // GetTokensInRange returns all tokens within a source range.
@@ -196,7 +205,7 @@ func IsKeywordToken(token *Token) bool {
 	if token == nil {
 		return false
 	}
-	return token.Type == "Keyword"
+	return token.Type == TokenTypeKeyword
 }
 
 // IsIdentifierToken checks if a token is an identifier.
@@ -204,7 +213,7 @@ func IsIdentifierToken(token *Token) bool {
 	if token == nil {
 		return false
 	}
-	return token.Type == "Identifier"
+	return token.Type == TokenTypeIdentifier
 }
 
 // IsPunctuatorToken checks if a token is a punctuator.
@@ -212,7 +221,7 @@ func IsPunctuatorToken(token *Token) bool {
 	if token == nil {
 		return false
 	}
-	return token.Type == "Punctuator"
+	return token.Type == TokenTypePunctuator
 }
 
 // IsStringToken checks if a token is a string literal.
@@ -220,7 +229,7 @@ func IsStringToken(token *Token) bool {
 	if token == nil {
 		return false
 	}
-	return token.Type == "String"
+	return token.Type == TokenTypeString
 }
 
 // IsNumericToken checks if a token is a numeric literal.
@@ -228,7 +237,7 @@ func IsNumericToken(token *Token) bool {
 	if token == nil {
 		return false
 	}
-	return token.Type == "Numeric"
+	return token.Type == TokenTypeNumeric
 }
 
 // IsOperatorToken checks if a token is an operator.
@@ -243,7 +252,7 @@ func IsOperatorToken(token *Token) bool {
 		"&": true, "|": true, "^": true, "~": true,
 		"<<": true, ">>": true, ">>>": true,
 		"&&": true, "||": true, "??": true,
-		"!": true,
+		"!":  true,
 		"==": true, "!=": true, "===": true, "!==": true,
 		"<": true, "<=": true, ">": true, ">=": true,
 		"=": true, "+=": true, "-=": true, "*=": true, "/=": true,

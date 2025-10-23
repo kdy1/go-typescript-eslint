@@ -60,31 +60,29 @@ func AttachComments(root Node, comments []*Comment) []CommentAttachment {
 		// Attach leading comments
 		for commentIdx < len(sortedComments) {
 			comment := sortedComments[commentIdx]
-			if comment.Range != nil && (*comment.Range)[1] <= nodeStart {
-				attachments = append(attachments, CommentAttachment{
-					Comment: comment,
-					Node:    node,
-					Type:    CommentLeading,
-				})
-				commentIdx++
-			} else {
+			if comment.Range == nil || (*comment.Range)[1] > nodeStart {
 				break
 			}
+			attachments = append(attachments, CommentAttachment{
+				Comment: comment,
+				Node:    node,
+				Type:    CommentLeading,
+			})
+			commentIdx++
 		}
 
 		// Attach inner comments (comments inside the node's range)
 		for commentIdx < len(sortedComments) {
 			comment := sortedComments[commentIdx]
-			if comment.Range != nil && (*comment.Range)[0] >= nodeStart && (*comment.Range)[1] <= nodeEnd {
-				attachments = append(attachments, CommentAttachment{
-					Comment: comment,
-					Node:    node,
-					Type:    CommentInner,
-				})
-				commentIdx++
-			} else {
+			if comment.Range == nil || (*comment.Range)[0] < nodeStart || (*comment.Range)[1] > nodeEnd {
 				break
 			}
+			attachments = append(attachments, CommentAttachment{
+				Comment: comment,
+				Node:    node,
+				Type:    CommentInner,
+			})
+			commentIdx++
 		}
 	}
 
@@ -194,7 +192,7 @@ func IsDocComment(comment *Comment) bool {
 	if comment == nil || comment.Type != "Block" {
 		return false
 	}
-	return len(comment.Value) > 0 && comment.Value[0] == '*'
+	return comment.Value != "" && comment.Value[0] == '*'
 }
 
 // GetDocComments returns all documentation comments from a list.

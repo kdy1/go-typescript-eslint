@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -29,15 +30,17 @@ func NodeEquals(a, b Node) bool {
 		return false
 	}
 
-	return string(aJSON) == string(bJSON)
+	return bytes.Equal(aJSON, bJSON)
 }
 
 // CloneNode creates a deep copy of a node.
 // This uses JSON serialization/deserialization for simplicity.
 // For production use, consider implementing a more efficient cloning mechanism.
+//
+//nolint:ireturn // Interface types are intentional for generic node cloning
 func CloneNode(node Node) (Node, error) {
 	if node == nil {
-		return nil, nil
+		return nil, fmt.Errorf("cannot clone nil node")
 	}
 
 	// Serialize to JSON
@@ -47,7 +50,7 @@ func CloneNode(node Node) (Node, error) {
 	}
 
 	// Deserialize back to a node
-	// Note: This will create a generic map structure.
+	// This will create a generic map structure.
 	// For full functionality, you'd need to implement type-specific deserialization.
 	var result map[string]interface{}
 	if err := json.Unmarshal(data, &result); err != nil {
@@ -144,6 +147,8 @@ func IsInRange(node Node, pos int) bool {
 }
 
 // GetNodeAtPosition returns the deepest node that contains the given position.
+//
+//nolint:ireturn // Interface types are intentional for generic AST node retrieval
 func GetNodeAtPosition(root Node, pos int) Node {
 	var result Node
 	Traverse(root, func(node Node) bool {
@@ -353,7 +358,7 @@ func HasYield(node Node) bool {
 // CountNodes returns the total number of nodes in the tree.
 func CountNodes(root Node) int {
 	count := 0
-	Traverse(root, func(node Node) bool {
+	Traverse(root, func(_ Node) bool {
 		count++
 		return true
 	})
@@ -395,7 +400,7 @@ func IsDeclarationStatement(node Node) bool {
 	return t == "FunctionDeclaration" || t == "ClassDeclaration" ||
 		t == "VariableDeclaration" || IsTypeScript(node) &&
 		(t == "TSInterfaceDeclaration" || t == "TSTypeAliasDeclaration" ||
-		t == "TSEnumDeclaration" || t == "TSModuleDeclaration")
+			t == "TSEnumDeclaration" || t == "TSModuleDeclaration")
 }
 
 // GetFunctionName returns the name of a function node, if it has one.
@@ -436,22 +441,28 @@ func GetClassName(node Node) string {
 	return ""
 }
 
+const (
+	exportNamedDeclaration   = "ExportNamedDeclaration"
+	exportDefaultDeclaration = "ExportDefaultDeclaration"
+	exportAllDeclaration     = "ExportAllDeclaration"
+)
+
 // IsExported checks if a declaration is exported.
 func IsExported(node Node) bool {
 	if node == nil {
 		return false
 	}
 	t := node.Type()
-	return t == "ExportNamedDeclaration" || t == "ExportDefaultDeclaration" ||
-		t == "ExportAllDeclaration"
+	return t == exportNamedDeclaration || t == exportDefaultDeclaration ||
+		t == exportAllDeclaration
 }
 
 // IsDefaultExport checks if a node is a default export.
 func IsDefaultExport(node Node) bool {
-	return node != nil && node.Type() == "ExportDefaultDeclaration"
+	return node != nil && node.Type() == exportDefaultDeclaration
 }
 
 // IsNamedExport checks if a node is a named export.
 func IsNamedExport(node Node) bool {
-	return node != nil && node.Type() == "ExportNamedDeclaration"
+	return node != nil && node.Type() == exportNamedDeclaration
 }

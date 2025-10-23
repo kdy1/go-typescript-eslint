@@ -2,6 +2,23 @@ package ast
 
 import "testing"
 
+// helper function to reduce duplication in tests
+func runNodeTypeTests(t *testing.T, testName string, checkFunc func(Node) bool, tests []struct {
+	name     string
+	node     Node
+	expected bool
+}) {
+	t.Helper()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := checkFunc(tt.node)
+			if result != tt.expected {
+				t.Errorf("%s: expected %v, got %v", testName, tt.expected, result)
+			}
+		})
+	}
+}
+
 func TestIsExpression(t *testing.T) {
 	id := &Identifier{BaseNode: BaseNode{NodeType: "Identifier"}, Name: "test"}
 	if !IsExpression(id) {
@@ -244,14 +261,7 @@ func TestIsTypeScript(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := IsTypeScript(tt.node)
-			if result != tt.expected {
-				t.Errorf("expected %v, got %v", tt.expected, result)
-			}
-		})
-	}
+	runNodeTypeTests(t, "IsTypeScript", IsTypeScript, tests)
 }
 
 func TestIsImport(t *testing.T) {
@@ -277,14 +287,7 @@ func TestIsImport(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := IsImport(tt.node)
-			if result != tt.expected {
-				t.Errorf("expected %v, got %v", tt.expected, result)
-			}
-		})
-	}
+	runNodeTypeTests(t, "IsImport", IsImport, tests)
 }
 
 func TestIsExport(t *testing.T) {
@@ -310,12 +313,5 @@ func TestIsExport(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := IsExport(tt.node)
-			if result != tt.expected {
-				t.Errorf("expected %v, got %v", tt.expected, result)
-			}
-		})
-	}
+	runNodeTypeTests(t, "IsExport", IsExport, tests)
 }

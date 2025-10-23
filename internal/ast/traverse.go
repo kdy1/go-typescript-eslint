@@ -80,12 +80,15 @@ func traverseField(field reflect.Value, visitor Visitor) {
 				Walk(node, visitor)
 			}
 		}
+	default:
+		// Other types (Bool, Int, String, etc.) are not traversable nodes
+		return
 	}
 }
 
 // capitalizeFirst capitalizes the first letter of a string (for field name lookup).
 func capitalizeFirst(s string) string {
-	if len(s) == 0 {
+	if s == "" {
 		return s
 	}
 	if s[0] >= 'a' && s[0] <= 'z' {
@@ -186,11 +189,12 @@ func traverseFieldWithContext(field reflect.Value, visitor ContextVisitor, ctx *
 	case reflect.Slice:
 		for i := 0; i < field.Len(); i++ {
 			elem := field.Index(i)
+			idx := i // Create a new variable for each iteration
 			childCtx := &TraverseContext{
 				Parent:    ctx.Parent,
 				Ancestors: ctx.Ancestors,
 				Key:       ctx.Key,
-				Index:     &i,
+				Index:     &idx,
 			}
 			if elem.Kind() == reflect.Ptr && !elem.IsNil() {
 				if node, ok := elem.Interface().(Node); ok {
@@ -206,6 +210,9 @@ func traverseFieldWithContext(field reflect.Value, visitor ContextVisitor, ctx *
 				walkWithContextInternal(node, visitor, ctx)
 			}
 		}
+	default:
+		// Other types (Bool, Int, String, etc.) are not traversable nodes
+		return
 	}
 }
 
@@ -220,6 +227,8 @@ func TraverseWithContext(node Node, fn func(node Node, ctx *TraverseContext) boo
 }
 
 // FindFirst traverses the AST and returns the first node for which the predicate returns true.
+//
+//nolint:ireturn // Interface types are intentional for generic AST traversal
 func FindFirst(root Node, predicate func(node Node) bool) Node {
 	var result Node
 	Traverse(root, func(node Node) bool {
@@ -252,7 +261,7 @@ func FindByType(root Node, nodeType string) []Node {
 }
 
 // GetParent returns the parent node of the target node, or nil if not found.
-func GetParent(root Node, target Node) Node {
+func GetParent(root, target Node) Node {
 	var parent Node
 	TraverseWithContext(root, func(node Node, ctx *TraverseContext) bool {
 		if node == target {
@@ -265,14 +274,17 @@ func GetParent(root Node, target Node) Node {
 }
 
 // GetAncestors returns all ancestor nodes of the target node.
-func GetAncestors(root Node, target Node) []Node {
+func GetAncestors(root, target Node) []Node {
 	var ancestors []Node
 	TraverseWithContext(root, func(node Node, ctx *TraverseContext) bool {
 		if node == target {
-			ancestors = make([]Node, len(ctx.Ancestors))
-			copy(ancestors, ctx.Ancestors)
 			if ctx.Parent != nil {
+				ancestors = make([]Node, 0, len(ctx.Ancestors)+1)
+				ancestors = append(ancestors, ctx.Ancestors...)
 				ancestors = append(ancestors, ctx.Parent)
+			} else {
+				ancestors = make([]Node, len(ctx.Ancestors))
+				copy(ancestors, ctx.Ancestors)
 			}
 			return false // Stop traversal
 		}
@@ -283,7 +295,7 @@ func GetAncestors(root Node, target Node) []Node {
 
 // GetSiblings returns all sibling nodes of the target node.
 // If the target is not found or has no siblings, returns an empty slice.
-func GetSiblings(root Node, target Node) []Node {
+func GetSiblings(root, target Node) []Node {
 	var siblings []Node
 	var targetParent Node
 	var targetKey string
@@ -315,19 +327,21 @@ func GetSiblings(root Node, target Node) []Node {
 		return siblings
 	}
 
-	if field.Kind() == reflect.Slice {
-		for i := 0; i < field.Len(); i++ {
-			if targetIndex != nil && i == *targetIndex {
-				continue // Skip the target itself
-			}
-			elem := field.Index(i)
-			if elem.Kind() == reflect.Ptr && !elem.IsNil() {
-				if node, ok := elem.Interface().(Node); ok {
-					siblings = append(siblings, node)
-				}
-			} else if node, ok := elem.Interface().(Node); ok {
+	if field.Kind() != reflect.Slice {
+		return siblings
+	}
+
+	for i := 0; i < field.Len(); i++ {
+		if targetIndex != nil && i == *targetIndex {
+			continue // Skip the target itself
+		}
+		elem := field.Index(i)
+		if elem.Kind() == reflect.Ptr && !elem.IsNil() {
+			if node, ok := elem.Interface().(Node); ok {
 				siblings = append(siblings, node)
 			}
+		} else if node, ok := elem.Interface().(Node); ok {
+			siblings = append(siblings, node)
 		}
 	}
 
@@ -335,7 +349,7 @@ func GetSiblings(root Node, target Node) []Node {
 }
 
 // Contains checks if the AST rooted at 'root' contains 'target' node.
-func Contains(root Node, target Node) bool {
+func Contains(root, target Node) bool {
 	found := false
 	Traverse(root, func(node Node) bool {
 		if node == target {
@@ -348,7 +362,7 @@ func Contains(root Node, target Node) bool {
 }
 
 // GetDepth returns the depth of the target node in the AST (0 for root).
-func GetDepth(root Node, target Node) int {
+func GetDepth(root, target Node) int {
 	depth := -1
 	TraverseWithContext(root, func(node Node, ctx *TraverseContext) bool {
 		if node == target {

@@ -44,14 +44,14 @@ var VisitorKeys = map[string][]string{
 	"NewExpression":    {"callee", "typeArguments", "arguments"},
 	"MetaProperty":     {"meta", "property"},
 
-	"TemplateLiteral":            {"quasis", "expressions"},
-	"TaggedTemplateExpression":   {"tag", "typeArguments", "quasi"},
-	"TemplateElement":            {}, // No child nodes
-	"YieldExpression":            {"argument"},
-	"AwaitExpression":            {"argument"},
-	"ChainExpression":            {"expression"},
-	"ImportExpression":           {"source"},
-	"SpreadElement":              {"argument"},
+	"TemplateLiteral":          {"quasis", "expressions"},
+	"TaggedTemplateExpression": {"tag", "typeArguments", "quasi"},
+	"TemplateElement":          {}, // No child nodes
+	"YieldExpression":          {"argument"},
+	"AwaitExpression":          {"argument"},
+	"ChainExpression":          {"expression"},
+	"ImportExpression":         {"source"},
+	"SpreadElement":            {"argument"},
 
 	// ==================== Statements ====================
 
@@ -70,11 +70,11 @@ var VisitorKeys = map[string][]string{
 	"ForInStatement":   {"left", "right", "body"},
 	"ForOfStatement":   {"left", "right", "body"},
 
-	"TryStatement":     {"block", "handler", "finalizer"},
-	"CatchClause":      {"param", "body"},
-	"ThrowStatement":   {"argument"},
-	"ReturnStatement":  {"argument"},
-	"BreakStatement":   {"label"},
+	"TryStatement":      {"block", "handler", "finalizer"},
+	"CatchClause":       {"param", "body"},
+	"ThrowStatement":    {"argument"},
+	"ReturnStatement":   {"argument"},
+	"BreakStatement":    {"label"},
 	"ContinueStatement": {"label"},
 
 	"DebuggerStatement": {}, // No child nodes
@@ -87,30 +87,30 @@ var VisitorKeys = map[string][]string{
 
 	"FunctionDeclaration": {"id", "typeParameters", "params", "returnType", "body"},
 
-	"ClassDeclaration": {"decorators", "id", "typeParameters", "superClass", "superTypeArguments", "implements", "body"},
-	"ClassBody":        {"body"},
-	"MethodDefinition": {"decorators", "key", "value"},
+	"ClassDeclaration":   {"decorators", "id", "typeParameters", "superClass", "superTypeArguments", "implements", "body"},
+	"ClassBody":          {"body"},
+	"MethodDefinition":   {"decorators", "key", "value"},
 	"PropertyDefinition": {"decorators", "key", "typeAnnotation", "value"},
-	"AccessorProperty": {"decorators", "key", "typeAnnotation", "value"},
-	"StaticBlock":      {"body"},
+	"AccessorProperty":   {"decorators", "key", "typeAnnotation", "value"},
+	"StaticBlock":        {"body"},
 
-	"ImportDeclaration":          {"specifiers", "source", "attributes"},
-	"ImportSpecifier":            {"imported", "local"},
-	"ImportDefaultSpecifier":     {"local"},
-	"ImportNamespaceSpecifier":   {"local"},
-	"ImportAttribute":            {"key", "value"},
+	"ImportDeclaration":        {"specifiers", "source", "attributes"},
+	"ImportSpecifier":          {"imported", "local"},
+	"ImportDefaultSpecifier":   {"local"},
+	"ImportNamespaceSpecifier": {"local"},
+	"ImportAttribute":          {"key", "value"},
 
-	"ExportNamedDeclaration":    {"declaration", "specifiers", "source"},
-	"ExportDefaultDeclaration":  {"declaration"},
-	"ExportAllDeclaration":      {"exported", "source"},
-	"ExportSpecifier":           {"exported", "local"},
+	"ExportNamedDeclaration":   {"declaration", "specifiers", "source"},
+	"ExportDefaultDeclaration": {"declaration"},
+	"ExportAllDeclaration":     {"exported", "source"},
+	"ExportSpecifier":          {"exported", "local"},
 
 	// ==================== Patterns ====================
 
-	"ArrayPattern":       {"elements"},
-	"ObjectPattern":      {"properties"},
-	"RestElement":        {"argument"},
-	"AssignmentPattern":  {"left", "right"},
+	"ArrayPattern":      {"elements"},
+	"ObjectPattern":     {"properties"},
+	"RestElement":       {"argument"},
+	"AssignmentPattern": {"left", "right"},
 
 	// ==================== Other ====================
 
@@ -128,9 +128,9 @@ var VisitorKeys = map[string][]string{
 	"JSXAttribute":       {"name", "value"},
 	"JSXSpreadAttribute": {"argument"},
 
-	"JSXIdentifier":        {}, // No child nodes
-	"JSXNamespacedName":    {"namespace", "name"},
-	"JSXMemberExpression":  {"object", "property"},
+	"JSXIdentifier":       {}, // No child nodes
+	"JSXNamespacedName":   {"namespace", "name"},
+	"JSXMemberExpression": {"object", "property"},
 
 	"JSXText":                {}, // No child nodes
 	"JSXExpressionContainer": {"expression"},
@@ -178,26 +178,26 @@ var VisitorKeys = map[string][]string{
 	"TSParenthesizedType":   {"typeAnnotation"},
 
 	// Type Declarations
-	"TSTypeAnnotation":        {"typeAnnotation"},
-	"TSTypeAliasDeclaration":  {"id", "typeParameters", "typeAnnotation"},
-	"TSInterfaceDeclaration":  {"id", "typeParameters", "extends", "body"},
-	"TSInterfaceBody":         {"body"},
-	"TSInterfaceHeritage":     {"expression", "typeArguments"},
-	"TSEnumDeclaration":       {"id", "members"},
-	"TSEnumMember":            {"id", "initializer"},
-	"TSModuleDeclaration":     {"id", "body"},
-	"TSModuleBlock":           {"body"},
+	"TSTypeAnnotation":       {"typeAnnotation"},
+	"TSTypeAliasDeclaration": {"id", "typeParameters", "typeAnnotation"},
+	"TSInterfaceDeclaration": {"id", "typeParameters", "extends", "body"},
+	"TSInterfaceBody":        {"body"},
+	"TSInterfaceHeritage":    {"expression", "typeArguments"},
+	"TSEnumDeclaration":      {"id", "members"},
+	"TSEnumMember":           {"id", "initializer"},
+	"TSModuleDeclaration":    {"id", "body"},
+	"TSModuleBlock":          {"body"},
 
 	// Type Components
-	"TSTypeParameter":                {"name", "constraint", "default"},
-	"TSTypeParameterDeclaration":     {"params"},
-	"TSTypeParameterInstantiation":   {"params"},
-	"TSCallSignatureDeclaration":     {"typeParameters", "params", "returnType"},
+	"TSTypeParameter":                 {"name", "constraint", "default"},
+	"TSTypeParameterDeclaration":      {"params"},
+	"TSTypeParameterInstantiation":    {"params"},
+	"TSCallSignatureDeclaration":      {"typeParameters", "params", "returnType"},
 	"TSConstructSignatureDeclaration": {"typeParameters", "params", "returnType"},
-	"TSPropertySignature":            {"key", "typeAnnotation"},
-	"TSMethodSignature":              {"key", "typeParameters", "params", "returnType"},
-	"TSIndexSignature":               {"parameters", "typeAnnotation"},
-	"TSNamedTupleMember":             {"label", "elementType"},
+	"TSPropertySignature":             {"key", "typeAnnotation"},
+	"TSMethodSignature":               {"key", "typeParameters", "params", "returnType"},
+	"TSIndexSignature":                {"parameters", "typeAnnotation"},
+	"TSNamedTupleMember":              {"label", "elementType"},
 
 	// Type Assertions
 	"TSAsExpression":            {"expression", "typeAnnotation"},
@@ -215,17 +215,17 @@ var VisitorKeys = map[string][]string{
 	"TSAbstractPropertyDefinition": {"decorators", "key", "typeAnnotation", "value"},
 
 	// Import/Export
-	"TSImportEqualsDeclaration":     {"id", "moduleReference"},
-	"TSExternalModuleReference":     {"expression"},
-	"TSExportAssignment":            {"expression"},
-	"TSNamespaceExportDeclaration":  {"id"},
+	"TSImportEqualsDeclaration":    {"id", "moduleReference"},
+	"TSExternalModuleReference":    {"expression"},
+	"TSExportAssignment":           {"expression"},
+	"TSNamespaceExportDeclaration": {"id"},
 
 	// Other
-	"TSQualifiedName":                  {"left", "right"},
-	"TSParameterProperty":              {"decorators", "parameter"},
-	"TSDeclareFunction":                {"id", "typeParameters", "params", "returnType", "body"},
-	"TSEmptyBodyFunctionExpression":    {"id", "typeParameters", "params", "returnType"},
-	"TSClassImplements":                {"expression", "typeArguments"},
+	"TSQualifiedName":               {"left", "right"},
+	"TSParameterProperty":           {"decorators", "parameter"},
+	"TSDeclareFunction":             {"id", "typeParameters", "params", "returnType", "body"},
+	"TSEmptyBodyFunctionExpression": {"id", "typeParameters", "params", "returnType"},
+	"TSClassImplements":             {"expression", "typeArguments"},
 }
 
 // GetVisitorKeys returns the visitor keys for a given node type.

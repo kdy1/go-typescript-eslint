@@ -35,6 +35,8 @@ func IsTSNode(node Node) bool {
 
 // AsExpression attempts to convert the node to an Expression.
 // Returns the expression and true if successful, nil and false otherwise.
+//
+//nolint:ireturn // Interface types are intentional for AST node conversion
 func AsExpression(node Node) (Expression, bool) {
 	expr, ok := node.(Expression)
 	return expr, ok
@@ -42,6 +44,8 @@ func AsExpression(node Node) (Expression, bool) {
 
 // AsStatement attempts to convert the node to a Statement.
 // Returns the statement and true if successful, nil and false otherwise.
+//
+//nolint:ireturn // Interface types are intentional for AST node conversion
 func AsStatement(node Node) (Statement, bool) {
 	stmt, ok := node.(Statement)
 	return stmt, ok
@@ -49,6 +53,8 @@ func AsStatement(node Node) (Statement, bool) {
 
 // AsPattern attempts to convert the node to a Pattern.
 // Returns the pattern and true if successful, nil and false otherwise.
+//
+//nolint:ireturn // Interface types are intentional for AST node conversion
 func AsPattern(node Node) (Pattern, bool) {
 	pat, ok := node.(Pattern)
 	return pat, ok
@@ -56,14 +62,16 @@ func AsPattern(node Node) (Pattern, bool) {
 
 // AsDeclaration attempts to convert the node to a Declaration.
 // Returns the declaration and true if successful, nil and false otherwise.
+//
+//nolint:ireturn // Interface types are intentional for AST node conversion
 func AsDeclaration(node Node) (Declaration, bool) {
 	decl, ok := node.(Declaration)
 	return decl, ok
 }
 
-// AsTSNode attempts to convert the node to a TSNode.
+// AsTypeScriptNode attempts to convert the node to a TSNode.
 // Returns the TS node and true if successful, nil and false otherwise.
-func AsTSNode(node Node) (TSNode, bool) {
+func AsTypeScriptNode(node Node) (TSNode, bool) {
 	tsNode, ok := node.(TSNode)
 	return tsNode, ok
 }
