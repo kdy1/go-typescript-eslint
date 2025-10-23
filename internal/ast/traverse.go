@@ -61,31 +61,43 @@ func Walk(node Node, visitor Visitor) {
 func traverseField(field reflect.Value, visitor Visitor) {
 	switch field.Kind() {
 	case reflect.Ptr:
-		if !field.IsNil() {
-			if node, ok := field.Interface().(Node); ok {
-				Walk(node, visitor)
-			}
-		}
+		traversePointerField(field, visitor)
 	case reflect.Slice:
-		for i := 0; i < field.Len(); i++ {
-			elem := field.Index(i)
-			if elem.Kind() == reflect.Ptr && !elem.IsNil() {
-				if node, ok := elem.Interface().(Node); ok {
-					Walk(node, visitor)
-				}
-			} else if node, ok := elem.Interface().(Node); ok {
-				Walk(node, visitor)
-			}
-		}
+		traverseSliceField(field, visitor)
 	case reflect.Interface:
-		if !field.IsNil() {
-			if node, ok := field.Interface().(Node); ok {
-				Walk(node, visitor)
-			}
-		}
+		traverseInterfaceField(field, visitor)
 	default:
 		// Other types (Bool, Int, String, etc.) are not traversable nodes
 		return
+	}
+}
+
+func traversePointerField(field reflect.Value, visitor Visitor) {
+	if !field.IsNil() {
+		if node, ok := field.Interface().(Node); ok {
+			Walk(node, visitor)
+		}
+	}
+}
+
+func traverseSliceField(field reflect.Value, visitor Visitor) {
+	for i := 0; i < field.Len(); i++ {
+		elem := field.Index(i)
+		if elem.Kind() == reflect.Ptr && !elem.IsNil() {
+			if node, ok := elem.Interface().(Node); ok {
+				Walk(node, visitor)
+			}
+		} else if node, ok := elem.Interface().(Node); ok {
+			Walk(node, visitor)
+		}
+	}
+}
+
+func traverseInterfaceField(field reflect.Value, visitor Visitor) {
+	if !field.IsNil() {
+		if node, ok := field.Interface().(Node); ok {
+			Walk(node, visitor)
+		}
 	}
 }
 
@@ -186,38 +198,50 @@ func walkWithContextInternal(node Node, visitor ContextVisitor, ctx *TraverseCon
 func traverseFieldWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
 	switch field.Kind() {
 	case reflect.Ptr:
-		if !field.IsNil() {
-			if node, ok := field.Interface().(Node); ok {
-				walkWithContextInternal(node, visitor, ctx)
-			}
-		}
+		traversePointerWithContext(field, visitor, ctx)
 	case reflect.Slice:
-		for i := 0; i < field.Len(); i++ {
-			elem := field.Index(i)
-			idx := i // Create a new variable for each iteration
-			childCtx := &TraverseContext{
-				Parent:    ctx.Parent,
-				Ancestors: ctx.Ancestors,
-				Key:       ctx.Key,
-				Index:     &idx,
-			}
-			if elem.Kind() == reflect.Ptr && !elem.IsNil() {
-				if node, ok := elem.Interface().(Node); ok {
-					walkWithContextInternal(node, visitor, childCtx)
-				}
-			} else if node, ok := elem.Interface().(Node); ok {
-				walkWithContextInternal(node, visitor, childCtx)
-			}
-		}
+		traverseSliceWithContext(field, visitor, ctx)
 	case reflect.Interface:
-		if !field.IsNil() {
-			if node, ok := field.Interface().(Node); ok {
-				walkWithContextInternal(node, visitor, ctx)
-			}
-		}
+		traverseInterfaceWithContext(field, visitor, ctx)
 	default:
 		// Other types (Bool, Int, String, etc.) are not traversable nodes
 		return
+	}
+}
+
+func traversePointerWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
+	if !field.IsNil() {
+		if node, ok := field.Interface().(Node); ok {
+			walkWithContextInternal(node, visitor, ctx)
+		}
+	}
+}
+
+func traverseSliceWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
+	for i := 0; i < field.Len(); i++ {
+		elem := field.Index(i)
+		idx := i // Create a new variable for each iteration
+		childCtx := &TraverseContext{
+			Parent:    ctx.Parent,
+			Ancestors: ctx.Ancestors,
+			Key:       ctx.Key,
+			Index:     &idx,
+		}
+		if elem.Kind() == reflect.Ptr && !elem.IsNil() {
+			if node, ok := elem.Interface().(Node); ok {
+				walkWithContextInternal(node, visitor, childCtx)
+			}
+		} else if node, ok := elem.Interface().(Node); ok {
+			walkWithContextInternal(node, visitor, childCtx)
+		}
+	}
+}
+
+func traverseInterfaceWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
+	if !field.IsNil() {
+		if node, ok := field.Interface().(Node); ok {
+			walkWithContextInternal(node, visitor, ctx)
+		}
 	}
 }
 
@@ -306,37 +330,35 @@ func GetAncestors(root, target Node) []Node {
 //nolint:cyclop // Complexity is inherent to sibling extraction logic
 func GetSiblings(root, target Node) []Node {
 	var siblings []Node
-	var targetParent Node
-	var targetKey string
-	var targetIndex *int
+	targetCtx := findTargetContext(root, target)
+	if targetCtx == nil || targetCtx.Parent == nil {
+		return siblings
+	}
 
-	// Find the target's context
+	return extractSiblings(targetCtx.Parent, targetCtx.Key, targetCtx.Index)
+}
+
+func findTargetContext(root, target Node) *TraverseContext {
+	var result *TraverseContext
 	TraverseWithContext(root, func(node Node, ctx *TraverseContext) bool {
 		if node == target {
-			targetParent = ctx.Parent
-			targetKey = ctx.Key
-			targetIndex = ctx.Index
+			result = ctx
 			return false
 		}
 		return true
 	})
+	return result
+}
 
-	if targetParent == nil {
-		return siblings
-	}
-
-	// Get all children in the same property
-	parentValue := reflect.ValueOf(targetParent)
+func extractSiblings(parent Node, key string, targetIndex *int) []Node {
+	var siblings []Node
+	parentValue := reflect.ValueOf(parent)
 	if parentValue.Kind() == reflect.Ptr {
 		parentValue = parentValue.Elem()
 	}
 
-	field := parentValue.FieldByName(capitalizeFirst(targetKey))
-	if !field.IsValid() {
-		return siblings
-	}
-
-	if field.Kind() != reflect.Slice {
+	field := parentValue.FieldByName(capitalizeFirst(key))
+	if !field.IsValid() || field.Kind() != reflect.Slice {
 		return siblings
 	}
 
@@ -345,16 +367,23 @@ func GetSiblings(root, target Node) []Node {
 			continue // Skip the target itself
 		}
 		elem := field.Index(i)
-		if elem.Kind() == reflect.Ptr && !elem.IsNil() {
-			if node, ok := elem.Interface().(Node); ok {
-				siblings = append(siblings, node)
-			}
-		} else if node, ok := elem.Interface().(Node); ok {
+		if node := extractNodeFromElement(elem); node != nil {
 			siblings = append(siblings, node)
 		}
 	}
 
 	return siblings
+}
+
+func extractNodeFromElement(elem reflect.Value) Node {
+	if elem.Kind() == reflect.Ptr && !elem.IsNil() {
+		if node, ok := elem.Interface().(Node); ok {
+			return node
+		}
+	} else if node, ok := elem.Interface().(Node); ok {
+		return node
+	}
+	return nil
 }
 
 // Contains checks if the AST rooted at 'root' contains 'target' node.

@@ -30,7 +30,12 @@ func AttachComments(root Node, comments []*Comment) []CommentAttachment {
 		return nil
 	}
 
-	// Sort comments by position
+	sortedComments := sortCommentsByPosition(comments)
+	nodes := collectAndSortNodes(root)
+	return attachCommentsToNodes(sortedComments, nodes)
+}
+
+func sortCommentsByPosition(comments []*Comment) []*Comment {
 	sortedComments := make([]*Comment, len(comments))
 	copy(sortedComments, comments)
 	sort.Slice(sortedComments, func(i, j int) bool {
@@ -39,68 +44,92 @@ func AttachComments(root Node, comments []*Comment) []CommentAttachment {
 		}
 		return (*sortedComments[i].Range)[0] < (*sortedComments[j].Range)[0]
 	})
+	return sortedComments
+}
 
-	// Collect all nodes
+func collectAndSortNodes(root Node) []Node {
 	var nodes []Node
 	Traverse(root, func(node Node) bool {
 		nodes = append(nodes, node)
 		return true
 	})
-
-	// Sort nodes by position
 	sort.Slice(nodes, func(i, j int) bool {
 		return nodes[i].Pos() < nodes[j].Pos()
 	})
+	return nodes
+}
 
+func attachCommentsToNodes(sortedComments []*Comment, nodes []Node) []CommentAttachment {
 	var attachments []CommentAttachment
 	commentIdx := 0
 
 	for _, node := range nodes {
-		nodeStart := node.Pos()
-		nodeEnd := node.End()
-
-		// Attach leading comments
-		for commentIdx < len(sortedComments) {
-			comment := sortedComments[commentIdx]
-			if comment.Range == nil || (*comment.Range)[1] > nodeStart {
-				break
-			}
-			attachments = append(attachments, CommentAttachment{
-				Comment: comment,
-				Node:    node,
-				Type:    CommentLeading,
-			})
-			commentIdx++
-		}
-
-		// Attach inner comments (comments inside the node's range)
-		for commentIdx < len(sortedComments) {
-			comment := sortedComments[commentIdx]
-			if comment.Range == nil || (*comment.Range)[0] < nodeStart || (*comment.Range)[1] > nodeEnd {
-				break
-			}
-			attachments = append(attachments, CommentAttachment{
-				Comment: comment,
-				Node:    node,
-				Type:    CommentInner,
-			})
-			commentIdx++
-		}
+		commentIdx = attachNodeComments(node, sortedComments, commentIdx, &attachments)
 	}
 
-	// Handle remaining comments as trailing comments of the last node
-	if len(nodes) > 0 && commentIdx < len(sortedComments) {
+	attachRemainingComments(nodes, sortedComments, commentIdx, &attachments)
+	return attachments
+}
+
+func attachNodeComments(node Node, sortedComments []*Comment, startIdx int, attachments *[]CommentAttachment) int {
+	nodeStart := node.Pos()
+	nodeEnd := node.End()
+	commentIdx := startIdx
+
+	// Attach leading comments
+	commentIdx = attachLeadingComments(node, sortedComments, commentIdx, nodeStart, attachments)
+
+	// Attach inner comments
+	commentIdx = attachInnerComments(node, sortedComments, commentIdx, nodeStart, nodeEnd, attachments)
+
+	return commentIdx
+}
+
+func attachLeadingComments(node Node, comments []*Comment, startIdx, nodeStart int, attachments *[]CommentAttachment) int {
+	idx := startIdx
+	for idx < len(comments) {
+		comment := comments[idx]
+		if comment.Range == nil || (*comment.Range)[1] > nodeStart {
+			break
+		}
+		*attachments = append(*attachments, CommentAttachment{
+			Comment: comment,
+			Node:    node,
+			Type:    CommentLeading,
+		})
+		idx++
+	}
+	return idx
+}
+
+func attachInnerComments(node Node, comments []*Comment, startIdx, nodeStart, nodeEnd int, attachments *[]CommentAttachment) int {
+	idx := startIdx
+	for idx < len(comments) {
+		comment := comments[idx]
+		if comment.Range == nil || (*comment.Range)[0] < nodeStart || (*comment.Range)[1] > nodeEnd {
+			break
+		}
+		*attachments = append(*attachments, CommentAttachment{
+			Comment: comment,
+			Node:    node,
+			Type:    CommentInner,
+		})
+		idx++
+	}
+	return idx
+}
+
+func attachRemainingComments(nodes []Node, comments []*Comment, startIdx int, attachments *[]CommentAttachment) {
+	if len(nodes) > 0 && startIdx < len(comments) {
 		lastNode := nodes[len(nodes)-1]
-		for ; commentIdx < len(sortedComments); commentIdx++ {
-			attachments = append(attachments, CommentAttachment{
-				Comment: sortedComments[commentIdx],
+		for idx := startIdx; idx < len(comments); idx++ {
+			*attachments = append(*attachments, CommentAttachment{
+				Comment: comments[idx],
 				Node:    lastNode,
 				Type:    CommentTrailing,
 			})
 		}
 	}
-
-	return attachments
 }
 
 // GetLeadingComments returns all leading comments for a node.

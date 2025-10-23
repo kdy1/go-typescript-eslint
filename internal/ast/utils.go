@@ -447,6 +447,7 @@ func GetClassName(node Node) string {
 }
 
 const (
+	classDeclaration         = "ClassDeclaration"
 	exportNamedDeclaration   = "ExportNamedDeclaration"
 	exportDefaultDeclaration = "ExportDefaultDeclaration"
 	exportAllDeclaration     = "ExportAllDeclaration"
