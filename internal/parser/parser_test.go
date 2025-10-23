@@ -86,7 +86,7 @@ func TestParserBasic(t *testing.T) {
 					return
 				}
 
-				if program.NodeType != ast.NodeTypeProgram {
+				if program.NodeType != ast.NodeTypeProgram.String() {
 					t.Errorf("Program node type = %v, want %v", program.NodeType, ast.NodeTypeProgram)
 				}
 			}

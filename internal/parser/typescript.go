@@ -304,7 +304,7 @@ func (p *Parser) parseTSTypeLiteral() (*ast.TSTypeLiteral, error) {
 	start := p.current.Pos
 	p.nextToken() // consume '{'
 
-	members := []ast.Node{}
+	members := []interface{}{}
 
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		member, err := p.parseTSTypeElement()
@@ -762,7 +762,7 @@ func (p *Parser) parseTSImportType() (*ast.TSImportType, error) {
 		return nil, p.errorAtCurrent("expected string literal")
 	}
 
-	argument := &ast.Literal{
+	literal := &ast.Literal{
 		BaseNode: ast.BaseNode{
 			NodeType: ast.NodeTypeLiteral.String(),
 		},
@@ -775,7 +775,15 @@ func (p *Parser) parseTSImportType() (*ast.TSImportType, error) {
 		return nil, err
 	}
 
+	argument := &ast.TSLiteralType{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeTSLiteralType.String(),
+		},
+		Literal: literal,
+	}
+
 	var qualifier ast.Node
+	var err error
 	if p.consume(lexer.PERIOD) {
 		qualifier, err = p.parseTSEntityName()
 		if err != nil {
@@ -888,14 +896,14 @@ func (p *Parser) parseTSTypeParameters() (*ast.TSTypeParameterDeclaration, error
 		return nil, err
 	}
 
-	params := []*ast.TSTypeParameter{}
+	params := []ast.TSTypeParameter{}
 
 	for !p.match(lexer.GTR) && !p.isAtEnd() {
 		param, err := p.parseTSTypeParameter()
 		if err != nil {
 			return nil, err
 		}
-		params = append(params, param)
+		params = append(params, *param)
 
 		if !p.consume(lexer.COMMA) {
 			break
@@ -955,9 +963,9 @@ func (p *Parser) parseTSTypeParameter() (*ast.TSTypeParameter, error) {
 			NodeType: ast.NodeTypeTSTypeParameter.String(),
 			Range:    &ast.Range{start, p.current.Pos},
 		},
-		Name:    name,
+		Name:       name,
 		Constraint: constraint,
-		Default: defaultType,
+		Default:    defaultType,
 	}, nil
 }
 
@@ -1053,14 +1061,14 @@ func (p *Parser) parseTSInterfaceDeclaration() (*ast.TSInterfaceDeclaration, err
 	}
 
 	// Parse extends clause
-	var extends []*ast.TSInterfaceHeritage
+	var extends []ast.TSInterfaceHeritage
 	if p.consume(lexer.EXTENDS) {
 		for {
 			heritage, err := p.parseTSInterfaceHeritage()
 			if err != nil {
 				return nil, err
 			}
-			extends = append(extends, heritage)
+			extends = append(extends, *heritage)
 
 			if !p.consume(lexer.COMMA) {
 				break
@@ -1090,10 +1098,13 @@ func (p *Parser) parseTSInterfaceDeclaration() (*ast.TSInterfaceDeclaration, err
 func (p *Parser) parseTSInterfaceHeritage() (*ast.TSInterfaceHeritage, error) {
 	start := p.current.Pos
 
-	expression, err := p.parseTSEntityName()
+	expressionNode, err := p.parseTSEntityName()
 	if err != nil {
 		return nil, err
 	}
+
+	// Cast to Expression - TSEntityName returns Identifier/TSQualifiedName which implement Expression
+	expression, _ := expressionNode.(ast.Expression)
 
 	var typeParameters *ast.TSTypeParameterInstantiation
 	if p.current.Type == lexer.LSS {
@@ -1120,7 +1131,7 @@ func (p *Parser) parseTSInterfaceBody() (*ast.TSInterfaceBody, error) {
 		return nil, err
 	}
 
-	body := []ast.Node{}
+	body := []interface{}{}
 
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		member, err := p.parseTSTypeElement()
@@ -1220,7 +1231,7 @@ func (p *Parser) parseTSEnumDeclaration() (*ast.TSEnumDeclaration, error) {
 		return nil, err
 	}
 
-	members := []*ast.TSEnumMember{}
+	members := []ast.TSEnumMember{}
 
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		member, err := p.parseTSEnumMember()
@@ -1228,7 +1239,7 @@ func (p *Parser) parseTSEnumDeclaration() (*ast.TSEnumDeclaration, error) {
 			p.synchronize()
 			continue
 		}
-		members = append(members, member)
+		members = append(members, *member)
 
 		if !p.consume(lexer.COMMA) {
 			break
@@ -1383,10 +1394,13 @@ func (p *Parser) parseTSModuleBlock() (*ast.TSModuleBlock, error) {
 func (p *Parser) parseTSClassImplements() (*ast.TSClassImplements, error) {
 	start := p.current.Pos
 
-	expression, err := p.parseTSEntityName()
+	expressionNode, err := p.parseTSEntityName()
 	if err != nil {
 		return nil, err
 	}
+
+	// Cast to Expression - TSEntityName returns Identifier/TSQualifiedName which implement Expression
+	expression, _ := expressionNode.(ast.Expression)
 
 	var typeParameters *ast.TSTypeParameterInstantiation
 	if p.current.Type == lexer.LSS {

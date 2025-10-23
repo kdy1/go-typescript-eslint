@@ -115,14 +115,14 @@ func (p *Parser) parseVariableStatement() (*ast.VariableDeclaration, error) {
 	kind := p.current.Literal // "var", "let", "const"
 	p.nextToken()
 
-	declarations := []*ast.VariableDeclarator{}
+	declarations := []ast.VariableDeclarator{}
 
 	// Parse first declarator
 	declarator, err := p.parseVariableDeclarator()
 	if err != nil {
 		return nil, err
 	}
-	declarations = append(declarations, declarator)
+	declarations = append(declarations, *declarator)
 
 	// Parse additional declarators
 	for p.consume(lexer.COMMA) {
@@ -130,7 +130,7 @@ func (p *Parser) parseVariableStatement() (*ast.VariableDeclaration, error) {
 		if err != nil {
 			return nil, err
 		}
-		declarations = append(declarations, declarator)
+		declarations = append(declarations, *declarator)
 	}
 
 	// Consume optional semicolon
@@ -367,7 +367,7 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 					NodeType: ast.NodeTypeVariableDeclaration.String(),
 					Range:    &ast.Range{start, p.current.Pos},
 				},
-				Declarations: []*ast.VariableDeclarator{declarator},
+				Declarations: []ast.VariableDeclarator{*declarator},
 				Kind:         kind,
 			}
 		}
@@ -470,7 +470,7 @@ func (p *Parser) parseForInOfStatement(start int, kind string, left ast.Node, aw
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeVariableDeclaration.String(),
 			},
-			Declarations: []*ast.VariableDeclarator{
+			Declarations: []ast.VariableDeclarator{
 				{
 					BaseNode: ast.BaseNode{
 						NodeType: ast.NodeTypeVariableDeclarator.String(),
@@ -710,14 +710,14 @@ func (p *Parser) parseSwitchStatement() (*ast.SwitchStatement, error) {
 	oldInSwitch := p.inSwitch
 	p.inSwitch = true
 
-	cases := []*ast.SwitchCase{}
+	cases := []ast.SwitchCase{}
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		switchCase, err := p.parseSwitchCase()
 		if err != nil {
 			p.synchronize()
 			continue
 		}
-		cases = append(cases, switchCase)
+		cases = append(cases, *switchCase)
 	}
 
 	p.inSwitch = oldInSwitch

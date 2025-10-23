@@ -459,14 +459,14 @@ func (p *Parser) parseClassDeclaration() (*ast.ClassDeclaration, error) {
 	}
 
 	// Parse implements clause (TypeScript)
-	var implements []*ast.TSClassImplements
+	var implements []ast.TSClassImplements
 	if p.consume(lexer.IMPLEMENTS) {
 		for {
 			impl, err := p.parseTSClassImplements()
 			if err != nil {
 				return nil, err
 			}
-			implements = append(implements, impl)
+			implements = append(implements, *impl)
 
 			if !p.consume(lexer.COMMA) {
 				break
@@ -485,12 +485,12 @@ func (p *Parser) parseClassDeclaration() (*ast.ClassDeclaration, error) {
 			NodeType: ast.NodeTypeClassDeclaration.String(),
 			Range:    &ast.Range{start, p.current.Pos},
 		},
-		ID:                   id,
-		SuperClass:           superClass,
-		Body:                 body,
-		TypeParameters:       typeParameters,
-		SuperTypeParameters:  superTypeParameters,
-		Implements:           implements,
+		ID:                  id,
+		SuperClass:          superClass,
+		Body:                body,
+		TypeParameters:      typeParameters,
+		SuperTypeParameters: superTypeParameters,
+		Implements:          implements,
 	}, nil
 }
 
@@ -542,14 +542,14 @@ func (p *Parser) parseClassExpression() (*ast.ClassExpression, error) {
 	}
 
 	// Parse implements clause (TypeScript)
-	var implements []*ast.TSClassImplements
+	var implements []ast.TSClassImplements
 	if p.consume(lexer.IMPLEMENTS) {
 		for {
 			impl, err := p.parseTSClassImplements()
 			if err != nil {
 				return nil, err
 			}
-			implements = append(implements, impl)
+			implements = append(implements, *impl)
 
 			if !p.consume(lexer.COMMA) {
 				break
@@ -568,12 +568,12 @@ func (p *Parser) parseClassExpression() (*ast.ClassExpression, error) {
 			NodeType: ast.NodeTypeClassExpression.String(),
 			Range:    &ast.Range{start, p.current.Pos},
 		},
-		ID:                   id,
-		SuperClass:           superClass,
-		Body:                 body,
-		TypeParameters:       typeParameters,
-		SuperTypeParameters:  superTypeParameters,
-		Implements:           implements,
+		ID:                  id,
+		SuperClass:          superClass,
+		Body:                body,
+		TypeParameters:      typeParameters,
+		SuperTypeParameters: superTypeParameters,
+		Implements:          implements,
 	}, nil
 }
 
@@ -587,7 +587,7 @@ func (p *Parser) parseClassBody() (*ast.ClassBody, error) {
 	oldInClass := p.inClass
 	p.inClass = true
 
-	body := []ast.Node{}
+	body := []interface{}{}
 
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		// Parse class element
@@ -643,7 +643,7 @@ func (p *Parser) parseClassElement() (ast.Node, error) {
 
 	// Parse modifiers
 	isStatic := p.consume(lexer.STATIC)
-	isAbstract := false
+	_ = false // isAbstract - not used in PropertyDefinition
 	isReadonly := false
 	isDeclare := false
 
@@ -768,6 +768,5 @@ func (p *Parser) parseClassElement() (ast.Node, error) {
 		Optional:       optional,
 		Readonly:       isReadonly,
 		Declare:        isDeclare,
-		Abstract:       isAbstract,
 	}, nil
 }

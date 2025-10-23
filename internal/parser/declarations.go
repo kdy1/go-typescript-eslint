@@ -17,7 +17,7 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 		p.nextToken()
 	}
 
-	specifiers := []ast.Node{}
+	specifiers := []interface{}{}
 
 	// Check for import 'module' (side-effect import)
 	if p.current.Type == lexer.STRING {
@@ -75,7 +75,9 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 				if err != nil {
 					return nil, err
 				}
-				specifiers = append(specifiers, specs...)
+				for _, spec := range specs {
+					specifiers = append(specifiers, spec)
+				}
 			}
 		}
 	} else if p.current.Type == lexer.MUL {
@@ -91,7 +93,9 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 		if err != nil {
 			return nil, err
 		}
-		specifiers = append(specifiers, specs...)
+		for _, spec := range specs {
+			specifiers = append(specifiers, spec)
+		}
 	} else {
 		return nil, p.errorAtCurrent("expected import specifier")
 	}
@@ -116,13 +120,17 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 	p.nextToken()
 
 	// Parse import attributes (with clause)
-	var attributes []*ast.ImportAttribute
+	var attributes []ast.ImportAttribute
 	if p.current.Type == lexer.IDENT && p.current.Literal == "with" {
 		p.nextToken()
 		var err error
-		attributes, err = p.parseImportAttributes()
+		attributesPtr, err := p.parseImportAttributes()
 		if err != nil {
 			return nil, err
+		}
+		// Convert []*ast.ImportAttribute to []ast.ImportAttribute
+		for _, attr := range attributesPtr {
+			attributes = append(attributes, *attr)
 		}
 	}
 
@@ -390,15 +398,21 @@ func (p *Parser) parseExportDeclaration() (ast.Statement, error) {
 		return nil, err
 	}
 
+	// Convert ast.Node to ast.Declaration
+	var decl ast.Declaration
+	if declaration != nil {
+		decl, _ = declaration.(ast.Declaration)
+	}
+
 	return &ast.ExportNamedDeclaration{
 		BaseNode: ast.BaseNode{
 			NodeType: ast.NodeTypeExportNamedDeclaration.String(),
 			Range:    &ast.Range{start, p.current.Pos},
 		},
-		Declaration: declaration,
+		Declaration: decl,
 		Specifiers:  []ast.ExportSpecifier{},
 		Source:      nil,
-		ExportKind:  exportKind,
+		ExportKind:  &exportKind,
 	}, nil
 }
 
@@ -512,15 +526,21 @@ func (p *Parser) parseExportNamedDeclaration(start int, exportKind string) (*ast
 
 	p.consume(lexer.SEMICOLON)
 
+	// Convert []*ast.ExportSpecifier to []ast.ExportSpecifier
+	var specs []ast.ExportSpecifier
+	for _, spec := range specifiers {
+		specs = append(specs, *spec)
+	}
+
 	return &ast.ExportNamedDeclaration{
 		BaseNode: ast.BaseNode{
 			NodeType: ast.NodeTypeExportNamedDeclaration.String(),
 			Range:    &ast.Range{start, p.current.Pos},
 		},
 		Declaration: nil,
-		Specifiers:  specifiers,
+		Specifiers:  specs,
 		Source:      source,
-		ExportKind:  exportKind,
+		ExportKind:  &exportKind,
 	}, nil
 }
 

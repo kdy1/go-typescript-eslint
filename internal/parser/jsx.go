@@ -24,12 +24,12 @@ func (p *Parser) parseJSXElement() (*ast.JSXElement, error) {
 			},
 			OpeningElement: opening,
 			ClosingElement: nil,
-			Children:       []ast.Node{},
+			Children:       []interface{}{},
 		}, nil
 	}
 
 	// Parse children
-	children := []ast.Node{}
+	children := []interface{}{}
 	for !p.isAtEnd() {
 		// Check for closing tag
 		if p.current.Type == lexer.LSS && p.peek.Type == lexer.QUO {
@@ -84,7 +84,7 @@ func (p *Parser) parseJSXOpeningElement() (*ast.JSXOpeningElement, error) {
 	}
 
 	// Parse attributes
-	attributes := []ast.Node{}
+	attributes := []interface{}{}
 	for !p.match(lexer.GTR, lexer.JSXSelfClosingEnd) && !p.isAtEnd() {
 		attr, err := p.parseJSXAttribute()
 		if err != nil {
@@ -149,7 +149,7 @@ func (p *Parser) parseJSXElementName() (ast.Node, error) {
 		return nil, p.errorAtCurrent("expected JSX element name")
 	}
 
-	name := &ast.JSXIdentifier{
+	var name ast.Node = &ast.JSXIdentifier{
 		BaseNode: ast.BaseNode{
 			NodeType: ast.NodeTypeJSXIdentifier.String(),
 			Range:    &ast.Range{p.current.Pos, p.current.End},
@@ -178,7 +178,7 @@ func (p *Parser) parseJSXElementName() (ast.Node, error) {
 				NodeType: ast.NodeTypeJSXNamespacedName.String(),
 				Range:    &ast.Range{start, p.current.Pos},
 			},
-			Namespace: name,
+			Namespace: name.(*ast.JSXIdentifier),
 			Name:      namespaceName,
 		}, nil
 	}
@@ -244,7 +244,7 @@ func (p *Parser) parseJSXAttribute() (ast.Node, error) {
 		return nil, p.errorAtCurrent("expected JSX attribute name")
 	}
 
-	name := &ast.JSXIdentifier{
+	var name interface{} = &ast.JSXIdentifier{
 		BaseNode: ast.BaseNode{
 			NodeType: ast.NodeTypeJSXIdentifier.String(),
 			Range:    &ast.Range{p.current.Pos, p.current.End},
@@ -273,7 +273,7 @@ func (p *Parser) parseJSXAttribute() (ast.Node, error) {
 				NodeType: ast.NodeTypeJSXNamespacedName.String(),
 				Range:    &ast.Range{start, p.current.Pos},
 			},
-			Namespace: name,
+			Namespace: name.(*ast.JSXIdentifier),
 			Name:      namespaceName,
 		}
 	}
@@ -435,7 +435,7 @@ func (p *Parser) parseJSXFragment() (*ast.JSXFragment, error) {
 	}
 
 	// Parse children
-	children := []ast.Node{}
+	children := []interface{}{}
 	for !p.isAtEnd() {
 		// Check for closing fragment
 		if p.current.Type == lexer.LSS && p.peek.Type == lexer.QUO {

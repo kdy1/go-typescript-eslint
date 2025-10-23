@@ -103,7 +103,7 @@ func (p *Parser) parseObjectPattern() (*ast.ObjectPattern, error) {
 	start := p.current.Pos
 	p.nextToken() // consume '{'
 
-	properties := []*ast.Property{}
+	properties := []interface{}{}
 
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		// Handle rest element
@@ -113,21 +113,12 @@ func (p *Parser) parseObjectPattern() (*ast.ObjectPattern, error) {
 				return nil, err
 			}
 
-			// Create a property with RestElement as value
-			properties = append(properties, &ast.Property{
+			// Create a RestElement directly (not wrapped in Property)
+			properties = append(properties, &ast.RestElement{
 				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeProperty.String(),
+					NodeType: ast.NodeTypeRestElement.String(),
 				},
-				Key: nil,
-				Value: &ast.RestElement{
-					BaseNode: ast.BaseNode{
-						NodeType: ast.NodeTypeRestElement.String(),
-					},
-					Argument: arg,
-				},
-				Kind:      "init",
-				Shorthand: false,
-				Computed:  false,
+				Argument: arg,
 			})
 			break
 		}
@@ -200,7 +191,7 @@ func (p *Parser) parseObjectPatternProperty() (*ast.Property, error) {
 	// Check for shorthand property
 	if !computed && p.match(lexer.COMMA, lexer.RBRACE, lexer.ASSIGN) {
 		if id, ok := key.(*ast.Identifier); ok {
-			value := id
+			var value ast.Expression = id
 
 			// Check for default value
 			if p.consume(lexer.ASSIGN) {
@@ -236,11 +227,12 @@ func (p *Parser) parseObjectPatternProperty() (*ast.Property, error) {
 		return nil, err
 	}
 
-	value, err := p.parseBindingPattern()
+	valuePat, err := p.parseBindingPattern()
 	if err != nil {
 		return nil, err
 	}
 
+	var value ast.Expression
 	// Check for default value
 	if p.consume(lexer.ASSIGN) {
 		right, err := p.parseAssignmentExpression()
@@ -251,9 +243,12 @@ func (p *Parser) parseObjectPatternProperty() (*ast.Property, error) {
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeAssignmentPattern.String(),
 			},
-			Left:  value,
+			Left:  valuePat,
 			Right: right,
 		}
+	} else {
+		// Cast Pattern to Expression - valid since Identifier implements both
+		value, _ = valuePat.(ast.Expression)
 	}
 
 	return &ast.Property{
@@ -273,19 +268,20 @@ func (p *Parser) parseObjectPatternProperty() (*ast.Property, error) {
 func (p *Parser) parseTemplateLiteral() (*ast.TemplateLiteral, error) {
 	start := p.current.Pos
 
-	quasis := []*ast.TemplateElement{}
+	quasis := []ast.TemplateElement{}
 	expressions := []ast.Expression{}
 
 	// Handle template without substitutions
 	if p.current.Type == lexer.TemplateNoSub {
-		quasis = append(quasis, &ast.TemplateElement{
+		cooked := p.current.Literal // TODO: Unescape
+		quasis = append(quasis, ast.TemplateElement{
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeTemplateElement.String(),
 				Range:    &ast.Range{p.current.Pos, p.current.End},
 			},
-			Value: &ast.TemplateElementValue{
+			Value: ast.TemplateElementValue{
 				Raw:    p.current.Literal,
-				Cooked: p.current.Literal, // TODO: Unescape
+				Cooked: &cooked,
 			},
 			Tail: true,
 		})
@@ -302,14 +298,15 @@ func (p *Parser) parseTemplateLiteral() (*ast.TemplateLiteral, error) {
 
 	// Handle template head
 	if p.current.Type == lexer.TemplateHead {
-		quasis = append(quasis, &ast.TemplateElement{
+		cooked := p.current.Literal // TODO: Unescape
+		quasis = append(quasis, ast.TemplateElement{
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeTemplateElement.String(),
 				Range:    &ast.Range{p.current.Pos, p.current.End},
 			},
-			Value: &ast.TemplateElementValue{
+			Value: ast.TemplateElementValue{
 				Raw:    p.current.Literal,
-				Cooked: p.current.Literal, // TODO: Unescape
+				Cooked: &cooked,
 			},
 			Tail: false,
 		})
@@ -326,27 +323,29 @@ func (p *Parser) parseTemplateLiteral() (*ast.TemplateLiteral, error) {
 
 			// Parse template middle or tail
 			if p.current.Type == lexer.TemplateMiddle {
-				quasis = append(quasis, &ast.TemplateElement{
+				cooked := p.current.Literal // TODO: Unescape
+				quasis = append(quasis, ast.TemplateElement{
 					BaseNode: ast.BaseNode{
 						NodeType: ast.NodeTypeTemplateElement.String(),
 						Range:    &ast.Range{p.current.Pos, p.current.End},
 					},
-					Value: &ast.TemplateElementValue{
+					Value: ast.TemplateElementValue{
 						Raw:    p.current.Literal,
-						Cooked: p.current.Literal, // TODO: Unescape
+						Cooked: &cooked,
 					},
 					Tail: false,
 				})
 				p.nextToken()
 			} else if p.current.Type == lexer.TemplateTail {
-				quasis = append(quasis, &ast.TemplateElement{
+				cooked := p.current.Literal // TODO: Unescape
+				quasis = append(quasis, ast.TemplateElement{
 					BaseNode: ast.BaseNode{
 						NodeType: ast.NodeTypeTemplateElement.String(),
 						Range:    &ast.Range{p.current.Pos, p.current.End},
 					},
-					Value: &ast.TemplateElementValue{
+					Value: ast.TemplateElementValue{
 						Raw:    p.current.Literal,
-						Cooked: p.current.Literal, // TODO: Unescape
+						Cooked: &cooked,
 					},
 					Tail: true,
 				})

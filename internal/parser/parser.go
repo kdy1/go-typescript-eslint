@@ -16,16 +16,16 @@ type Parser struct {
 	peek    lexer.Token
 
 	// Parser state
-	errors       []ParseError
-	inFunction   bool
-	inLoop       bool
-	inSwitch     bool
-	inAsync      bool
-	inGenerator  bool
-	inClass      bool
-	allowYield   bool
-	allowAwait   bool
-	strictMode   bool
+	errors      []ParseError
+	inFunction  bool
+	inLoop      bool
+	inSwitch    bool
+	inAsync     bool
+	inGenerator bool
+	inClass     bool
+	allowYield  bool
+	allowAwait  bool
+	strictMode  bool
 
 	// Module state
 	sourceType string // "script" or "module"
@@ -99,7 +99,7 @@ func (p *Parser) nextToken() {
 		p.allComments = append(p.allComments, ast.Comment{
 			Type:  "Line", // Will be refined based on comment content
 			Value: p.current.Literal,
-			Range: ast.Range{p.current.Pos, p.current.End},
+			Range: &ast.Range{p.current.Pos, p.current.End},
 		})
 	}
 }
@@ -193,7 +193,7 @@ func (p *Parser) Parse() (ast.Node, error) {
 		program.Tokens = append(program.Tokens, ast.Token{
 			Type:  tok.Type.String(),
 			Value: tok.Literal,
-			Range: ast.Range{tok.Pos, tok.End},
+			Range: &ast.Range{tok.Pos, tok.End},
 		})
 	}
 

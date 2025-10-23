@@ -316,6 +316,8 @@ type SpreadElement struct {
 	Argument Expression `json:"argument"`
 }
 
+func (n *SpreadElement) expressionNode() {}
+
 // TemplateLiteral represents a template literal `hello ${world}`.
 type TemplateLiteral struct {
 	BaseNode
@@ -756,7 +758,8 @@ type RestElement struct {
 	Value          Expression        `json:"value,omitempty"` // For parameter properties
 }
 
-func (n *RestElement) patternNode() {}
+func (n *RestElement) patternNode()    {}
+func (n *RestElement) expressionNode() {}
 
 // AssignmentPattern represents a default value in destructuring (x = 1).
 type AssignmentPattern struct {
@@ -768,7 +771,8 @@ type AssignmentPattern struct {
 	TypeAnnotation *TSTypeAnnotation `json:"typeAnnotation,omitempty"`
 }
 
-func (n *AssignmentPattern) patternNode() {}
+func (n *AssignmentPattern) patternNode()    {}
+func (n *AssignmentPattern) expressionNode() {}
 
 // ==================== Comments and Tokens ====================
 

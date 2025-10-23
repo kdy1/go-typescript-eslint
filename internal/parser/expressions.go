@@ -119,12 +119,25 @@ func (p *Parser) parseBinaryExpression(minPrec int) (ast.Expression, error) {
 
 		// Create appropriate node type
 		if isAssignmentOp(opType) {
+			// Convert left Expression to Pattern
+			// In JavaScript/TypeScript, assignment left side must be a valid Pattern
+			var leftPattern ast.Pattern
+			switch l := left.(type) {
+			case ast.Pattern:
+				leftPattern = l
+			default:
+				// If it's not a pattern, we still need to assign it
+				// This might happen with member expressions, identifiers, etc.
+				// which implement both Expression and Pattern
+				leftPattern, _ = left.(ast.Pattern)
+			}
+
 			left = &ast.AssignmentExpression{
 				BaseNode: ast.BaseNode{
 					NodeType: ast.NodeTypeAssignmentExpression.String(),
 				},
 				Operator: operator,
-				Left:     left,
+				Left:     leftPattern,
 				Right:    right,
 			}
 		} else if isLogicalOp(opType) {
@@ -383,9 +396,9 @@ func (p *Parser) parseMemberOrCallExpression() (ast.Expression, error) {
 						BaseNode: ast.BaseNode{
 							NodeType: ast.NodeTypeCallExpression.String(),
 						},
-						Callee:   expr,
-						Args:     args,
-						Optional: true,
+						Callee:    expr,
+						Arguments: args,
+						Optional:  true,
 					},
 				}
 			} else {
@@ -426,8 +439,8 @@ func (p *Parser) parseMemberOrCallExpression() (ast.Expression, error) {
 				BaseNode: ast.BaseNode{
 					NodeType: ast.NodeTypeCallExpression.String(),
 				},
-				Callee: expr,
-				Args:   args,
+				Callee:    expr,
+				Arguments: args,
 			}
 
 		case lexer.TEMPLATE, lexer.TemplateHead:
@@ -440,7 +453,7 @@ func (p *Parser) parseMemberOrCallExpression() (ast.Expression, error) {
 				BaseNode: ast.BaseNode{
 					NodeType: ast.NodeTypeTaggedTemplateExpression.String(),
 				},
-				Tag:  expr,
+				Tag:   expr,
 				Quasi: template,
 			}
 
@@ -502,7 +515,7 @@ func (p *Parser) parsePrimaryExpression() (ast.Expression, error) {
 					BaseNode: ast.BaseNode{
 						NodeType: ast.NodeTypeTSInstantiationExpression.String(),
 					},
-					Expression:  id,
+					Expression:     id,
 					TypeParameters: typeArgs,
 				}, nil
 			}
@@ -719,7 +732,7 @@ func (p *Parser) parseObjectExpression() (*ast.ObjectExpression, error) {
 	start := p.current.Pos
 	p.nextToken() // consume '{'
 
-	properties := []*ast.Property{}
+	properties := []interface{}{}
 
 	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
 		// Handle spread properties
@@ -728,21 +741,11 @@ func (p *Parser) parseObjectExpression() (*ast.ObjectExpression, error) {
 			if err != nil {
 				return nil, err
 			}
-			properties = append(properties, &ast.Property{
+			properties = append(properties, &ast.SpreadElement{
 				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeProperty.String(),
+					NodeType: ast.NodeTypeSpreadElement.String(),
 				},
-				Key:   nil,
-				Value: &ast.SpreadElement{
-					BaseNode: ast.BaseNode{
-						NodeType: ast.NodeTypeSpreadElement.String(),
-					},
-					Argument: arg,
-				},
-				Kind:      "init",
-				Method:    false,
-				Shorthand: false,
-				Computed:  false,
+				Argument: arg,
 			})
 		} else {
 			prop, err := p.parseProperty()
@@ -926,8 +929,8 @@ func (p *Parser) parseNewExpression() (*ast.NewExpression, error) {
 			NodeType: ast.NodeTypeNewExpression.String(),
 			Range:    &ast.Range{start, p.current.Pos},
 		},
-		Callee: callee,
-		Args:   args,
+		Callee:    callee,
+		Arguments: args,
 	}, nil
 }
 
