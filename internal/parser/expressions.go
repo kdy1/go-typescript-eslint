@@ -103,7 +103,8 @@ func (p *Parser) parseBinaryExpression(minPrec int) (ast.Expression, error) {
 
 		// Get operator precedence
 		prec := precedence(p.current.Type)
-		if prec < minPrec {
+		// Stop if precedence is too low OR if token is not an operator (precedenceLowest)
+		if prec < minPrec || (prec == precedenceLowest && minPrec == precedenceLowest) {
 			break
 		}
 
