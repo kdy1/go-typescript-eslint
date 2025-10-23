@@ -8,7 +8,7 @@ import (
 
 // scanIdentifier scans an identifier or keyword.
 //
-//nolint:gocyclo,cyclop // Identifier scanning requires checking many character classes
+//nolint:cyclop // Identifier scanning requires checking many character classes
 func (s *Scanner) scanIdentifier() Token {
 	start := s.pos
 	ch := s.char()
@@ -29,7 +29,6 @@ func (s *Scanner) scanIdentifier() Token {
 				hasUnicode = true
 				break
 			}
-			//nolint:staticcheck // De Morgan's law would make this harder to read
 			if !((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
 				(ch >= '0' && ch <= '9') || ch == '_' || ch == '$') {
 				break
@@ -58,7 +57,7 @@ func (s *Scanner) scanIdentifier() Token {
 
 // scanNumber scans a numeric literal (decimal, hex, binary, octal, float, bigint).
 //
-//nolint:gocognit,gocyclo,cyclop,dupl,funlen // Number scanning handles many formats with similar patterns
+//nolint:gocognit,gocyclo,cyclop,funlen // Number scanning handles many formats with similar patterns
 func (s *Scanner) scanNumber() Token {
 	start := s.pos
 	ch := s.char()
@@ -181,7 +180,6 @@ func (s *Scanner) scanString(quote rune) Token {
 			break
 		}
 
-		//nolint:staticcheck // Switch would not improve readability here
 		if ch == '\\' {
 			// Escape sequence
 			s.next()
@@ -202,7 +200,7 @@ func (s *Scanner) scanString(quote rune) Token {
 
 // scanEscapeSequence scans an escape sequence and returns the escaped character.
 //
-//nolint:gocyclo,cyclop,funlen // Escape sequence handling requires many cases
+//nolint:cyclop,funlen // Escape sequence handling requires many cases
 func (s *Scanner) scanEscapeSequence() string {
 	ch := s.char()
 	s.next()
@@ -402,7 +400,7 @@ func (s *Scanner) scanBlockComment() Token {
 
 // scanRegExp scans a regular expression literal.
 //
-//nolint:gocyclo,cyclop,unused // RegExp scanning requires handling many special cases, will be used in future
+//nolint:cyclop,unused // RegExp scanning requires handling many special cases, will be used in future
 func (s *Scanner) scanRegExp() Token {
 	start := s.pos
 	s.next() // consume opening '/'
@@ -437,7 +435,6 @@ func (s *Scanner) scanRegExp() Token {
 	}
 
 	// Scan regex flags (g, i, m, s, u, y)
-	//nolint:revive // Loop pattern is clearer than inverted logic
 	for {
 		ch := s.char()
 		if ch == 'g' || ch == 'i' || ch == 'm' || ch == 's' || ch == 'u' || ch == 'y' {

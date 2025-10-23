@@ -83,7 +83,6 @@ func (s *Scanner) next() rune {
 	s.pos++
 
 	// Track line/column
-	//nolint:staticcheck // Switch would not improve readability for line tracking
 	if ch == '\n' {
 		s.line++
 		s.column = 0
@@ -121,7 +120,6 @@ func (s *Scanner) nextRune() rune {
 	s.pos += size
 
 	// Track line/column
-	//nolint:staticcheck // Switch would not improve readability for line tracking
 	if ch == '\n' {
 		s.line++
 		s.column = 0
@@ -141,7 +139,6 @@ func (s *Scanner) nextRune() rune {
 
 // skipWhitespace advances the scanner position past any whitespace characters.
 func (s *Scanner) skipWhitespace() {
-	//nolint:revive // Loop pattern is clearer than inverted logic
 	for {
 		ch := s.char()
 		if ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' {

@@ -9,8 +9,6 @@ import (
 	"github.com/kdy1/go-typescript-eslint/pkg/typescriptestree"
 )
 
-const defaultECMAVersion = 2023
-
 var (
 	formatFlag   = flag.String("format", "json", "Output format: json, pretty")
 	tokensFlag   = flag.Bool("tokens", false, "Include tokens in output")
@@ -36,28 +34,35 @@ func main() {
 		os.Exit(1)
 	}
 
-	options := typescriptestree.ParseOptions{
-		ECMAVersion: defaultECMAVersion,
-		SourceType:  "module",
-		Loc:         *locFlag,
-		Range:       *rangeFlag,
-		Comment:     *commentsFlag,
-		Tokens:      *tokensFlag,
-		FilePath:    filename,
-	}
+	options := typescriptestree.NewBuilder().
+		WithSourceType(typescriptestree.SourceTypeModule).
+		WithLoc(*locFlag).
+		WithRange(*rangeFlag).
+		WithComment(*commentsFlag).
+		WithTokens(*tokensFlag).
+		WithFilePath(filename).
+		MustBuild()
 
-	ast, err := typescriptestree.Parse(string(content), options)
+	result, err := typescriptestree.Parse(string(content), options)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Parse error: %v\n", err)
 		os.Exit(1)
 	}
 
+	// Create a JSON-safe version of the result (omitting unmarshalable fields)
+	type jsonResult struct {
+		AST interface{} `json:"ast,omitempty"`
+	}
+	jsonSafeResult := jsonResult{
+		AST: result.AST,
+	}
+
 	var output []byte
 	switch *formatFlag {
 	case "json":
-		output, err = json.Marshal(ast)
+		output, err = json.Marshal(jsonSafeResult)
 	case "pretty":
-		output, err = json.MarshalIndent(ast, "", "  ")
+		output, err = json.MarshalIndent(jsonSafeResult, "", "  ")
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown format: %s\n", *formatFlag)
 		os.Exit(1)
