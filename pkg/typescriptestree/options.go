@@ -220,7 +220,9 @@ func NewParseAndGenerateServicesOptions() *ParseAndGenerateServicesOptions {
 
 // defaultLogger is the default logging function that writes to stderr.
 func defaultLogger(message string) {
-	_, _ = fmt.Fprintln(getStderr(), message)
+	// Intentionally ignore error - logger should not fail silently
+	//nolint:errcheck // Logging to stderr is best-effort
+	fmt.Fprintln(getStderr(), message)
 }
 
 // getStderr returns the standard error writer (extracted for testability).
