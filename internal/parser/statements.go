@@ -27,6 +27,15 @@ func (p *Parser) tryParseDeclaration() (func() (ast.Statement, error), bool) {
 
 // matchDeclarationParser returns the appropriate parser function for the current token.
 func (p *Parser) matchDeclarationParser() func() (ast.Statement, error) {
+	// Split into two helper functions to reduce complexity
+	if fn := p.matchBasicDeclaration(); fn != nil {
+		return fn
+	}
+	return p.matchTypeScriptDeclaration()
+}
+
+// matchBasicDeclaration matches basic JavaScript declarations
+func (p *Parser) matchBasicDeclaration() func() (ast.Statement, error) {
 	switch p.current.Type {
 	case lexer.FUNCTION:
 		return func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
@@ -34,6 +43,19 @@ func (p *Parser) matchDeclarationParser() func() (ast.Statement, error) {
 		return func() (ast.Statement, error) { return p.parseClassDeclaration() }
 	case lexer.CONST, lexer.LET, lexer.VAR:
 		return func() (ast.Statement, error) { return p.parseVariableStatement() }
+	case lexer.IMPORT:
+		return func() (ast.Statement, error) { return p.parseImportDeclaration() }
+	case lexer.EXPORT:
+		return p.parseExportDeclaration
+	case lexer.ASYNC:
+		return p.matchAsyncFunctionDeclaration()
+	}
+	return nil
+}
+
+// matchTypeScriptDeclaration matches TypeScript-specific declarations
+func (p *Parser) matchTypeScriptDeclaration() func() (ast.Statement, error) {
+	switch p.current.Type {
 	case lexer.INTERFACE:
 		return func() (ast.Statement, error) { return p.parseTSInterfaceDeclaration() }
 	case lexer.TYPE:
@@ -42,14 +64,8 @@ func (p *Parser) matchDeclarationParser() func() (ast.Statement, error) {
 		return func() (ast.Statement, error) { return p.parseTSEnumDeclaration() }
 	case lexer.NAMESPACE, lexer.MODULE:
 		return func() (ast.Statement, error) { return p.parseTSModuleDeclaration() }
-	case lexer.IMPORT:
-		return func() (ast.Statement, error) { return p.parseImportDeclaration() }
-	case lexer.EXPORT:
-		return p.parseExportDeclaration
 	case lexer.DECLARE:
 		return func() (ast.Statement, error) { return p.parseTSDeclareStatement() }
-	case lexer.ASYNC:
-		return p.matchAsyncFunctionDeclaration()
 	}
 	return nil
 }
