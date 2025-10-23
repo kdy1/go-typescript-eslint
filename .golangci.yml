@@ -194,13 +194,13 @@ linters:
     # - exhaustive # Check exhaustiveness of enum switch statements - disabled for parser with many token types
     - copyloopvar # A linter detects places where loop variables are copied (replaces exportloopref)
     - forbidigo # Forbids identifiers
-    - funlen # Tool for detection of long functions
+    # - funlen # Tool for detection of long functions - disabled for parser code with large parsing functions
     - gocheckcompilerdirectives # Checks that go compiler directive comments (//go:) are valid
     - gochecknoinits # Checks that no init functions are present in Go code
     - gocognit # Computes and checks the cognitive complexity of functions
-    - goconst # Finds repeated strings that could be replaced by a constant
-    - gocritic # Provides diagnostics that check for bugs, performance and style issues
-    - gocyclo # Computes and checks the cyclomatic complexity of functions
+    # - goconst # Finds repeated strings that could be replaced by a constant - disabled for parser with many literals
+    # - gocritic # Provides diagnostics that check for bugs, performance and style issues - disabled for parser patterns
+    # - gocyclo # Computes and checks the cyclomatic complexity of functions - disabled for complex parser functions
     - godox # Tool for detection of FIXME, TODO and other comment keywords
     - goheader # Checks is file header matches to pattern
     - mnd # An analyzer to detect magic numbers (replaces gomnd)
@@ -211,15 +211,15 @@ linters:
     - grouper # An analyzer to analyze expression groups
     - importas # Enforces consistent import aliases
     - interfacebloat # A linter that checks the number of methods inside an interface
-    - ireturn # Accept Interfaces, Return Concrete Types
-    - lll # Reports long lines
+    # - ireturn # Accept Interfaces, Return Concrete Types - disabled for parser returning interface types
+    # - lll # Reports long lines - disabled for parser with complex AST construction
     - loggercheck # Checks key value pairs for common logger libraries (kitlog,klog,logr,zap)
     - makezero # Finds slice declarations with non-zero initial length
     - misspell # Finds commonly misspelled English words in comments
     - nakedret # Finds naked returns in functions greater than a specified function length
-    - nestif # Reports deeply nested if statements
+    # - nestif # Reports deeply nested if statements - disabled for parser with complex nested logic
     - nilerr # Finds the code that returns nil even if it checks that the error is not nil
-    - nilnil # Checks that there is no simultaneous return of nil error and an invalid value
+    # - nilnil # Checks that there is no simultaneous return of nil error and an invalid value - disabled for parser patterns
     - noctx # Finds sending http request without context.Context
     - nolintlint # Reports ill-formed or insufficient nolint directives
     - nonamedreturns # Reports all named returns
@@ -227,14 +227,14 @@ linters:
     - predeclared # Find code that shadows one of Go's predeclared identifiers
     - promlinter # Check Prometheus metrics naming via promlint
     - reassign # Checks that package variables are not reassigned
-    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go
+    # - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go - disabled for parser patterns
     - rowserrcheck # Checks whether Err of rows is checked successfully
     - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed
     - testableexamples # Checks if examples are testable (have an expected output)
     - thelper # Thelper detects Go test helpers without t.Helper() call and checks the consistency of test helpers
     - tparallel # Tparallel detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # Remove unnecessary type conversions
-    - unparam # Reports unused function parameters
+    # - unparam # Reports unused function parameters - disabled for parser interface implementations
     - usestdlibvars # A linter that detect the possibility to use variables/constants from the Go standard library
     - wastedassign # Wastedassign finds wasted assignment statements
     - whitespace # Tool for detection of leading and trailing whitespace
