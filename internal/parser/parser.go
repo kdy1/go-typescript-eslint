@@ -16,16 +16,14 @@ type Parser struct {
 	peek    lexer.Token
 
 	// Parser state
-	errors      []ParseError
-	inFunction  bool
-	inLoop      bool
-	inSwitch    bool
-	inAsync     bool
-	inGenerator bool
-	inClass     bool
-	allowYield  bool
-	allowAwait  bool
-	strictMode  bool
+	errors     []ParseError
+	inFunction bool
+	inLoop     bool
+	inSwitch   bool
+	inClass    bool
+	allowYield bool
+	allowAwait bool
+	strictMode bool
 
 	// Module state
 	sourceType string // "script" or "module"
@@ -140,18 +138,6 @@ func (p *Parser) errorAtCurrent(message string) error {
 		Line:    p.current.Line,
 		Column:  p.current.Column,
 		Pos:     p.current.Pos,
-	}
-	p.errors = append(p.errors, err)
-	return err
-}
-
-// errorAtToken creates an error at a specific token position.
-func (p *Parser) errorAtToken(token lexer.Token, message string) error {
-	err := ParseError{
-		Message: message,
-		Line:    token.Line,
-		Column:  token.Column,
-		Pos:     token.Pos,
 	}
 	p.errors = append(p.errors, err)
 	return err

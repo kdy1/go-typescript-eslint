@@ -301,10 +301,7 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 	start := p.current.Pos
 	p.nextToken() // consume 'for'
 
-	await := false
-	if p.consume(lexer.AWAIT) {
-		await = true
-	}
+	await := p.consume(lexer.AWAIT)
 
 	if err := p.expect(lexer.LPAREN); err != nil {
 		return nil, err
@@ -456,7 +453,7 @@ func (p *Parser) parseForInOfStatement(start int, kind string, left ast.Node, aw
 	}
 
 	// Convert left to proper format
-	var leftNode ast.Node = left
+	leftNode := left
 	if kind != "" {
 		// Wrap in variable declaration
 		var pattern ast.Pattern
@@ -747,9 +744,7 @@ func (p *Parser) parseSwitchCase() (*ast.SwitchCase, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else if p.consume(lexer.DEFAULT) {
-		// test remains nil for default case
-	} else {
+	} else if !p.consume(lexer.DEFAULT) {
 		return nil, p.errorAtCurrent("expected 'case' or 'default'")
 	}
 
@@ -778,6 +773,8 @@ func (p *Parser) parseSwitchCase() (*ast.SwitchCase, error) {
 }
 
 // parseDebuggerStatement parses a debugger statement.
+//
+//nolint:unparam // error return required to match statement parsing interface
 func (p *Parser) parseDebuggerStatement() (*ast.DebuggerStatement, error) {
 	start := p.current.Pos
 	p.nextToken() // consume 'debugger'
@@ -825,6 +822,8 @@ func (p *Parser) parseWithStatement() (*ast.WithStatement, error) {
 }
 
 // parseEmptyStatement parses an empty statement (;).
+//
+//nolint:unparam // error return required to match statement parsing interface
 func (p *Parser) parseEmptyStatement() (*ast.EmptyStatement, error) {
 	start := p.current.Pos
 	p.nextToken() // consume ';'

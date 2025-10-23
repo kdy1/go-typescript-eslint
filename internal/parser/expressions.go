@@ -785,16 +785,10 @@ func (p *Parser) parseProperty() (*ast.Property, error) {
 	}
 
 	// Check for async method
-	async := false
-	if p.consume(lexer.ASYNC) {
-		async = true
-	}
+	async := p.consume(lexer.ASYNC)
 
 	// Check for generator method
-	generator := false
-	if p.consume(lexer.MUL) {
-		generator = true
-	}
+	generator := p.consume(lexer.MUL)
 
 	// Parse key
 	computed := false

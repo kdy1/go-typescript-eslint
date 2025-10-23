@@ -62,14 +62,15 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 
 		// Check for additional imports after default
 		if p.consume(lexer.COMMA) {
-			if p.current.Type == lexer.MUL {
+			switch p.current.Type {
+			case lexer.MUL:
 				// namespace import
 				spec, err := p.parseImportNamespaceSpecifier()
 				if err != nil {
 					return nil, err
 				}
 				specifiers = append(specifiers, spec)
-			} else if p.current.Type == lexer.LBRACE {
+			case lexer.LBRACE:
 				// named imports
 				specs, err := p.parseImportSpecifiers()
 				if err != nil {

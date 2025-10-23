@@ -43,7 +43,8 @@ func (p *Parser) parseTSUnionOrIntersectionType() (ast.TSNode, error) {
 	}
 
 	// Check for union or intersection
-	if p.current.Type == lexer.OR {
+	switch p.current.Type {
+	case lexer.OR:
 		// Union type
 		types := []ast.TSNode{typ}
 		for p.consume(lexer.OR) {
@@ -59,7 +60,7 @@ func (p *Parser) parseTSUnionOrIntersectionType() (ast.TSNode, error) {
 			},
 			Types: types,
 		}, nil
-	} else if p.current.Type == lexer.AND {
+	case lexer.AND:
 		// Intersection type
 		types := []ast.TSNode{typ}
 		for p.consume(lexer.AND) {
@@ -1265,7 +1266,8 @@ func (p *Parser) parseTSEnumMember() (*ast.TSEnumMember, error) {
 	start := p.current.Pos
 
 	var id ast.Node
-	if p.current.Type == lexer.IDENT {
+	switch p.current.Type {
+	case lexer.IDENT:
 		id = &ast.Identifier{
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeIdentifier.String(),
@@ -1274,7 +1276,7 @@ func (p *Parser) parseTSEnumMember() (*ast.TSEnumMember, error) {
 			Name: p.current.Literal,
 		}
 		p.nextToken()
-	} else if p.current.Type == lexer.STRING {
+	case lexer.STRING:
 		id = &ast.Literal{
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeLiteral.String(),
@@ -1284,7 +1286,7 @@ func (p *Parser) parseTSEnumMember() (*ast.TSEnumMember, error) {
 			Raw:   p.current.Literal,
 		}
 		p.nextToken()
-	} else {
+	default:
 		return nil, p.errorAtCurrent("expected enum member name")
 	}
 
@@ -1338,15 +1340,12 @@ func (p *Parser) parseTSModuleDeclaration() (*ast.TSModuleDeclaration, error) {
 	p.nextToken()
 
 	// Parse body
-	var body ast.Node
-	if p.current.Type == lexer.LBRACE {
-		bodyBlock, err := p.parseTSModuleBlock()
-		if err != nil {
-			return nil, err
-		}
-		body = bodyBlock
-	} else {
+	if p.current.Type != lexer.LBRACE {
 		return nil, p.errorAtCurrent("expected module body")
+	}
+	body, err := p.parseTSModuleBlock()
+	if err != nil {
+		return nil, err
 	}
 
 	return &ast.TSModuleDeclaration{

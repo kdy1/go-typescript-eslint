@@ -663,13 +663,14 @@ func (p *Parser) parseClassElement() (ast.Node, error) {
 
 	// Parse accessor type (get/set)
 	kind := "method"
-	if p.current.Type == lexer.GET {
+	switch p.current.Type {
+	case lexer.GET:
 		kind = "get"
 		p.nextToken()
-	} else if p.current.Type == lexer.SET {
+	case lexer.SET:
 		kind = "set"
 		p.nextToken()
-	} else if p.current.Type == lexer.CONSTRUCTOR {
+	case lexer.CONSTRUCTOR:
 		kind = "constructor"
 	}
 
