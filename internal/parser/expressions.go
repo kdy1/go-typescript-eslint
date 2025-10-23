@@ -118,50 +118,60 @@ func (p *Parser) parseBinaryExpression(minPrec int) (ast.Expression, error) {
 		}
 
 		// Create appropriate node type
-		if isAssignmentOp(opType) {
-			// Convert left Expression to Pattern
-			// In JavaScript/TypeScript, assignment left side must be a valid Pattern
-			var leftPattern ast.Pattern
-			switch l := left.(type) {
-			case ast.Pattern:
-				leftPattern = l
-			default:
-				// If it's not a pattern, we still need to assign it
-				// This might happen with member expressions, identifiers, etc.
-				// which implement both Expression and Pattern
-				leftPattern, _ = left.(ast.Pattern)
-			}
-
-			left = &ast.AssignmentExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeAssignmentExpression.String(),
-				},
-				Operator: operator,
-				Left:     leftPattern,
-				Right:    right,
-			}
-		} else if isLogicalOp(opType) {
-			left = &ast.LogicalExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeLogicalExpression.String(),
-				},
-				Operator: operator,
-				Left:     left,
-				Right:    right,
-			}
-		} else {
-			left = &ast.BinaryExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeBinaryExpression.String(),
-				},
-				Operator: operator,
-				Left:     left,
-				Right:    right,
-			}
-		}
+		left = p.createBinaryExpressionNode(left, operator, opType, right)
 	}
 
 	return left, nil
+}
+
+// createBinaryExpressionNode creates the appropriate binary expression node.
+func (p *Parser) createBinaryExpressionNode(left ast.Expression, operator string, opType lexer.TokenType, right ast.Expression) ast.Expression {
+	if isAssignmentOp(opType) {
+		return p.createAssignmentExpression(left, operator, right)
+	}
+	if isLogicalOp(opType) {
+		return &ast.LogicalExpression{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeLogicalExpression.String(),
+			},
+			Operator: operator,
+			Left:     left,
+			Right:    right,
+		}
+	}
+	return &ast.BinaryExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeBinaryExpression.String(),
+		},
+		Operator: operator,
+		Left:     left,
+		Right:    right,
+	}
+}
+
+// createAssignmentExpression creates an assignment expression node.
+func (p *Parser) createAssignmentExpression(left ast.Expression, operator string, right ast.Expression) ast.Expression {
+	// Convert left Expression to Pattern
+	// In JavaScript/TypeScript, assignment left side must be a valid Pattern
+	var leftPattern ast.Pattern
+	switch l := left.(type) {
+	case ast.Pattern:
+		leftPattern = l
+	default:
+		// If it's not a pattern, we still need to assign it
+		// This might happen with member expressions, identifiers, etc.
+		// which implement both Expression and Pattern
+		leftPattern, _ = left.(ast.Pattern)
+	}
+
+	return &ast.AssignmentExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeAssignmentExpression.String(),
+		},
+		Operator: operator,
+		Left:     leftPattern,
+		Right:    right,
+	}
 }
 
 // parseConditionalExpression parses a ternary conditional expression.
@@ -199,83 +209,82 @@ func (p *Parser) parseUnaryExpression() (ast.Expression, error) {
 	// Check for unary operators
 	switch p.current.Type {
 	case lexer.INC, lexer.DEC:
-		operator := p.current.Literal
-		p.nextToken()
-		argument, err := p.parseUnaryExpression()
-		if err != nil {
-			return nil, err
-		}
-		return &ast.UpdateExpression{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeUpdateExpression.String(),
-				Range:    &ast.Range{start, p.current.Pos},
-			},
-			Operator: operator,
-			Argument: argument,
-			Prefix:   true,
-		}, nil
-
-	case lexer.ADD, lexer.SUB, lexer.NOT, lexer.BNOT:
-		operator := p.current.Literal
-		p.nextToken()
-		argument, err := p.parseUnaryExpression()
-		if err != nil {
-			return nil, err
-		}
-		return &ast.UnaryExpression{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeUnaryExpression.String(),
-				Range:    &ast.Range{start, p.current.Pos},
-			},
-			Operator: operator,
-			Argument: argument,
-			Prefix:   true,
-		}, nil
-
-	case lexer.TYPEOF, lexer.VOID, lexer.DELETE:
-		operator := p.current.Literal
-		p.nextToken()
-		argument, err := p.parseUnaryExpression()
-		if err != nil {
-			return nil, err
-		}
-		return &ast.UnaryExpression{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeUnaryExpression.String(),
-				Range:    &ast.Range{start, p.current.Pos},
-			},
-			Operator: operator,
-			Argument: argument,
-			Prefix:   true,
-		}, nil
-
+		return p.parsePrefixUpdateExpression(start)
+	case lexer.ADD, lexer.SUB, lexer.NOT, lexer.BNOT, lexer.TYPEOF, lexer.VOID, lexer.DELETE:
+		return p.parsePrefixUnaryExpression(start)
 	case lexer.AWAIT:
-		if !p.allowAwait {
-			return nil, p.errorAtCurrent("await is only allowed in async functions")
-		}
-		p.nextToken()
-		argument, err := p.parseUnaryExpression()
-		if err != nil {
-			return nil, err
-		}
-		return &ast.AwaitExpression{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeAwaitExpression.String(),
-				Range:    &ast.Range{start, p.current.Pos},
-			},
-			Argument: argument,
-		}, nil
-
+		return p.parseAwaitExpression(start)
 	case lexer.LSS:
-		// Type assertion (TypeScript) or JSX
-		if p.jsxEnabled {
-			return p.parseJSXElement()
-		}
-		return p.parseTSTypeAssertion()
-
+		return p.parseLessTokenExpression()
 	default:
 		return p.parsePostfixExpression()
 	}
+}
+
+// parsePrefixUpdateExpression parses prefix update expressions (++x, --x).
+func (p *Parser) parsePrefixUpdateExpression(start int) (ast.Expression, error) {
+	operator := p.current.Literal
+	p.nextToken()
+	argument, err := p.parseUnaryExpression()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.UpdateExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeUpdateExpression.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Operator: operator,
+		Argument: argument,
+		Prefix:   true,
+	}, nil
+}
+
+// parsePrefixUnaryExpression parses prefix unary expressions (+x, -x, !x, ~x, typeof, void, delete).
+func (p *Parser) parsePrefixUnaryExpression(start int) (ast.Expression, error) {
+	operator := p.current.Literal
+	p.nextToken()
+	argument, err := p.parseUnaryExpression()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.UnaryExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeUnaryExpression.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Operator: operator,
+		Argument: argument,
+		Prefix:   true,
+	}, nil
+}
+
+// parseAwaitExpression parses await expressions.
+func (p *Parser) parseAwaitExpression(start int) (ast.Expression, error) {
+	if !p.allowAwait {
+		return nil, p.errorAtCurrent("await is only allowed in async functions")
+	}
+	p.nextToken()
+	argument, err := p.parseUnaryExpression()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.AwaitExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeAwaitExpression.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Argument: argument,
+	}, nil
+}
+
+// parseLessTokenExpression parses < token which could be type assertion or JSX.
+func (p *Parser) parseLessTokenExpression() (ast.Expression, error) {
+	// Type assertion (TypeScript) or JSX
+	if p.jsxEnabled {
+		return p.parseJSXElement()
+	}
+	return p.parseTSTypeAssertion()
 }
 
 // parsePostfixExpression parses postfix expressions (e.g., x++, x--).

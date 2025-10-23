@@ -8,7 +8,6 @@ import (
 // parseFunctionDeclaration parses a function declaration.
 func (p *Parser) parseFunctionDeclaration() (*ast.FunctionDeclaration, error) {
 	start := p.current.Pos
-
 	async := p.consume(lexer.ASYNC)
 
 	if err := p.expect(lexer.FUNCTION); err != nil {
@@ -16,69 +15,13 @@ func (p *Parser) parseFunctionDeclaration() (*ast.FunctionDeclaration, error) {
 	}
 
 	generator := p.consume(lexer.MUL)
+	id := p.parseOptionalIdentifier()
+	typeParameters := p.parseOptionalTypeParameters()
 
-	// Parse function name
-	var id *ast.Identifier
-	if p.current.Type == lexer.IDENT {
-		id = &ast.Identifier{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeIdentifier.String(),
-				Range:    &ast.Range{p.current.Pos, p.current.End},
-			},
-			Name: p.current.Literal,
-		}
-		p.nextToken()
-	}
-
-	// Parse type parameters (TypeScript)
-	var typeParameters *ast.TSTypeParameterDeclaration
-	if p.current.Type == lexer.LSS {
-		var err error
-		typeParameters, err = p.parseTSTypeParameters()
-		if err != nil {
-			// Not type parameters, backtrack
-			typeParameters = nil
-		}
-	}
-
-	// Parse parameters
-	if err := p.expect(lexer.LPAREN); err != nil {
-		return nil, err
-	}
-
-	oldInFunction := p.inFunction
-	oldAllowYield := p.allowYield
-	oldAllowAwait := p.allowAwait
-	p.inFunction = true
-	p.allowYield = generator
-	p.allowAwait = async
-
-	params, err := p.parseFunctionParams()
+	params, returnType, body, err := p.parseFunctionSignatureAndBody(async, generator)
 	if err != nil {
 		return nil, err
 	}
-
-	// Parse return type annotation (TypeScript)
-	var returnType *ast.TSTypeAnnotation
-	if p.consume(lexer.COLON) {
-		returnType, err = p.parseTSTypeAnnotation()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Parse body
-	var body *ast.BlockStatement
-	if p.current.Type == lexer.LBRACE {
-		body, err = p.parseBlockStatement()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	p.inFunction = oldInFunction
-	p.allowYield = oldAllowYield
-	p.allowAwait = oldAllowAwait
 
 	return &ast.FunctionDeclaration{
 		BaseNode: ast.BaseNode{
@@ -95,26 +38,10 @@ func (p *Parser) parseFunctionDeclaration() (*ast.FunctionDeclaration, error) {
 	}, nil
 }
 
-// parseFunctionExpression parses a function expression.
-func (p *Parser) parseFunctionExpression() (*ast.FunctionExpression, error) {
-	start := p.current.Pos
-
-	async := false
-	if p.current.Type == lexer.ASYNC {
-		async = true
-		p.nextToken()
-	}
-
-	if err := p.expect(lexer.FUNCTION); err != nil {
-		return nil, err
-	}
-
-	generator := p.consume(lexer.MUL)
-
-	// Parse optional function name
-	var id *ast.Identifier
+// parseOptionalIdentifier parses an optional identifier.
+func (p *Parser) parseOptionalIdentifier() *ast.Identifier {
 	if p.current.Type == lexer.IDENT {
-		id = &ast.Identifier{
+		id := &ast.Identifier{
 			BaseNode: ast.BaseNode{
 				NodeType: ast.NodeTypeIdentifier.String(),
 				Range:    &ast.Range{p.current.Pos, p.current.End},
@@ -122,21 +49,28 @@ func (p *Parser) parseFunctionExpression() (*ast.FunctionExpression, error) {
 			Name: p.current.Literal,
 		}
 		p.nextToken()
+		return id
 	}
+	return nil
+}
 
-	// Parse type parameters (TypeScript)
-	var typeParameters *ast.TSTypeParameterDeclaration
+// parseOptionalTypeParameters parses optional TypeScript type parameters.
+func (p *Parser) parseOptionalTypeParameters() *ast.TSTypeParameterDeclaration {
 	if p.current.Type == lexer.LSS {
-		var err error
-		typeParameters, err = p.parseTSTypeParameters()
+		typeParameters, err := p.parseTSTypeParameters()
 		if err != nil {
-			typeParameters = nil
+			// Not type parameters, backtrack
+			return nil
 		}
+		return typeParameters
 	}
+	return nil
+}
 
-	// Parse parameters
+// parseFunctionSignatureAndBody parses function parameters, return type, and body.
+func (p *Parser) parseFunctionSignatureAndBody(async, generator bool) ([]ast.Pattern, *ast.TSTypeAnnotation, *ast.BlockStatement, error) {
 	if err := p.expect(lexer.LPAREN); err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
 	oldInFunction := p.inFunction
@@ -148,7 +82,7 @@ func (p *Parser) parseFunctionExpression() (*ast.FunctionExpression, error) {
 
 	params, err := p.parseFunctionParams()
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
 	// Parse return type annotation (TypeScript)
@@ -156,19 +90,46 @@ func (p *Parser) parseFunctionExpression() (*ast.FunctionExpression, error) {
 	if p.consume(lexer.COLON) {
 		returnType, err = p.parseTSTypeAnnotation()
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
 	}
 
 	// Parse body
-	body, err := p.parseBlockStatement()
-	if err != nil {
-		return nil, err
+	var body *ast.BlockStatement
+	if p.current.Type == lexer.LBRACE {
+		body, err = p.parseBlockStatement()
+		if err != nil {
+			return nil, nil, nil, err
+		}
 	}
 
 	p.inFunction = oldInFunction
 	p.allowYield = oldAllowYield
 	p.allowAwait = oldAllowAwait
+
+	return params, returnType, body, nil
+}
+
+// parseFunctionExpression parses a function expression.
+func (p *Parser) parseFunctionExpression() (*ast.FunctionExpression, error) {
+	start := p.current.Pos
+	async := p.current.Type == lexer.ASYNC
+	if async {
+		p.nextToken()
+	}
+
+	if err := p.expect(lexer.FUNCTION); err != nil {
+		return nil, err
+	}
+
+	generator := p.consume(lexer.MUL)
+	id := p.parseOptionalIdentifier()
+	typeParameters := p.parseOptionalTypeParameters()
+
+	params, returnType, body, err := p.parseFunctionParamsAndBody(async, generator)
+	if err != nil {
+		return nil, err
+	}
 
 	return &ast.FunctionExpression{
 		BaseNode: ast.BaseNode{
@@ -183,6 +144,46 @@ func (p *Parser) parseFunctionExpression() (*ast.FunctionExpression, error) {
 		ReturnType:     returnType,
 		TypeParameters: typeParameters,
 	}, nil
+}
+
+// parseFunctionParamsAndBody parses function expression parameters, return type, and body (requires block).
+func (p *Parser) parseFunctionParamsAndBody(async, generator bool) ([]ast.Pattern, *ast.TSTypeAnnotation, *ast.BlockStatement, error) {
+	if err := p.expect(lexer.LPAREN); err != nil {
+		return nil, nil, nil, err
+	}
+
+	oldInFunction := p.inFunction
+	oldAllowYield := p.allowYield
+	oldAllowAwait := p.allowAwait
+	p.inFunction = true
+	p.allowYield = generator
+	p.allowAwait = async
+
+	params, err := p.parseFunctionParams()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Parse return type annotation (TypeScript)
+	var returnType *ast.TSTypeAnnotation
+	if p.consume(lexer.COLON) {
+		returnType, err = p.parseTSTypeAnnotation()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	// Parse body
+	body, err := p.parseBlockStatement()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	p.inFunction = oldInFunction
+	p.allowYield = oldAllowYield
+	p.allowAwait = oldAllowAwait
+
+	return params, returnType, body, nil
 }
 
 // parseFunctionExpressionBody parses the body of a function expression (used for object methods).
@@ -256,51 +257,17 @@ func (p *Parser) parseFunctionParams() ([]ast.Pattern, error) {
 	for !p.match(lexer.RPAREN) && !p.isAtEnd() {
 		// Handle rest parameter
 		if p.consume(lexer.ELLIPSIS) {
-			param, err := p.parseBindingPattern()
+			param, err := p.parseRestParameter()
 			if err != nil {
 				return nil, err
 			}
-			params = append(params, &ast.RestElement{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeRestElement.String(),
-				},
-				Argument: param,
-			})
+			params = append(params, param)
 			break
 		}
 
-		param, err := p.parseBindingPattern()
+		param, err := p.parseSingleFunctionParam()
 		if err != nil {
 			return nil, err
-		}
-
-		// Parse type annotation (TypeScript)
-		if id, ok := param.(*ast.Identifier); ok {
-			if p.consume(lexer.QUESTION) {
-				id.Optional = true
-			}
-			if p.consume(lexer.COLON) {
-				typeAnnotation, err := p.parseTSTypeAnnotation()
-				if err != nil {
-					return nil, err
-				}
-				id.TypeAnnotation = typeAnnotation
-			}
-		}
-
-		// Parse default value
-		if p.consume(lexer.ASSIGN) {
-			init, err := p.parseAssignmentExpression()
-			if err != nil {
-				return nil, err
-			}
-			param = &ast.AssignmentPattern{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeAssignmentPattern.String(),
-				},
-				Left:  param,
-				Right: init,
-			}
 		}
 
 		params = append(params, param)
@@ -315,6 +282,64 @@ func (p *Parser) parseFunctionParams() ([]ast.Pattern, error) {
 	}
 
 	return params, nil
+}
+
+// parseRestParameter parses a rest parameter (...param).
+func (p *Parser) parseRestParameter() (ast.Pattern, error) {
+	param, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.RestElement{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeRestElement.String(),
+		},
+		Argument: param,
+	}, nil
+}
+
+// parseSingleFunctionParam parses a single function parameter with optional type and default value.
+func (p *Parser) parseSingleFunctionParam() (ast.Pattern, error) {
+	param, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse type annotation (TypeScript)
+	param = p.parseParamTypeAnnotation(param)
+
+	// Parse default value
+	if p.consume(lexer.ASSIGN) {
+		init, err := p.parseAssignmentExpression()
+		if err != nil {
+			return nil, err
+		}
+		param = &ast.AssignmentPattern{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeAssignmentPattern.String(),
+			},
+			Left:  param,
+			Right: init,
+		}
+	}
+
+	return param, nil
+}
+
+// parseParamTypeAnnotation parses optional type annotation for a parameter.
+func (p *Parser) parseParamTypeAnnotation(param ast.Pattern) ast.Pattern {
+	if id, ok := param.(*ast.Identifier); ok {
+		if p.consume(lexer.QUESTION) {
+			id.Optional = true
+		}
+		if p.consume(lexer.COLON) {
+			typeAnnotation, err := p.parseTSTypeAnnotation()
+			if err == nil {
+				id.TypeAnnotation = typeAnnotation
+			}
+		}
+	}
+	return param
 }
 
 // parseParenthesizedOrArrowFunction parses a parenthesized expression or arrow function.

@@ -10,73 +10,104 @@ import (
 // parseStatementListItem parses a statement or declaration at the top level or in a block.
 func (p *Parser) parseStatementListItem() (ast.Statement, error) {
 	// Check for declarations first
+	if stmt, ok := p.tryParseDeclaration(); ok {
+		return stmt()
+	}
+	return p.parseStatement()
+}
+
+// tryParseDeclaration tries to parse a declaration statement.
+func (p *Parser) tryParseDeclaration() (func() (ast.Statement, error), bool) {
+	var fn func() (ast.Statement, error)
+
 	switch p.current.Type {
 	case lexer.FUNCTION:
-		return p.parseFunctionDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
 	case lexer.CLASS:
-		return p.parseClassDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseClassDeclaration() }
 	case lexer.CONST, lexer.LET, lexer.VAR:
-		return p.parseVariableStatement()
+		fn = func() (ast.Statement, error) { return p.parseVariableStatement() }
 	case lexer.INTERFACE:
-		return p.parseTSInterfaceDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseTSInterfaceDeclaration() }
 	case lexer.TYPE:
-		return p.parseTSTypeAliasDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseTSTypeAliasDeclaration() }
 	case lexer.ENUM:
-		return p.parseTSEnumDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseTSEnumDeclaration() }
 	case lexer.NAMESPACE, lexer.MODULE:
-		return p.parseTSModuleDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseTSModuleDeclaration() }
 	case lexer.IMPORT:
-		return p.parseImportDeclaration()
+		fn = func() (ast.Statement, error) { return p.parseImportDeclaration() }
 	case lexer.EXPORT:
-		return p.parseExportDeclaration()
+		fn = p.parseExportDeclaration
 	case lexer.DECLARE:
-		return p.parseTSDeclareStatement()
+		fn = func() (ast.Statement, error) { return p.parseTSDeclareStatement() }
 	case lexer.ASYNC:
 		// Could be async function declaration
 		if p.peek.Type == lexer.FUNCTION {
-			return p.parseFunctionDeclaration()
+			fn = func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
 		}
-		return p.parseStatement()
-	default:
-		return p.parseStatement()
 	}
+
+	if fn != nil {
+		return fn, true
+	}
+	return nil, false
 }
 
 // parseStatement parses a statement.
 func (p *Parser) parseStatement() (ast.Statement, error) {
+	// Try control flow statements
+	if stmt := p.tryParseControlFlowStatement(); stmt != nil {
+		return stmt()
+	}
+	// Try simple statements
+	if stmt := p.tryParseSimpleStatement(); stmt != nil {
+		return stmt()
+	}
+	// Default: expression statement or labeled statement
+	return p.parseExpressionOrLabeledStatement()
+}
+
+// tryParseControlFlowStatement tries to parse control flow statements.
+func (p *Parser) tryParseControlFlowStatement() func() (ast.Statement, error) {
 	switch p.current.Type {
 	case lexer.IF:
-		return p.parseIfStatement()
+		return func() (ast.Statement, error) { return p.parseIfStatement() }
 	case lexer.WHILE:
-		return p.parseWhileStatement()
+		return func() (ast.Statement, error) { return p.parseWhileStatement() }
 	case lexer.DO:
-		return p.parseDoWhileStatement()
+		return func() (ast.Statement, error) { return p.parseDoWhileStatement() }
 	case lexer.FOR:
-		return p.parseForStatement()
+		return func() (ast.Statement, error) { return p.parseForStatement() }
 	case lexer.SWITCH:
-		return p.parseSwitchStatement()
-	case lexer.RETURN:
-		return p.parseReturnStatement()
-	case lexer.BREAK:
-		return p.parseBreakStatement()
-	case lexer.CONTINUE:
-		return p.parseContinueStatement()
-	case lexer.THROW:
-		return p.parseThrowStatement()
+		return func() (ast.Statement, error) { return p.parseSwitchStatement() }
 	case lexer.TRY:
-		return p.parseTryStatement()
-	case lexer.DEBUGGER:
-		return p.parseDebuggerStatement()
-	case lexer.WITH:
-		return p.parseWithStatement()
-	case lexer.LBRACE:
-		return p.parseBlockStatement()
-	case lexer.SEMICOLON:
-		return p.parseEmptyStatement()
-	default:
-		// Expression statement or labeled statement
-		return p.parseExpressionOrLabeledStatement()
+		return func() (ast.Statement, error) { return p.parseTryStatement() }
 	}
+	return nil
+}
+
+// tryParseSimpleStatement tries to parse simple statements.
+func (p *Parser) tryParseSimpleStatement() func() (ast.Statement, error) {
+	switch p.current.Type {
+	case lexer.RETURN:
+		return func() (ast.Statement, error) { return p.parseReturnStatement() }
+	case lexer.BREAK:
+		return func() (ast.Statement, error) { return p.parseBreakStatement() }
+	case lexer.CONTINUE:
+		return func() (ast.Statement, error) { return p.parseContinueStatement() }
+	case lexer.THROW:
+		return func() (ast.Statement, error) { return p.parseThrowStatement() }
+	case lexer.DEBUGGER:
+		return func() (ast.Statement, error) { return p.parseDebuggerStatement() }
+	case lexer.WITH:
+		return func() (ast.Statement, error) { return p.parseWithStatement() }
+	case lexer.LBRACE:
+		return func() (ast.Statement, error) { return p.parseBlockStatement() }
+	case lexer.SEMICOLON:
+		return func() (ast.Statement, error) { return p.parseEmptyStatement() }
+	}
+	return nil
 }
 
 // parseBlockStatement parses a block statement { ... }.

@@ -45,37 +45,17 @@ func (p *Parser) parseArrayPattern() (*ast.ArrayPattern, error) {
 
 		// Handle rest element
 		if p.consume(lexer.ELLIPSIS) {
-			arg, err := p.parseBindingPattern()
+			element, err := p.parseArrayRestElement()
 			if err != nil {
 				return nil, err
 			}
-			elements = append(elements, &ast.RestElement{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeRestElement.String(),
-				},
-				Argument: arg,
-			})
+			elements = append(elements, element)
 			break
 		}
 
-		element, err := p.parseBindingPattern()
+		element, err := p.parseArrayPatternElement()
 		if err != nil {
 			return nil, err
-		}
-
-		// Check for default value
-		if p.consume(lexer.ASSIGN) {
-			right, err := p.parseAssignmentExpression()
-			if err != nil {
-				return nil, err
-			}
-			element = &ast.AssignmentPattern{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeAssignmentPattern.String(),
-				},
-				Left:  element,
-				Right: right,
-			}
 		}
 
 		elements = append(elements, element)
@@ -96,6 +76,45 @@ func (p *Parser) parseArrayPattern() (*ast.ArrayPattern, error) {
 		},
 		Elements: elements,
 	}, nil
+}
+
+// parseArrayRestElement parses a rest element in an array pattern.
+func (p *Parser) parseArrayRestElement() (ast.Pattern, error) {
+	arg, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.RestElement{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeRestElement.String(),
+		},
+		Argument: arg,
+	}, nil
+}
+
+// parseArrayPatternElement parses a single array pattern element with optional default.
+func (p *Parser) parseArrayPatternElement() (ast.Pattern, error) {
+	element, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+
+	// Check for default value
+	if p.consume(lexer.ASSIGN) {
+		right, err := p.parseAssignmentExpression()
+		if err != nil {
+			return nil, err
+		}
+		element = &ast.AssignmentPattern{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeAssignmentPattern.String(),
+			},
+			Left:  element,
+			Right: right,
+		}
+	}
+
+	return element, nil
 }
 
 // parseObjectPattern parses an object destructuring pattern {a, b, c}.

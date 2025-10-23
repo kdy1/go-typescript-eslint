@@ -357,11 +357,7 @@ func (p *Parser) parseExportDeclaration() (ast.Statement, error) {
 
 	// Check for default export
 	if p.consume(lexer.DEFAULT) {
-		declaration, err := p.parseExportDefaultDeclaration(start)
-		if err != nil {
-			return nil, err
-		}
-		return declaration, nil
+		return p.parseExportDefaultDeclaration(start)
 	}
 
 	// Check for export * (re-export all)
@@ -375,26 +371,12 @@ func (p *Parser) parseExportDeclaration() (ast.Statement, error) {
 	}
 
 	// Export declaration
-	var declaration ast.Node
-	var err error
+	return p.parseExportWithDeclaration(start, exportKind)
+}
 
-	switch p.current.Type {
-	case lexer.VAR, lexer.LET, lexer.CONST:
-		declaration, err = p.parseVariableStatement()
-	case lexer.FUNCTION:
-		declaration, err = p.parseFunctionDeclaration()
-	case lexer.CLASS:
-		declaration, err = p.parseClassDeclaration()
-	case lexer.INTERFACE:
-		declaration, err = p.parseTSInterfaceDeclaration()
-	case lexer.TYPE:
-		declaration, err = p.parseTSTypeAliasDeclaration()
-	case lexer.ENUM:
-		declaration, err = p.parseTSEnumDeclaration()
-	default:
-		return nil, p.errorAtCurrent("expected declaration")
-	}
-
+// parseExportWithDeclaration parses export with a declaration.
+func (p *Parser) parseExportWithDeclaration(start int, exportKind string) (ast.Statement, error) {
+	declaration, err := p.parseExportableDeclaration()
 	if err != nil {
 		return nil, err
 	}
@@ -415,6 +397,26 @@ func (p *Parser) parseExportDeclaration() (ast.Statement, error) {
 		Source:      nil,
 		ExportKind:  &exportKind,
 	}, nil
+}
+
+// parseExportableDeclaration parses declarations that can be exported.
+func (p *Parser) parseExportableDeclaration() (ast.Node, error) {
+	switch p.current.Type {
+	case lexer.VAR, lexer.LET, lexer.CONST:
+		return p.parseVariableStatement()
+	case lexer.FUNCTION:
+		return p.parseFunctionDeclaration()
+	case lexer.CLASS:
+		return p.parseClassDeclaration()
+	case lexer.INTERFACE:
+		return p.parseTSInterfaceDeclaration()
+	case lexer.TYPE:
+		return p.parseTSTypeAliasDeclaration()
+	case lexer.ENUM:
+		return p.parseTSEnumDeclaration()
+	default:
+		return nil, p.errorAtCurrent("expected declaration")
+	}
 }
 
 // parseExportDefaultDeclaration parses an export default declaration.
