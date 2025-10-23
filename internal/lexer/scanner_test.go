@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+//nolint:funlen // Table-driven test with many test cases
 func TestScannerBasicTokens(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -68,6 +69,7 @@ func TestScannerBasicTokens(t *testing.T) {
 	}
 }
 
+//nolint:funlen // Table-driven test with many test cases
 func TestScannerKeywords(t *testing.T) {
 	tests := []struct {
 		name     string

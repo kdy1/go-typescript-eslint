@@ -47,6 +47,7 @@ type Services struct {
 //	}
 //	// use result.AST
 func Parse(_ string, _ *ParseOptions) (*Result, error) {
+	//nolint:godox // TODO is intentional for unimplemented feature
 	// TODO: Implement full TypeScript parsing
 	// This will use the internal lexer and parser packages
 	return nil, ErrNotImplemented
@@ -70,6 +71,7 @@ func Parse(_ string, _ *ParseOptions) (*Result, error) {
 //	}
 //	// use result.AST and result.Services
 func ParseAndGenerateServices(_ string, _ *ParseAndGenerateServicesOptions) (*Result, error) {
+	//nolint:godox // TODO is intentional for unimplemented feature
 	// TODO: Implement with TypeScript services support
 	return nil, ErrNotImplemented
 }

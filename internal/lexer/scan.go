@@ -202,7 +202,6 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(SUB, "-")
 		return s.current
 
-	//nolint:dupl // Similar pattern for different operators
 	case '*':
 		s.next()
 		// Check for **= (exponentiation assignment)
@@ -249,7 +248,6 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(REM, "%")
 		return s.current
 
-	//nolint:dupl // Similar pattern for different operators
 	case '&':
 		s.next()
 		// Check for &&= (logical AND assignment)
@@ -274,7 +272,6 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(AND, "&")
 		return s.current
 
-	//nolint:dupl // Similar pattern for different operators
 	case '|':
 		s.next()
 		// Check for ||= (logical OR assignment)
@@ -310,7 +307,6 @@ func (s *Scanner) Scan() Token {
 		s.current = s.createToken(XOR, "^")
 		return s.current
 
-	//nolint:dupl // Similar pattern for different operators
 	case '<':
 		s.next()
 		// Check for <<<= (unsigned left shift assignment) - doesn't exist in JS/TS
