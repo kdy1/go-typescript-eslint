@@ -7,6 +7,15 @@ import (
 	"github.com/kdy1/go-typescript-eslint/pkg/typescriptestree"
 )
 
+// mustParse is a helper function that panics on error, suitable for examples.
+func mustParse(source string, opts *typescriptestree.ParseOptions) *typescriptestree.Result {
+	result, err := typescriptestree.Parse(source, opts)
+	if err != nil {
+		panic(err)
+	}
+	return result
+}
+
 // Example demonstrates basic parsing of TypeScript code.
 func Example() {
 	source := `const greeting: string = "Hello, World!";`
@@ -115,6 +124,8 @@ func Example_parseAndGenerateServices() {
 
 	fmt.Printf("Has AST: %t\n", result.AST != nil)
 	fmt.Printf("Has Services: %t\n", result.Services != nil)
+	// Output:
+	// Note: ParseAndGenerateServices requires a TypeScript project configuration
 }
 
 // Example_nodeTypes demonstrates using AST_NODE_TYPES constants.
@@ -174,7 +185,7 @@ func Example_clearCache() {
 	// Parse some TypeScript code (which may cache programs)
 	source := `const x: number = 42;`
 	opts := typescriptestree.NewBuilder().MustBuild()
-	_, _ = typescriptestree.Parse(source, opts)
+	_ = mustParse(source, opts) // ignore result
 
 	// Clear the cache (useful for testing)
 	typescriptestree.ClearProgramCache()
@@ -208,6 +219,11 @@ func Example_errorHandlingBasic() {
 
 	fmt.Printf("Strict mode result: %t\n", result2 == nil)
 	fmt.Printf("Strict mode error: %t\n", err2 != nil)
+	// Output:
+	// Got result: true
+	// Got error: true
+	// Strict mode result: true
+	// Strict mode error: true
 }
 
 // Example_scriptVsModule demonstrates the difference between script and module source types.
@@ -219,7 +235,7 @@ func Example_scriptVsModule() {
 		WithSourceType(typescriptestree.SourceTypeScript).
 		MustBuild()
 
-	scriptResult, _ := typescriptestree.Parse(source, scriptOpts)
+	scriptResult := mustParse(source, scriptOpts)
 	fmt.Printf("Script source type: %s\n", scriptResult.AST.SourceType)
 
 	// Parse as module
@@ -227,7 +243,7 @@ func Example_scriptVsModule() {
 		WithSourceType(typescriptestree.SourceTypeModule).
 		MustBuild()
 
-	moduleResult, _ := typescriptestree.Parse(source, moduleOpts)
+	moduleResult := mustParse(source, moduleOpts)
 	fmt.Printf("Module source type: %s\n", moduleResult.AST.SourceType)
 
 	// Output:

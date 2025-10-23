@@ -12,7 +12,7 @@ import (
 //	// Before running tests
 //	typescriptestree.ClearProgramCache()
 //
-// Note: In production code, you typically don't need to call this function.
+// In production code, you typically don't need to call this function.
 // The cache automatically expires entries based on the configured lifetime.
 func ClearProgramCache() {
 	program.GlobalCache.Clear()
@@ -26,7 +26,7 @@ func ClearProgramCache() {
 //	// Clean up after tests
 //	typescriptestree.ClearDefaultProjectMatchedFiles()
 //
-// Note: This is primarily for internal use and testing. In most cases, you don't
+// This is primarily for internal use and testing. In most cases, you don't
 // need to call this function manually.
 func ClearDefaultProjectMatchedFiles() {
 	// This is a placeholder for future implementation

@@ -310,7 +310,11 @@ func BenchmarkParse(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = typescriptestree.Parse(source, opts)
+		result, err := typescriptestree.Parse(source, opts)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_ = result
 	}
 }
 
@@ -324,7 +328,11 @@ func BenchmarkParse_WithLocAndRange(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = typescriptestree.Parse(source, opts)
+		result, err := typescriptestree.Parse(source, opts)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_ = result
 	}
 }
 
@@ -343,6 +351,10 @@ func BenchmarkParse_WithCommentsAndTokens(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = typescriptestree.Parse(source, opts)
+		result, err := typescriptestree.Parse(source, opts)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_ = result
 	}
 }

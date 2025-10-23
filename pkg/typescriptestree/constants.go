@@ -23,55 +23,55 @@ var AST_NODE_TYPES = struct {
 	Literal           string
 
 	// ==================== Expressions ====================
-	ThisExpression             string
-	Super                      string
-	ArrayExpression            string
-	ObjectExpression           string
-	Property                   string
-	FunctionExpression         string
-	ArrowFunctionExpression    string
-	ClassExpression            string
-	UnaryExpression            string
-	UpdateExpression           string
-	BinaryExpression           string
-	LogicalExpression          string
-	AssignmentExpression       string
-	ConditionalExpression      string
-	SequenceExpression         string
-	MemberExpression           string
-	CallExpression             string
-	NewExpression              string
-	MetaProperty               string
-	TemplateLiteral            string
-	TaggedTemplateExpression   string
-	TemplateElement            string
-	YieldExpression            string
-	AwaitExpression            string
-	ChainExpression            string
-	ImportExpression           string
-	SpreadElement              string
+	ThisExpression           string
+	Super                    string
+	ArrayExpression          string
+	ObjectExpression         string
+	Property                 string
+	FunctionExpression       string
+	ArrowFunctionExpression  string
+	ClassExpression          string
+	UnaryExpression          string
+	UpdateExpression         string
+	BinaryExpression         string
+	LogicalExpression        string
+	AssignmentExpression     string
+	ConditionalExpression    string
+	SequenceExpression       string
+	MemberExpression         string
+	CallExpression           string
+	NewExpression            string
+	MetaProperty             string
+	TemplateLiteral          string
+	TaggedTemplateExpression string
+	TemplateElement          string
+	YieldExpression          string
+	AwaitExpression          string
+	ChainExpression          string
+	ImportExpression         string
+	SpreadElement            string
 
 	// ==================== Statements ====================
-	BlockStatement       string
-	ExpressionStatement  string
-	EmptyStatement       string
-	DebuggerStatement    string
-	ReturnStatement      string
-	BreakStatement       string
-	ContinueStatement    string
-	LabeledStatement     string
-	IfStatement          string
-	SwitchStatement      string
-	SwitchCase           string
-	WhileStatement       string
-	DoWhileStatement     string
-	ForStatement         string
-	ForInStatement       string
-	ForOfStatement       string
-	ThrowStatement       string
-	TryStatement         string
-	CatchClause          string
-	WithStatement        string
+	BlockStatement      string
+	ExpressionStatement string
+	EmptyStatement      string
+	DebuggerStatement   string
+	ReturnStatement     string
+	BreakStatement      string
+	ContinueStatement   string
+	LabeledStatement    string
+	IfStatement         string
+	SwitchStatement     string
+	SwitchCase          string
+	WhileStatement      string
+	DoWhileStatement    string
+	ForStatement        string
+	ForInStatement      string
+	ForOfStatement      string
+	ThrowStatement      string
+	TryStatement        string
+	CatchClause         string
+	WithStatement       string
 
 	// ==================== Declarations ====================
 	VariableDeclaration      string
@@ -100,21 +100,21 @@ var AST_NODE_TYPES = struct {
 	AssignmentPattern string
 
 	// ==================== JSX (React) ====================
-	JSXElement              string
-	JSXFragment             string
-	JSXOpeningElement       string
-	JSXClosingElement       string
-	JSXOpeningFragment      string
-	JSXClosingFragment      string
-	JSXAttribute            string
-	JSXSpreadAttribute      string
-	JSXIdentifier           string
-	JSXNamespacedName       string
-	JSXMemberExpression     string
-	JSXExpressionContainer  string
-	JSXEmptyExpression      string
-	JSXText                 string
-	JSXSpreadChild          string
+	JSXElement             string
+	JSXFragment            string
+	JSXOpeningElement      string
+	JSXClosingElement      string
+	JSXOpeningFragment     string
+	JSXClosingFragment     string
+	JSXAttribute           string
+	JSXSpreadAttribute     string
+	JSXIdentifier          string
+	JSXNamespacedName      string
+	JSXMemberExpression    string
+	JSXExpressionContainer string
+	JSXEmptyExpression     string
+	JSXText                string
+	JSXSpreadChild         string
 
 	// ==================== Decorators ====================
 	Decorator string
@@ -135,37 +135,37 @@ var AST_NODE_TYPES = struct {
 	TSVoidKeyword      string
 
 	// ==================== TypeScript Type Expressions ====================
-	TSArrayType             string
-	TSTupleType             string
-	TSUnionType             string
-	TSIntersectionType      string
-	TSConditionalType       string
-	TSInferType             string
-	TSTypeReference         string
-	TSTypeQuery             string
-	TSTypeLiteral           string
-	TSFunctionType          string
-	TSConstructorType       string
-	TSMappedType            string
-	TSLiteralType           string
-	TSIndexedAccessType     string
-	TSOptionalType          string
-	TSRestType              string
-	TSThisType              string
-	TSTypeOperator          string
-	TSTemplateLiteralType   string
+	TSArrayType           string
+	TSTupleType           string
+	TSUnionType           string
+	TSIntersectionType    string
+	TSConditionalType     string
+	TSInferType           string
+	TSTypeReference       string
+	TSTypeQuery           string
+	TSTypeLiteral         string
+	TSFunctionType        string
+	TSConstructorType     string
+	TSMappedType          string
+	TSLiteralType         string
+	TSIndexedAccessType   string
+	TSOptionalType        string
+	TSRestType            string
+	TSThisType            string
+	TSTypeOperator        string
+	TSTemplateLiteralType string
 
 	// ==================== TypeScript Type Declarations ====================
-	TSTypeAnnotation        string
-	TSTypeAliasDeclaration  string
-	TSInterfaceDeclaration  string
-	TSInterfaceBody         string
-	TSInterfaceHeritage     string
-	TSEnumDeclaration       string
-	TSEnumBody              string
-	TSEnumMember            string
-	TSModuleDeclaration     string
-	TSModuleBlock           string
+	TSTypeAnnotation       string
+	TSTypeAliasDeclaration string
+	TSInterfaceDeclaration string
+	TSInterfaceBody        string
+	TSInterfaceHeritage    string
+	TSEnumDeclaration      string
+	TSEnumBody             string
+	TSEnumMember           string
+	TSModuleDeclaration    string
+	TSModuleBlock          string
 
 	// ==================== TypeScript Type Components ====================
 	TSTypeParameter                 string
@@ -212,11 +212,11 @@ var AST_NODE_TYPES = struct {
 	TSNamespaceExportDeclaration string
 
 	// ==================== TypeScript Other ====================
-	TSQualifiedName                string
-	TSParameterProperty            string
-	TSDeclareFunction              string
-	TSEmptyBodyFunctionExpression  string
-	TSClassImplements              string
+	TSQualifiedName               string
+	TSParameterProperty           string
+	TSDeclareFunction             string
+	TSEmptyBodyFunctionExpression string
+	TSClassImplements             string
 }{
 	// Initialize all node type strings
 	Program:                         ast.NodeTypeProgram.String(),
@@ -478,55 +478,55 @@ var AST_TOKEN_TYPES = struct {
 	Undefined  string
 
 	// Operators and punctuation
-	Add           string // +
-	Sub           string // -
-	Mul           string // *
-	Quo           string // /
-	Rem           string // %
-	And           string // &
-	Or            string // |
-	Xor           string // ^
-	BitwiseNot    string // ~
-	ShiftLeft     string // <<
-	ShiftRight    string // >>
-	AddAssign     string // +=
-	SubAssign     string // -=
-	MulAssign     string // *=
-	QuoAssign     string // /=
-	RemAssign     string // %=
-	AndAssign     string // &=
-	OrAssign      string // |=
-	XorAssign     string // ^=
-	ShlAssign     string // <<=
-	ShrAssign     string // >>=
-	LogicalAnd    string // &&
-	LogicalOr     string // ||
-	Increment     string // ++
-	Decrement     string // --
-	Nullish       string // ??
-	Equal         string // ==
-	Less          string // <
-	Greater       string // >
-	Assign        string // =
-	Not           string // !
-	NotEqual      string // !=
-	LessEqual     string // <=
-	GreaterEqual  string // >=
-	StrictEqual   string // ===
+	Add            string // +
+	Sub            string // -
+	Mul            string // *
+	Quo            string // /
+	Rem            string // %
+	And            string // &
+	Or             string // |
+	Xor            string // ^
+	BitwiseNot     string // ~
+	ShiftLeft      string // <<
+	ShiftRight     string // >>
+	AddAssign      string // +=
+	SubAssign      string // -=
+	MulAssign      string // *=
+	QuoAssign      string // /=
+	RemAssign      string // %=
+	AndAssign      string // &=
+	OrAssign       string // |=
+	XorAssign      string // ^=
+	ShlAssign      string // <<=
+	ShrAssign      string // >>=
+	LogicalAnd     string // &&
+	LogicalOr      string // ||
+	Increment      string // ++
+	Decrement      string // --
+	Nullish        string // ??
+	Equal          string // ==
+	Less           string // <
+	Greater        string // >
+	Assign         string // =
+	Not            string // !
+	NotEqual       string // !=
+	LessEqual      string // <=
+	GreaterEqual   string // >=
+	StrictEqual    string // ===
 	StrictNotEqual string // !==
-	LeftParen     string // (
-	LeftBracket   string // [
-	LeftBrace     string // {
-	Comma         string // ,
-	Period        string // .
-	RightParen    string // )
-	RightBracket  string // ]
-	RightBrace    string // }
-	Semicolon     string // ;
-	Colon         string // :
-	Question      string // ?
-	Arrow         string // =>
-	Ellipsis      string // ...
+	LeftParen      string // (
+	LeftBracket    string // [
+	LeftBrace      string // {
+	Comma          string // ,
+	Period         string // .
+	RightParen     string // )
+	RightBracket   string // ]
+	RightBrace     string // }
+	Semicolon      string // ;
+	Colon          string // :
+	Question       string // ?
+	Arrow          string // =>
+	Ellipsis       string // ...
 }{
 	// Initialize all token type strings
 	EOF:            lexer.EOF.String(),
