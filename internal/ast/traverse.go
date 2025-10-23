@@ -57,8 +57,8 @@ func Walk(node Node, visitor Visitor) {
 // a slice of nodes, or a pointer to a node.
 //
 //nolint:cyclop // Complexity is inherent to reflection-based traversal
-//nolint:exhaustive // Only specific reflection kinds need handling
 func traverseField(field reflect.Value, visitor Visitor) {
+	//nolint:exhaustive // Only specific reflection kinds need handling
 	switch field.Kind() {
 	case reflect.Ptr:
 		traversePointerField(field, visitor)
@@ -194,8 +194,8 @@ func walkWithContextInternal(node Node, visitor ContextVisitor, ctx *TraverseCon
 }
 
 //nolint:cyclop // Complexity is inherent to reflection-based traversal
-//nolint:exhaustive // Only specific reflection kinds need handling
 func traverseFieldWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
+	//nolint:exhaustive // Only specific reflection kinds need handling
 	switch field.Kind() {
 	case reflect.Ptr:
 		traversePointerWithContext(field, visitor, ctx)

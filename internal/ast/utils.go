@@ -392,8 +392,11 @@ func GetIdentifierNames(root Node) []string {
 }
 
 const (
-	classDeclaration    = "ClassDeclaration"
-	functionDeclaration = "FunctionDeclaration"
+	classDeclaration         = "ClassDeclaration"
+	functionDeclaration      = "FunctionDeclaration"
+	exportNamedDeclaration   = "ExportNamedDeclaration"
+	exportDefaultDeclaration = "ExportDefaultDeclaration"
+	exportAllDeclaration     = "ExportAllDeclaration"
 )
 
 // IsDeclarationStatement checks if a node is a declaration statement.
@@ -445,13 +448,6 @@ func GetClassName(node Node) string {
 	}
 	return ""
 }
-
-const (
-	classDeclaration         = "ClassDeclaration"
-	exportNamedDeclaration   = "ExportNamedDeclaration"
-	exportDefaultDeclaration = "ExportDefaultDeclaration"
-	exportAllDeclaration     = "ExportAllDeclaration"
-)
 
 // IsExported checks if a declaration is exported.
 func IsExported(node Node) bool {
