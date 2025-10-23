@@ -436,6 +436,47 @@ func (p *Parser) parseArrowFunctionFromParams(start int, params []ast.Pattern) (
 	}, nil
 }
 
+// parseClassHeritage parses extends and implements clauses.
+func (p *Parser) parseClassHeritage() (ast.Expression, *ast.TSTypeParameterInstantiation, []ast.TSClassImplements, error) {
+	var superClass ast.Expression
+	var superTypeParameters *ast.TSTypeParameterInstantiation
+	var implements []ast.TSClassImplements
+
+	// Parse extends clause
+	if p.consume(lexer.EXTENDS) {
+		var err error
+		superClass, err = p.parseLeftHandSideExpression()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		// Parse type arguments for super class (TypeScript)
+		if p.current.Type == lexer.LSS {
+			superTypeParameters, err = p.parseTSTypeArguments()
+			if err != nil {
+				superTypeParameters = nil
+			}
+		}
+	}
+
+	// Parse implements clause (TypeScript)
+	if p.consume(lexer.IMPLEMENTS) {
+		for {
+			impl, err := p.parseTSClassImplements()
+			if err != nil {
+				return nil, nil, nil, err
+			}
+			implements = append(implements, *impl)
+
+			if !p.consume(lexer.COMMA) {
+				break
+			}
+		}
+	}
+
+	return superClass, superTypeParameters, implements, nil
+}
+
 // parseClassDeclaration parses a class declaration.
 func (p *Parser) parseClassDeclaration() (*ast.ClassDeclaration, error) {
 	start := p.current.Pos
@@ -464,39 +505,10 @@ func (p *Parser) parseClassDeclaration() (*ast.ClassDeclaration, error) {
 		}
 	}
 
-	// Parse extends clause
-	var superClass ast.Expression
-	var superTypeParameters *ast.TSTypeParameterInstantiation
-	if p.consume(lexer.EXTENDS) {
-		var err error
-		superClass, err = p.parseLeftHandSideExpression()
-		if err != nil {
-			return nil, err
-		}
-
-		// Parse type arguments for super class (TypeScript)
-		if p.current.Type == lexer.LSS {
-			superTypeParameters, err = p.parseTSTypeArguments()
-			if err != nil {
-				superTypeParameters = nil
-			}
-		}
-	}
-
-	// Parse implements clause (TypeScript)
-	var implements []ast.TSClassImplements
-	if p.consume(lexer.IMPLEMENTS) {
-		for {
-			impl, err := p.parseTSClassImplements()
-			if err != nil {
-				return nil, err
-			}
-			implements = append(implements, *impl)
-
-			if !p.consume(lexer.COMMA) {
-				break
-			}
-		}
+	// Parse heritage clauses
+	superClass, superTypeParameters, implements, err := p.parseClassHeritage()
+	if err != nil {
+		return nil, err
 	}
 
 	// Parse class body
@@ -547,39 +559,10 @@ func (p *Parser) parseClassExpression() (*ast.ClassExpression, error) {
 		}
 	}
 
-	// Parse extends clause
-	var superClass ast.Expression
-	var superTypeParameters *ast.TSTypeParameterInstantiation
-	if p.consume(lexer.EXTENDS) {
-		var err error
-		superClass, err = p.parseLeftHandSideExpression()
-		if err != nil {
-			return nil, err
-		}
-
-		// Parse type arguments for super class (TypeScript)
-		if p.current.Type == lexer.LSS {
-			superTypeParameters, err = p.parseTSTypeArguments()
-			if err != nil {
-				superTypeParameters = nil
-			}
-		}
-	}
-
-	// Parse implements clause (TypeScript)
-	var implements []ast.TSClassImplements
-	if p.consume(lexer.IMPLEMENTS) {
-		for {
-			impl, err := p.parseTSClassImplements()
-			if err != nil {
-				return nil, err
-			}
-			implements = append(implements, *impl)
-
-			if !p.consume(lexer.COMMA) {
-				break
-			}
-		}
+	// Parse heritage clauses
+	superClass, superTypeParameters, implements, err := p.parseClassHeritage()
+	if err != nil {
+		return nil, err
 	}
 
 	// Parse class body
