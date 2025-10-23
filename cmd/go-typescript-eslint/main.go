@@ -49,12 +49,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Create a JSON-safe version of the result (omitting unmarshalable fields)
+	type jsonResult struct {
+		AST interface{} `json:"ast,omitempty"`
+	}
+	jsonSafeResult := jsonResult{
+		AST: result.AST,
+	}
+
 	var output []byte
 	switch *formatFlag {
 	case "json":
-		output, err = json.Marshal(result)
+		output, err = json.Marshal(jsonSafeResult)
 	case "pretty":
-		output, err = json.MarshalIndent(result, "", "  ")
+		output, err = json.MarshalIndent(jsonSafeResult, "", "  ")
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown format: %s\n", *formatFlag)
 		os.Exit(1)

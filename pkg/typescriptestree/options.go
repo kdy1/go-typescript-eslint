@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 // SourceType specifies the type of source code being parsed.
@@ -221,7 +220,7 @@ func NewParseAndGenerateServicesOptions() *ParseAndGenerateServicesOptions {
 
 // defaultLogger is the default logging function that writes to stderr.
 func defaultLogger(message string) {
-	fmt.Fprintln(getStderr(), message)
+	_, _ = fmt.Fprintln(getStderr(), message)
 }
 
 // getStderr returns the standard error writer (extracted for testability).
@@ -409,21 +408,27 @@ func NewServicesBuilder() *ParseAndGenerateServicesOptionsBuilder {
 }
 
 // WithParseOptions sets the base parse options.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithParseOptions(opts ParseOptions) *ParseAndGenerateServicesOptionsBuilder {
-	b.opts.ParseOptions = opts
+func (b *ParseAndGenerateServicesOptionsBuilder) WithParseOptions(
+	opts *ParseOptions,
+) *ParseAndGenerateServicesOptionsBuilder {
+	b.opts.ParseOptions = *opts
 	return b
 }
 
 // Base ParseOptions builder methods for convenience
 
 // WithSourceType sets the source type (script or module).
-func (b *ParseAndGenerateServicesOptionsBuilder) WithSourceType(sourceType SourceType) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithSourceType(
+	sourceType SourceType,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.SourceType = sourceType
 	return b
 }
 
 // WithAllowInvalidAST enables or disables parsing of invalid ASTs.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithAllowInvalidAST(allow bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithAllowInvalidAST(
+	allow bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.AllowInvalidAST = allow
 	return b
 }
@@ -435,13 +440,17 @@ func (b *ParseAndGenerateServicesOptionsBuilder) WithComment(comment bool) *Pars
 }
 
 // WithDebugLevel sets the debug level for specific modules.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithDebugLevel(modules ...string) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithDebugLevel(
+	modules ...string,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.DebugLevel = modules
 	return b
 }
 
 // WithErrorOnUnknownASTType enables or disables errors on unknown AST types.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithErrorOnUnknownASTType(errorOn bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithErrorOnUnknownASTType(
+	errorOn bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.ErrorOnUnknownASTType = errorOn
 	return b
 }
@@ -454,7 +463,9 @@ func (b *ParseAndGenerateServicesOptionsBuilder) WithFilePath(path string) *Pars
 }
 
 // WithJSDocParsingMode sets the JSDoc parsing mode.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithJSDocParsingMode(mode JSDocParsingMode) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithJSDocParsingMode(
+	mode JSDocParsingMode,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.JSDocParsingMode = mode
 	return b
 }
@@ -490,19 +501,25 @@ func (b *ParseAndGenerateServicesOptionsBuilder) WithTokens(tokens bool) *ParseA
 }
 
 // WithSuppressDeprecatedPropertyWarnings enables or disables deprecated property warnings.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithSuppressDeprecatedPropertyWarnings(suppress bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithSuppressDeprecatedPropertyWarnings(
+	suppress bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.SuppressDeprecatedPropertyWarnings = suppress
 	return b
 }
 
 // WithCacheLifetime sets the cache lifetime configuration.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithCacheLifetime(lifetime *CacheLifetime) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithCacheLifetime(
+	lifetime *CacheLifetime,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.CacheLifetime = lifetime
 	return b
 }
 
 // WithGlobCacheLifetime sets the glob cache lifetime in seconds.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithGlobCacheLifetime(seconds int) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithGlobCacheLifetime(
+	seconds int,
+) *ParseAndGenerateServicesOptionsBuilder {
 	if b.opts.CacheLifetime == nil {
 		b.opts.CacheLifetime = &CacheLifetime{}
 	}
@@ -512,25 +529,33 @@ func (b *ParseAndGenerateServicesOptionsBuilder) WithGlobCacheLifetime(seconds i
 }
 
 // WithDisallowAutomaticSingleRunInference disables automatic single run inference.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithDisallowAutomaticSingleRunInference(disallow bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithDisallowAutomaticSingleRunInference(
+	disallow bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.DisallowAutomaticSingleRunInference = disallow
 	return b
 }
 
 // WithErrorOnTypeScriptSyntacticAndSemanticIssues enables errors on TypeScript issues.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithErrorOnTypeScriptSyntacticAndSemanticIssues(errorOn bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithErrorOnTypeScriptSyntacticAndSemanticIssues(
+	errorOn bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.ErrorOnTypeScriptSyntacticAndSemanticIssues = errorOn
 	return b
 }
 
 // WithExtraFileExtensions sets additional file extensions to treat as TypeScript.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithExtraFileExtensions(extensions ...string) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithExtraFileExtensions(
+	extensions ...string,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.ExtraFileExtensions = extensions
 	return b
 }
 
 // WithPreserveNodeMaps sets whether to preserve TypeScript node maps.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithPreserveNodeMaps(preserve bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithPreserveNodeMaps(
+	preserve bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.PreserveNodeMaps = &preserve
 	return b
 }
@@ -542,25 +567,33 @@ func (b *ParseAndGenerateServicesOptionsBuilder) WithProject(paths ...string) *P
 }
 
 // WithProjectFolderIgnoreList sets folders to ignore when searching for projects.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithProjectFolderIgnoreList(patterns ...string) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithProjectFolderIgnoreList(
+	patterns ...string,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.ProjectFolderIgnoreList = patterns
 	return b
 }
 
 // WithProjectService enables or disables the TypeScript project service.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithProjectService(enable bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithProjectService(
+	enable bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.ProjectService = enable
 	return b
 }
 
 // WithTSConfigRootDir sets the root directory for tsconfig paths.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithTSConfigRootDir(dir string) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithTSConfigRootDir(
+	dir string,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.TSConfigRootDir = dir
 	return b
 }
 
 // WithWarnOnUnsupportedTypeScriptVersion sets whether to warn on unsupported TypeScript versions.
-func (b *ParseAndGenerateServicesOptionsBuilder) WithWarnOnUnsupportedTypeScriptVersion(warn bool) *ParseAndGenerateServicesOptionsBuilder {
+func (b *ParseAndGenerateServicesOptionsBuilder) WithWarnOnUnsupportedTypeScriptVersion(
+	warn bool,
+) *ParseAndGenerateServicesOptionsBuilder {
 	b.opts.WarnOnUnsupportedTypeScriptVersion = &warn
 	return b
 }
@@ -580,9 +613,4 @@ func (b *ParseAndGenerateServicesOptionsBuilder) MustBuild() *ParseAndGenerateSe
 		panic(fmt.Sprintf("failed to build ParseAndGenerateServicesOptions: %v", err))
 	}
 	return opts
-}
-
-// Helper function to convert duration to cache duration
-func toCacheDuration(d time.Duration) CacheDurationSeconds {
-	return CacheDurationSeconds(int(d.Seconds()))
 }

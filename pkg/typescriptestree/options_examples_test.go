@@ -76,21 +76,21 @@ func Example_filePathInference() {
 // Example_jsDocParsing demonstrates JSDoc parsing mode configuration.
 func Example_jsDocParsing() {
 	// Parse all JSDoc comments (default)
-	opts1, _ := typescriptestree.NewBuilder().
+	opts1 := typescriptestree.NewBuilder().
 		WithJSDocParsingMode(typescriptestree.JSDocParsingModeAll).
-		Build()
+		MustBuild()
 	fmt.Printf("JSDoc mode (all): %s\n", opts1.JSDocParsingMode)
 
 	// Skip JSDoc parsing for performance
-	opts2, _ := typescriptestree.NewBuilder().
+	opts2 := typescriptestree.NewBuilder().
 		WithJSDocParsingMode(typescriptestree.JSDocParsingModeNone).
-		Build()
+		MustBuild()
 	fmt.Printf("JSDoc mode (none): %s\n", opts2.JSDocParsingMode)
 
 	// Only parse type information
-	opts3, _ := typescriptestree.NewBuilder().
+	opts3 := typescriptestree.NewBuilder().
 		WithJSDocParsingMode(typescriptestree.JSDocParsingModeTypeInfo).
-		Build()
+		MustBuild()
 	fmt.Printf("JSDoc mode (type-info): %s\n", opts3.JSDocParsingMode)
 	// Output:
 	// JSDoc mode (all): all
@@ -120,7 +120,7 @@ func Example_servicesOptions() {
 
 // Example_multipleProjects demonstrates configuring multiple TypeScript projects.
 func Example_multipleProjects() {
-	opts, _ := typescriptestree.NewServicesBuilder().
+	opts := typescriptestree.NewServicesBuilder().
 		WithProject(
 			"./packages/*/tsconfig.json",
 			"./apps/*/tsconfig.json",
@@ -130,7 +130,7 @@ func Example_multipleProjects() {
 			"**/dist/**",
 			"**/build/**",
 		).
-		Build()
+		MustBuild()
 
 	fmt.Printf("Projects: %d\n", len(opts.Project))
 	fmt.Printf("Ignore patterns: %d\n", len(opts.ProjectFolderIgnoreList))
@@ -142,9 +142,9 @@ func Example_multipleProjects() {
 // Example_extraFileExtensions demonstrates configuring additional file extensions.
 func Example_extraFileExtensions() {
 	// Support .vue files as TypeScript
-	opts, _ := typescriptestree.NewServicesBuilder().
+	opts := typescriptestree.NewServicesBuilder().
 		WithExtraFileExtensions(".vue", ".svelte").
-		Build()
+		MustBuild()
 
 	fmt.Printf("Extra extensions: %v\n", opts.ExtraFileExtensions)
 	// Output:
@@ -154,9 +154,9 @@ func Example_extraFileExtensions() {
 // Example_caching demonstrates cache configuration for performance.
 func Example_caching() {
 	// Configure glob cache lifetime
-	opts, _ := typescriptestree.NewServicesBuilder().
+	opts := typescriptestree.NewServicesBuilder().
 		WithGlobCacheLifetime(300). // 5 minutes
-		Build()
+		MustBuild()
 
 	if opts.CacheLifetime != nil && opts.CacheLifetime.Glob != nil {
 		fmt.Printf("Glob cache lifetime: %d seconds\n", *opts.CacheLifetime.Glob)
@@ -167,9 +167,9 @@ func Example_caching() {
 
 // Example_debugging demonstrates enabling debug output.
 func Example_debugging() {
-	opts, _ := typescriptestree.NewBuilder().
+	opts := typescriptestree.NewBuilder().
 		WithDebugLevel("typescript-estree", "parser").
-		Build()
+		MustBuild()
 
 	fmt.Printf("Debug modules: %v\n", opts.DebugLevel)
 	// Output:
@@ -179,18 +179,18 @@ func Example_debugging() {
 // Example_errorHandling demonstrates error handling configuration.
 func Example_errorHandling() {
 	// Strict mode: error on TypeScript issues
-	strictOpts, _ := typescriptestree.NewServicesBuilder().
+	strictOpts := typescriptestree.NewServicesBuilder().
 		WithErrorOnTypeScriptSyntacticAndSemanticIssues(true).
 		WithErrorOnUnknownASTType(true).
-		Build()
+		MustBuild()
 
 	fmt.Printf("Error on TS issues: %v\n", strictOpts.ErrorOnTypeScriptSyntacticAndSemanticIssues)
 	fmt.Printf("Error on unknown AST: %v\n", strictOpts.ErrorOnUnknownASTType)
 
 	// Lenient mode: allow invalid AST
-	lenientOpts, _ := typescriptestree.NewBuilder().
+	lenientOpts := typescriptestree.NewBuilder().
 		WithAllowInvalidAST(true).
-		Build()
+		MustBuild()
 
 	fmt.Printf("Allow invalid AST: %v\n", lenientOpts.AllowInvalidAST)
 	// Output:
@@ -206,9 +206,9 @@ func Example_customLogger() {
 		messages = append(messages, msg)
 	}
 
-	opts, _ := typescriptestree.NewBuilder().
+	opts := typescriptestree.NewBuilder().
 		WithLoggerFn(customLogger).
-		Build()
+		MustBuild()
 
 	// Logger is configured
 	if opts.LoggerFn != nil {
@@ -246,7 +246,7 @@ func Example_validation() {
 func Example_realWorldConfiguration() {
 	opts, err := typescriptestree.NewServicesBuilder().
 		// Base parse options
-		WithParseOptions(typescriptestree.ParseOptions{
+		WithParseOptions(&typescriptestree.ParseOptions{
 			SourceType:       typescriptestree.SourceTypeModule,
 			Loc:              true,
 			Range:            true,
