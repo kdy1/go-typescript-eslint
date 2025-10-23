@@ -1,6 +1,7 @@
 package typescriptestree
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,7 +13,7 @@ import (
 func TestNewParserServices(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -137,7 +138,7 @@ func TestGetCompilerOptions(t *testing.T) {
 			"strict": true
 		}
 	}`
-	if err := os.WriteFile(tsconfigPath, []byte(tsconfigContent), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(tsconfigContent), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -179,7 +180,7 @@ func TestGetCompilerOptionsNilProgram(t *testing.T) {
 func TestGetTypeChecker(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -196,7 +197,7 @@ func TestGetTypeChecker(t *testing.T) {
 	services := NewParserServices(prog)
 
 	_, err = services.GetTypeChecker()
-	if err != ErrNotImplemented {
+	if !errors.Is(err, ErrNotImplemented) {
 		t.Errorf("Expected ErrNotImplemented, got %v", err)
 	}
 }
@@ -204,7 +205,7 @@ func TestGetTypeChecker(t *testing.T) {
 func TestGetTypeAtLocation(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -222,7 +223,7 @@ func TestGetTypeAtLocation(t *testing.T) {
 
 	node := &ast.Identifier{Name: "test"}
 	_, err = services.GetTypeAtLocation(node)
-	if err != ErrNotImplemented {
+	if !errors.Is(err, ErrNotImplemented) {
 		t.Errorf("Expected ErrNotImplemented, got %v", err)
 	}
 }
@@ -230,7 +231,7 @@ func TestGetTypeAtLocation(t *testing.T) {
 func TestGetSymbolAtLocation(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -248,7 +249,7 @@ func TestGetSymbolAtLocation(t *testing.T) {
 
 	node := &ast.Identifier{Name: "test"}
 	_, err = services.GetSymbolAtLocation(node)
-	if err != ErrNotImplemented {
+	if !errors.Is(err, ErrNotImplemented) {
 		t.Errorf("Expected ErrNotImplemented, got %v", err)
 	}
 }

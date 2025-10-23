@@ -20,7 +20,7 @@ func TestCreateProgram(t *testing.T) {
 		}
 	}`
 
-	if err := os.WriteFile(tsconfigPath, []byte(tsconfigContent), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(tsconfigContent), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -103,19 +103,19 @@ func TestFindConfigForFile(t *testing.T) {
 
 	// Create nested directory structure
 	srcDir := filepath.Join(tmpDir, "src")
-	if err := os.MkdirAll(srcDir, 0755); err != nil {
+	if err := os.MkdirAll(srcDir, 0750); err != nil {
 		t.Fatalf("Failed to create src dir: %v", err)
 	}
 
 	// Create tsconfig in root
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte("{}"), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte("{}"), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
 	// Create a file in src
 	filePath := filepath.Join(srcDir, "test.ts")
-	if err := os.WriteFile(filePath, []byte("const x = 1;"), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte("const x = 1;"), 0600); err != nil {
 		t.Fatalf("Failed to write test file: %v", err)
 	}
 

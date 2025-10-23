@@ -14,9 +14,9 @@ type ParserServices struct {
 	// Program is the TypeScript program instance providing type information
 	Program *program.Program
 
-	// ESTreeNodeToTSNodeMap maps ESTree nodes to TypeScript AST nodes
-	// Note: TypeScript nodes are represented as interface{} until we have
-	// a full TypeScript AST implementation
+	// ESTreeNodeToTSNodeMap maps ESTree nodes to TypeScript AST nodes.
+	// TypeScript nodes are represented as interface{} until we have
+	// a full TypeScript AST implementation.
 	ESTreeNodeToTSNodeMap map[ast.Node]interface{}
 
 	// TSNodeToESTreeNodeMap maps TypeScript AST nodes to ESTree nodes
@@ -89,7 +89,7 @@ func (s *ParserServices) GetCompilerOptions() *program.CompilerOptions {
 }
 
 // GetTypeChecker returns a type checker instance for type-aware operations.
-// Note: This is a placeholder for future TypeScript type checker integration.
+// This is a placeholder for future TypeScript type checker integration.
 func (s *ParserServices) GetTypeChecker() (interface{}, error) {
 	if s.Program == nil {
 		return nil, fmt.Errorf("no program available for type checking")
@@ -99,7 +99,7 @@ func (s *ParserServices) GetTypeChecker() (interface{}, error) {
 }
 
 // GetTypeAtLocation gets the type of a node at a specific location.
-// Note: This is a placeholder for future type information access.
+// This is a placeholder for future type information access.
 func (s *ParserServices) GetTypeAtLocation(node ast.Node) (interface{}, error) {
 	if s.Program == nil {
 		return nil, fmt.Errorf("no program available for type checking")
@@ -109,7 +109,7 @@ func (s *ParserServices) GetTypeAtLocation(node ast.Node) (interface{}, error) {
 }
 
 // GetSymbolAtLocation gets the symbol for a node at a specific location.
-// Note: This is a placeholder for future symbol information access.
+// This is a placeholder for future symbol information access.
 func (s *ParserServices) GetSymbolAtLocation(node ast.Node) (interface{}, error) {
 	if s.Program == nil {
 		return nil, fmt.Errorf("no program available for symbol resolution")
@@ -117,9 +117,6 @@ func (s *ParserServices) GetSymbolAtLocation(node ast.Node) (interface{}, error)
 	// TODO: Implement symbol information retrieval
 	return nil, ErrNotImplemented
 }
-
-// deprecated: Use Services instead. This is kept for backwards compatibility.
-type parserServices = ParserServices
 
 // Services is the updated name for ParserServices to match typescript-estree.
 // Both names are supported for compatibility.

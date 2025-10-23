@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	// DefaultCacheExpiration is the default expiration time for cached programs.
+	DefaultCacheExpiration = 5 * time.Minute
+)
+
 // ProgramCache provides caching of TypeScript programs for performance optimization.
 type ProgramCache struct {
 	// programs maps tsconfig paths to cached programs
@@ -20,8 +25,8 @@ type ProgramCache struct {
 
 // CachedProgram wraps a program with cache metadata.
 type CachedProgram struct {
-	Program   *Program
-	CachedAt  time.Time
+	Program      *Program
+	CachedAt     time.Time
 	TSConfigPath string
 }
 
@@ -133,5 +138,5 @@ func (c *ProgramCache) GetOrCreate(opts *ProgramOptions) (*Program, error) {
 	return program, nil
 }
 
-// GlobalCache is the default global program cache with 5 minute expiration.
-var GlobalCache = NewProgramCache(5 * time.Minute)
+// GlobalCache is the default global program cache with default expiration.
+var GlobalCache = NewProgramCache(DefaultCacheExpiration)

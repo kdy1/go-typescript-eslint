@@ -12,7 +12,7 @@ func TestProgramCache(t *testing.T) {
 
 	// Create a tsconfig
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -56,7 +56,7 @@ func TestProgramCache(t *testing.T) {
 func TestProgramCacheExpiration(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -92,7 +92,7 @@ func TestProgramCacheExpiration(t *testing.T) {
 func TestProgramCacheClear(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -129,7 +129,7 @@ func TestProgramCacheClear(t *testing.T) {
 func TestProgramCacheGetOrCreate(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 
@@ -164,7 +164,7 @@ func TestProgramCacheGetOrCreate(t *testing.T) {
 func TestCleanExpired(t *testing.T) {
 	tmpDir := t.TempDir()
 	tsconfigPath := filepath.Join(tmpDir, "tsconfig.json")
-	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(`{"compilerOptions":{}}`), 0600); err != nil {
 		t.Fatalf("Failed to write tsconfig: %v", err)
 	}
 

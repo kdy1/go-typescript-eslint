@@ -10,59 +10,59 @@ import (
 
 // CompilerOptions represents TypeScript compiler options from tsconfig.json.
 type CompilerOptions struct {
-	Target                           string   `json:"target,omitempty"`
-	Module                           string   `json:"module,omitempty"`
-	Lib                              []string `json:"lib,omitempty"`
-	AllowJs                          *bool    `json:"allowJs,omitempty"`
-	CheckJs                          *bool    `json:"checkJs,omitempty"`
-	JSX                              string   `json:"jsx,omitempty"`
-	Declaration                      *bool    `json:"declaration,omitempty"`
-	DeclarationMap                   *bool    `json:"declarationMap,omitempty"`
-	SourceMap                        *bool    `json:"sourceMap,omitempty"`
-	OutFile                          string   `json:"outFile,omitempty"`
-	OutDir                           string   `json:"outDir,omitempty"`
-	RootDir                          string   `json:"rootDir,omitempty"`
-	RemoveComments                   *bool    `json:"removeComments,omitempty"`
-	NoEmit                           *bool    `json:"noEmit,omitempty"`
-	Strict                           *bool    `json:"strict,omitempty"`
-	NoImplicitAny                    *bool    `json:"noImplicitAny,omitempty"`
-	StrictNullChecks                 *bool    `json:"strictNullChecks,omitempty"`
-	StrictFunctionTypes              *bool    `json:"strictFunctionTypes,omitempty"`
-	StrictBindCallApply              *bool    `json:"strictBindCallApply,omitempty"`
-	StrictPropertyInitialization     *bool    `json:"strictPropertyInitialization,omitempty"`
-	NoImplicitThis                   *bool    `json:"noImplicitThis,omitempty"`
-	AlwaysStrict                     *bool    `json:"alwaysStrict,omitempty"`
-	NoUnusedLocals                   *bool    `json:"noUnusedLocals,omitempty"`
-	NoUnusedParameters               *bool    `json:"noUnusedParameters,omitempty"`
-	NoImplicitReturns                *bool    `json:"noImplicitReturns,omitempty"`
-	NoFallthroughCasesInSwitch       *bool    `json:"noFallthroughCasesInSwitch,omitempty"`
-	NoUncheckedIndexedAccess         *bool    `json:"noUncheckedIndexedAccess,omitempty"`
-	NoImplicitOverride               *bool    `json:"noImplicitOverride,omitempty"`
-	NoPropertyAccessFromIndexSignature *bool  `json:"noPropertyAccessFromIndexSignature,omitempty"`
-	ModuleResolution                 string   `json:"moduleResolution,omitempty"`
-	BaseUrl                          string   `json:"baseUrl,omitempty"`
-	Paths                            map[string][]string `json:"paths,omitempty"`
-	RootDirs                         []string `json:"rootDirs,omitempty"`
-	TypeRoots                        []string `json:"typeRoots,omitempty"`
-	Types                            []string `json:"types,omitempty"`
-	AllowSyntheticDefaultImports     *bool    `json:"allowSyntheticDefaultImports,omitempty"`
-	EsModuleInterop                  *bool    `json:"esModuleInterop,omitempty"`
-	PreserveSymlinks                 *bool    `json:"preserveSymlinks,omitempty"`
-	ForceConsistentCasingInFileNames *bool    `json:"forceConsistentCasingInFileNames,omitempty"`
-	SkipLibCheck                     *bool    `json:"skipLibCheck,omitempty"`
-	ResolveJsonModule                *bool    `json:"resolveJsonModule,omitempty"`
-	IsolatedModules                  *bool    `json:"isolatedModules,omitempty"`
-	ExperimentalDecorators           *bool    `json:"experimentalDecorators,omitempty"`
-	EmitDecoratorMetadata            *bool    `json:"emitDecoratorMetadata,omitempty"`
-	Incremental                      *bool    `json:"incremental,omitempty"`
-	TsBuildInfoFile                  string   `json:"tsBuildInfoFile,omitempty"`
+	Target                             string              `json:"target,omitempty"`
+	Module                             string              `json:"module,omitempty"`
+	Lib                                []string            `json:"lib,omitempty"`
+	AllowJs                            *bool               `json:"allowJs,omitempty"`
+	CheckJs                            *bool               `json:"checkJs,omitempty"`
+	JSX                                string              `json:"jsx,omitempty"`
+	Declaration                        *bool               `json:"declaration,omitempty"`
+	DeclarationMap                     *bool               `json:"declarationMap,omitempty"`
+	SourceMap                          *bool               `json:"sourceMap,omitempty"`
+	OutFile                            string              `json:"outFile,omitempty"`
+	OutDir                             string              `json:"outDir,omitempty"`
+	RootDir                            string              `json:"rootDir,omitempty"`
+	RemoveComments                     *bool               `json:"removeComments,omitempty"`
+	NoEmit                             *bool               `json:"noEmit,omitempty"`
+	Strict                             *bool               `json:"strict,omitempty"`
+	NoImplicitAny                      *bool               `json:"noImplicitAny,omitempty"`
+	StrictNullChecks                   *bool               `json:"strictNullChecks,omitempty"`
+	StrictFunctionTypes                *bool               `json:"strictFunctionTypes,omitempty"`
+	StrictBindCallApply                *bool               `json:"strictBindCallApply,omitempty"`
+	StrictPropertyInitialization       *bool               `json:"strictPropertyInitialization,omitempty"`
+	NoImplicitThis                     *bool               `json:"noImplicitThis,omitempty"`
+	AlwaysStrict                       *bool               `json:"alwaysStrict,omitempty"`
+	NoUnusedLocals                     *bool               `json:"noUnusedLocals,omitempty"`
+	NoUnusedParameters                 *bool               `json:"noUnusedParameters,omitempty"`
+	NoImplicitReturns                  *bool               `json:"noImplicitReturns,omitempty"`
+	NoFallthroughCasesInSwitch         *bool               `json:"noFallthroughCasesInSwitch,omitempty"`
+	NoUncheckedIndexedAccess           *bool               `json:"noUncheckedIndexedAccess,omitempty"`
+	NoImplicitOverride                 *bool               `json:"noImplicitOverride,omitempty"`
+	NoPropertyAccessFromIndexSignature *bool               `json:"noPropertyAccessFromIndexSignature,omitempty"`
+	ModuleResolution                   string              `json:"moduleResolution,omitempty"`
+	BaseUrl                            string              `json:"baseUrl,omitempty"`
+	Paths                              map[string][]string `json:"paths,omitempty"`
+	RootDirs                           []string            `json:"rootDirs,omitempty"`
+	TypeRoots                          []string            `json:"typeRoots,omitempty"`
+	Types                              []string            `json:"types,omitempty"`
+	AllowSyntheticDefaultImports       *bool               `json:"allowSyntheticDefaultImports,omitempty"`
+	EsModuleInterop                    *bool               `json:"esModuleInterop,omitempty"`
+	PreserveSymlinks                   *bool               `json:"preserveSymlinks,omitempty"`
+	ForceConsistentCasingInFileNames   *bool               `json:"forceConsistentCasingInFileNames,omitempty"`
+	SkipLibCheck                       *bool               `json:"skipLibCheck,omitempty"`
+	ResolveJsonModule                  *bool               `json:"resolveJsonModule,omitempty"`
+	IsolatedModules                    *bool               `json:"isolatedModules,omitempty"`
+	ExperimentalDecorators             *bool               `json:"experimentalDecorators,omitempty"`
+	EmitDecoratorMetadata              *bool               `json:"emitDecoratorMetadata,omitempty"`
+	Incremental                        *bool               `json:"incremental,omitempty"`
+	TsBuildInfoFile                    string              `json:"tsBuildInfoFile,omitempty"`
 }
 
 // ProjectReference represents a TypeScript project reference.
 type ProjectReference struct {
-	Path       string `json:"path"`
-	Prepend    *bool  `json:"prepend,omitempty"`
-	Composite  *bool  `json:"composite,omitempty"`
+	Path      string `json:"path"`
+	Prepend   *bool  `json:"prepend,omitempty"`
+	Composite *bool  `json:"composite,omitempty"`
 }
 
 // TSConfig represents a parsed TypeScript configuration file.
@@ -104,7 +104,7 @@ func ParseTSConfig(path string) (*TSConfig, error) {
 	}
 
 	// Read the file
-	data, err := os.ReadFile(absPath)
+	data, err := os.ReadFile(absPath) // #nosec G304 -- absPath is validated as an absolute path
 	if err != nil {
 		return nil, fmt.Errorf("failed to read tsconfig file %s: %w", absPath, err)
 	}
@@ -216,6 +216,8 @@ func mergeConfigs(parent, child *TSConfig) *TSConfig {
 }
 
 // mergeCompilerOptions merges compiler options with child taking precedence.
+//
+//nolint:gocognit // This function is a straightforward merger of many fields
 func mergeCompilerOptions(parent, child *CompilerOptions) CompilerOptions {
 	merged := *parent
 

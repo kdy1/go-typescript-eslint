@@ -23,7 +23,7 @@ func TestParseTSConfig(t *testing.T) {
 		"exclude": ["node_modules", "dist"]
 	}`
 
-	if err := os.WriteFile(tsconfigPath, []byte(tsconfigContent), 0644); err != nil {
+	if err := os.WriteFile(tsconfigPath, []byte(tsconfigContent), 0600); err != nil {
 		t.Fatalf("Failed to write test tsconfig: %v", err)
 	}
 
@@ -69,7 +69,7 @@ func TestResolveTSConfigWithExtends(t *testing.T) {
 		}
 	}`
 
-	if err := os.WriteFile(baseConfigPath, []byte(baseConfigContent), 0644); err != nil {
+	if err := os.WriteFile(baseConfigPath, []byte(baseConfigContent), 0600); err != nil {
 		t.Fatalf("Failed to write base config: %v", err)
 	}
 
@@ -84,7 +84,7 @@ func TestResolveTSConfigWithExtends(t *testing.T) {
 		"include": ["src/**/*"]
 	}`
 
-	if err := os.WriteFile(childConfigPath, []byte(childConfigContent), 0644); err != nil {
+	if err := os.WriteFile(childConfigPath, []byte(childConfigContent), 0600); err != nil {
 		t.Fatalf("Failed to write child config: %v", err)
 	}
 
