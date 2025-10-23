@@ -92,7 +92,9 @@ func (c *Converter) convertObjectExpression(node *ast.ObjectExpression) *ast.Obj
 
 	properties := make([]interface{}, len(node.Properties))
 	for i, prop := range node.Properties {
-		properties[i] = c.ConvertNode(prop.(ast.Node))
+		if astNode, ok := prop.(ast.Node); ok {
+			properties[i] = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ObjectExpression{
@@ -135,7 +137,9 @@ func (c *Converter) convertArrowFunctionExpression(node *ast.ArrowFunctionExpres
 
 	var body interface{}
 	if node.Body != nil {
-		body = c.ConvertNode(node.Body.(ast.Node))
+		if astNode, ok := node.Body.(ast.Node); ok {
+			body = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ArrowFunctionExpression{
@@ -159,7 +163,8 @@ func (c *Converter) convertClassExpression(node *ast.ClassExpression) *ast.Class
 	}
 
 	implements := make([]ast.TSClassImplements, len(node.Implements))
-	for i, impl := range node.Implements {
+	for i := range node.Implements {
+		impl := node.Implements[i]
 		if ci, ok := c.ConvertNode(&impl).(*ast.TSClassImplements); ok && ci != nil {
 			implements[i] = *ci
 		} else {
@@ -258,10 +263,17 @@ func (c *Converter) convertAssignmentExpression(node *ast.AssignmentExpression) 
 		return nil
 	}
 
+	var left ast.Pattern
+	if convertedLeft := c.ConvertNode(node.Left); convertedLeft != nil {
+		if pattern, ok := convertedLeft.(ast.Pattern); ok {
+			left = pattern
+		}
+	}
+
 	result := &ast.AssignmentExpression{
 		BaseNode: c.copyBaseNode(&node.BaseNode),
 		Operator: node.Operator,
-		Left:     c.ConvertNode(node.Left).(ast.Pattern),
+		Left:     left,
 		Right:    c.convertExpression(node.Right),
 	}
 
@@ -361,7 +373,8 @@ func (c *Converter) convertTemplateLiteral(node *ast.TemplateLiteral) *ast.Templ
 	}
 
 	quasis := make([]ast.TemplateElement, len(node.Quasis))
-	for i, quasi := range node.Quasis {
+	for i := range node.Quasis {
+		quasi := node.Quasis[i]
 		if tpl, ok := c.ConvertNode(&quasi).(*ast.TemplateElement); ok && tpl != nil {
 			quasis[i] = *tpl
 		}
@@ -451,7 +464,10 @@ func (c *Converter) convertExpression(expr ast.Expression) ast.Expression {
 	if converted == nil {
 		return nil
 	}
-	return converted.(ast.Expression)
+	if expression, ok := converted.(ast.Expression); ok {
+		return expression
+	}
+	return nil
 }
 
 // convertExpressions converts a slice of expression nodes.

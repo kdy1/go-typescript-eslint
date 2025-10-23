@@ -39,7 +39,9 @@ func (c *Converter) convertObjectPattern(node *ast.ObjectPattern) *ast.ObjectPat
 
 	properties := make([]interface{}, len(node.Properties))
 	for i, prop := range node.Properties {
-		properties[i] = c.ConvertNode(prop.(ast.Node))
+		if astNode, ok := prop.(ast.Node); ok {
+			properties[i] = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ObjectPattern{

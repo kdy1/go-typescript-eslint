@@ -48,6 +48,8 @@ func (c *Converter) convertTokens(tokens []ast.Token) []ast.Token {
 // attachCommentsToNodes attaches comments to appropriate AST nodes.
 // This implements a simple algorithm that associates comments with
 // the nearest following or preceding node based on position.
+//
+//nolint:unused // TODO: Will be used when comment attachment is fully implemented
 func (c *Converter) attachCommentsToNodes(program *ast.Program) {
 	if program == nil || len(program.Comments) == 0 {
 		return
@@ -63,6 +65,8 @@ func (c *Converter) attachCommentsToNodes(program *ast.Program) {
 }
 
 // createSourceLocation creates a SourceLocation from start and end positions.
+//
+//nolint:unused // TODO: Will be used when source location tracking is fully implemented
 func (c *Converter) createSourceLocation(start, end int) *ast.SourceLocation {
 	// Convert byte positions to line/column positions
 	// This is a simplified version - actual implementation would
@@ -81,6 +85,8 @@ func (c *Converter) createSourceLocation(start, end int) *ast.SourceLocation {
 }
 
 // isPatternContext returns true if we're in a context where patterns are allowed.
+//
+//nolint:unused // TODO: Will be used when pattern context tracking is needed
 func (c *Converter) isPatternContext() bool {
 	return c.allowPattern
 }

@@ -73,16 +73,17 @@ func (c *Converter) convertSwitchStatement(node *ast.SwitchStatement) *ast.Switc
 	}
 
 	cases := make([]ast.SwitchCase, len(node.Cases))
-	for i, caseNode := range node.Cases {
+	for i := range node.Cases {
+		caseNode := node.Cases[i]
 		if switchCase, ok := c.ConvertNode(&caseNode).(*ast.SwitchCase); ok && switchCase != nil {
 			cases[i] = *switchCase
 		}
 	}
 
 	result := &ast.SwitchStatement{
-		BaseNode:      c.copyBaseNode(&node.BaseNode),
-		Discriminant:  c.convertExpression(node.Discriminant),
-		Cases:         cases,
+		BaseNode:     c.copyBaseNode(&node.BaseNode),
+		Discriminant: c.convertExpression(node.Discriminant),
+		Cases:        cases,
 	}
 
 	c.registerNodeMapping(node, result)
@@ -129,7 +130,9 @@ func (c *Converter) convertForStatement(node *ast.ForStatement) *ast.ForStatemen
 
 	var init interface{}
 	if node.Init != nil {
-		init = c.ConvertNode(node.Init.(ast.Node))
+		if astNode, ok := node.Init.(ast.Node); ok {
+			init = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ForStatement{
@@ -152,7 +155,9 @@ func (c *Converter) convertForInStatement(node *ast.ForInStatement) *ast.ForInSt
 
 	var left interface{}
 	if node.Left != nil {
-		left = c.ConvertNode(node.Left.(ast.Node))
+		if astNode, ok := node.Left.(ast.Node); ok {
+			left = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ForInStatement{
@@ -174,7 +179,9 @@ func (c *Converter) convertForOfStatement(node *ast.ForOfStatement) *ast.ForOfSt
 
 	var left interface{}
 	if node.Left != nil {
-		left = c.ConvertNode(node.Left.(ast.Node))
+		if astNode, ok := node.Left.(ast.Node); ok {
+			left = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ForOfStatement{
@@ -330,7 +337,10 @@ func (c *Converter) convertStatement(stmt ast.Statement) ast.Statement {
 	if converted == nil {
 		return nil
 	}
-	return converted.(ast.Statement)
+	if statement, ok := converted.(ast.Statement); ok {
+		return statement
+	}
+	return nil
 }
 
 // convertStatements converts a slice of statement nodes.

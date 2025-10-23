@@ -33,7 +33,8 @@ func (c *Converter) convertTSInterfaceDeclaration(node *ast.TSInterfaceDeclarati
 	}
 
 	extends := make([]ast.TSInterfaceHeritage, len(node.Extends))
-	for i, ext := range node.Extends {
+	for i := range node.Extends {
+		ext := node.Extends[i]
 		if ih, ok := c.ConvertNode(&ext).(*ast.TSInterfaceHeritage); ok && ih != nil {
 			extends[i] = *ih
 		}
@@ -61,7 +62,9 @@ func (c *Converter) convertTSInterfaceBody(node *ast.TSInterfaceBody) *ast.TSInt
 
 	body := make([]interface{}, len(node.Body))
 	for i, member := range node.Body {
-		body[i] = c.ConvertNode(member.(ast.Node))
+		if astNode, ok := member.(ast.Node); ok {
+			body[i] = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.TSInterfaceBody{
@@ -105,7 +108,8 @@ func (c *Converter) convertTSEnumDeclaration(node *ast.TSEnumDeclaration) *ast.T
 	}
 
 	members := make([]ast.TSEnumMember, len(node.Members))
-	for i, member := range node.Members {
+	for i := range node.Members {
+		member := node.Members[i]
 		if em, ok := c.ConvertNode(&member).(*ast.TSEnumMember); ok && em != nil {
 			members[i] = *em
 		}
@@ -131,12 +135,16 @@ func (c *Converter) convertTSModuleDeclaration(node *ast.TSModuleDeclaration) *a
 
 	var id interface{}
 	if node.ID != nil {
-		id = c.ConvertNode(node.ID.(ast.Node))
+		if astNode, ok := node.ID.(ast.Node); ok {
+			id = c.ConvertNode(astNode)
+		}
 	}
 
 	var body interface{}
 	if node.Body != nil {
-		body = c.ConvertNode(node.Body.(ast.Node))
+		if astNode, ok := node.Body.(ast.Node); ok {
+			body = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.TSModuleDeclaration{
@@ -220,7 +228,8 @@ func (c *Converter) convertTSTypeParameterDeclaration(node *ast.TSTypeParameterD
 	}
 
 	params := make([]ast.TSTypeParameter, len(node.Params))
-	for i, param := range node.Params {
+	for i := range node.Params {
+		param := node.Params[i]
 		if tp, ok := c.ConvertNode(&param).(*ast.TSTypeParameter); ok && tp != nil {
 			params[i] = *tp
 		}
@@ -258,13 +267,16 @@ func (c *Converter) convertTSTypeParameterInstantiation(node *ast.TSTypeParamete
 }
 
 // convertTSClassImplements converts a slice of TSClassImplements nodes.
+//
+//nolint:unused // TODO: Will be used when needed for specific TypeScript conversions
 func (c *Converter) convertTSClassImplements(implements []ast.TSClassImplements) []ast.TSClassImplements {
 	if implements == nil {
 		return nil
 	}
 
 	result := make([]ast.TSClassImplements, len(implements))
-	for i, impl := range implements {
+	for i := range implements {
+		impl := implements[i]
 		if ci, ok := c.ConvertNode(&impl).(*ast.TSClassImplements); ok && ci != nil {
 			result[i] = *ci
 		} else {

@@ -11,7 +11,8 @@ func (c *Converter) convertVariableDeclaration(node *ast.VariableDeclaration) *a
 	}
 
 	declarators := make([]ast.VariableDeclarator, len(node.Declarations))
-	for i, decl := range node.Declarations {
+	for i := range node.Declarations {
+		decl := node.Declarations[i]
 		if vd, ok := c.ConvertNode(&decl).(*ast.VariableDeclarator); ok && vd != nil {
 			declarators[i] = *vd
 		} else {
@@ -61,7 +62,8 @@ func (c *Converter) convertClassDeclaration(node *ast.ClassDeclaration) *ast.Cla
 	}
 
 	implements := make([]ast.TSClassImplements, len(node.Implements))
-	for i, impl := range node.Implements {
+	for i := range node.Implements {
+		impl := node.Implements[i]
 		if ci, ok := c.ConvertNode(&impl).(*ast.TSClassImplements); ok && ci != nil {
 			implements[i] = *ci
 		} else {
@@ -94,11 +96,14 @@ func (c *Converter) convertImportDeclaration(node *ast.ImportDeclaration) *ast.I
 
 	specifiers := make([]interface{}, len(node.Specifiers))
 	for i, spec := range node.Specifiers {
-		specifiers[i] = c.ConvertNode(spec.(ast.Node))
+		if astNode, ok := spec.(ast.Node); ok {
+			specifiers[i] = c.ConvertNode(astNode)
+		}
 	}
 
 	attributes := make([]ast.ImportAttribute, len(node.Attributes))
-	for i, attr := range node.Attributes {
+	for i := range node.Attributes {
+		attr := node.Attributes[i]
 		if ia, ok := c.ConvertNode(&attr).(*ast.ImportAttribute); ok && ia != nil {
 			attributes[i] = *ia
 		} else {
@@ -127,11 +132,14 @@ func (c *Converter) convertExportNamedDeclaration(node *ast.ExportNamedDeclarati
 
 	var declaration ast.Declaration
 	if node.Declaration != nil {
-		declaration = c.ConvertNode(node.Declaration).(ast.Declaration)
+		if decl, ok := c.ConvertNode(node.Declaration).(ast.Declaration); ok {
+			declaration = decl
+		}
 	}
 
 	specifiers := make([]ast.ExportSpecifier, len(node.Specifiers))
-	for i, spec := range node.Specifiers {
+	for i := range node.Specifiers {
+		spec := node.Specifiers[i]
 		if es, ok := c.ConvertNode(&spec).(*ast.ExportSpecifier); ok && es != nil {
 			specifiers[i] = *es
 		} else {
@@ -140,7 +148,8 @@ func (c *Converter) convertExportNamedDeclaration(node *ast.ExportNamedDeclarati
 	}
 
 	attributes := make([]ast.ImportAttribute, len(node.Attributes))
-	for i, attr := range node.Attributes {
+	for i := range node.Attributes {
+		attr := node.Attributes[i]
 		if ia, ok := c.ConvertNode(&attr).(*ast.ImportAttribute); ok && ia != nil {
 			attributes[i] = *ia
 		} else {
@@ -170,7 +179,9 @@ func (c *Converter) convertExportDefaultDeclaration(node *ast.ExportDefaultDecla
 
 	var declaration interface{}
 	if node.Declaration != nil {
-		declaration = c.ConvertNode(node.Declaration.(ast.Node))
+		if astNode, ok := node.Declaration.(ast.Node); ok {
+			declaration = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ExportDefaultDeclaration{
@@ -190,7 +201,8 @@ func (c *Converter) convertExportAllDeclaration(node *ast.ExportAllDeclaration) 
 	}
 
 	attributes := make([]ast.ImportAttribute, len(node.Attributes))
-	for i, attr := range node.Attributes {
+	for i := range node.Attributes {
+		attr := node.Attributes[i]
 		if ia, ok := c.ConvertNode(&attr).(*ast.ImportAttribute); ok && ia != nil {
 			attributes[i] = *ia
 		} else {
@@ -219,7 +231,9 @@ func (c *Converter) convertClassBody(node *ast.ClassBody) *ast.ClassBody {
 
 	body := make([]interface{}, len(node.Body))
 	for i, member := range node.Body {
-		body[i] = c.ConvertNode(member.(ast.Node))
+		if astNode, ok := member.(ast.Node); ok {
+			body[i] = c.ConvertNode(astNode)
+		}
 	}
 
 	result := &ast.ClassBody{
@@ -238,7 +252,8 @@ func (c *Converter) convertDecorators(decorators []ast.Decorator) []ast.Decorato
 	}
 
 	result := make([]ast.Decorator, len(decorators))
-	for i, decorator := range decorators {
+	for i := range decorators {
+		decorator := decorators[i]
 		if d, ok := c.ConvertNode(&decorator).(*ast.Decorator); ok && d != nil {
 			result[i] = *d
 		} else {
