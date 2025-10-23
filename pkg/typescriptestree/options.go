@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/kdy1/go-typescript-eslint/internal/program"
 )
 
 // SourceType specifies the type of source code being parsed.
@@ -168,7 +170,7 @@ type ParseAndGenerateServicesOptions struct {
 	// Programs provides pre-created TypeScript Program instances to use instead of
 	// creating new ones. This is an advanced option for performance optimization.
 	// Default: nil
-	Programs []interface{} `json:"-"`
+	Programs []*program.Program `json:"-"`
 
 	// WarnOnUnsupportedTypeScriptVersion controls whether to warn when using an
 	// unsupported TypeScript version.
