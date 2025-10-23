@@ -18,40 +18,48 @@ func (p *Parser) parseStatementListItem() (ast.Statement, error) {
 
 // tryParseDeclaration tries to parse a declaration statement.
 func (p *Parser) tryParseDeclaration() (func() (ast.Statement, error), bool) {
-	var fn func() (ast.Statement, error)
-
-	switch p.current.Type {
-	case lexer.FUNCTION:
-		fn = func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
-	case lexer.CLASS:
-		fn = func() (ast.Statement, error) { return p.parseClassDeclaration() }
-	case lexer.CONST, lexer.LET, lexer.VAR:
-		fn = func() (ast.Statement, error) { return p.parseVariableStatement() }
-	case lexer.INTERFACE:
-		fn = func() (ast.Statement, error) { return p.parseTSInterfaceDeclaration() }
-	case lexer.TYPE:
-		fn = func() (ast.Statement, error) { return p.parseTSTypeAliasDeclaration() }
-	case lexer.ENUM:
-		fn = func() (ast.Statement, error) { return p.parseTSEnumDeclaration() }
-	case lexer.NAMESPACE, lexer.MODULE:
-		fn = func() (ast.Statement, error) { return p.parseTSModuleDeclaration() }
-	case lexer.IMPORT:
-		fn = func() (ast.Statement, error) { return p.parseImportDeclaration() }
-	case lexer.EXPORT:
-		fn = p.parseExportDeclaration
-	case lexer.DECLARE:
-		fn = func() (ast.Statement, error) { return p.parseTSDeclareStatement() }
-	case lexer.ASYNC:
-		// Could be async function declaration
-		if p.peek.Type == lexer.FUNCTION {
-			fn = func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
-		}
-	}
-
+	fn := p.matchDeclarationParser()
 	if fn != nil {
 		return fn, true
 	}
 	return nil, false
+}
+
+// matchDeclarationParser returns the appropriate parser function for the current token.
+func (p *Parser) matchDeclarationParser() func() (ast.Statement, error) {
+	switch p.current.Type {
+	case lexer.FUNCTION:
+		return func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
+	case lexer.CLASS:
+		return func() (ast.Statement, error) { return p.parseClassDeclaration() }
+	case lexer.CONST, lexer.LET, lexer.VAR:
+		return func() (ast.Statement, error) { return p.parseVariableStatement() }
+	case lexer.INTERFACE:
+		return func() (ast.Statement, error) { return p.parseTSInterfaceDeclaration() }
+	case lexer.TYPE:
+		return func() (ast.Statement, error) { return p.parseTSTypeAliasDeclaration() }
+	case lexer.ENUM:
+		return func() (ast.Statement, error) { return p.parseTSEnumDeclaration() }
+	case lexer.NAMESPACE, lexer.MODULE:
+		return func() (ast.Statement, error) { return p.parseTSModuleDeclaration() }
+	case lexer.IMPORT:
+		return func() (ast.Statement, error) { return p.parseImportDeclaration() }
+	case lexer.EXPORT:
+		return p.parseExportDeclaration
+	case lexer.DECLARE:
+		return func() (ast.Statement, error) { return p.parseTSDeclareStatement() }
+	case lexer.ASYNC:
+		return p.matchAsyncFunctionDeclaration()
+	}
+	return nil
+}
+
+// matchAsyncFunctionDeclaration checks if the current token is an async function declaration.
+func (p *Parser) matchAsyncFunctionDeclaration() func() (ast.Statement, error) {
+	if p.peek.Type == lexer.FUNCTION {
+		return func() (ast.Statement, error) { return p.parseFunctionDeclaration() }
+	}
+	return nil
 }
 
 // parseStatement parses a statement.
@@ -338,85 +346,121 @@ func (p *Parser) parseForStatement() (ast.Statement, error) {
 		return nil, err
 	}
 
-	// Parse init
-	var init ast.Node
-	var err error
-
-	if p.match(lexer.VAR, lexer.LET, lexer.CONST) {
-		// Variable declaration
-		kind := p.current.Literal
-		p.nextToken()
-
-		// Check if this is a for-in or for-of loop
-		if p.current.Type == lexer.IDENT {
-			idStart := p.current.Pos
-			id := &ast.Identifier{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeIdentifier.String(),
-					Range:    &ast.Range{idStart, p.current.End},
-				},
-				Name: p.current.Literal,
-			}
-			p.nextToken()
-
-			// Parse type annotation if present
-			if p.consume(lexer.COLON) {
-				typeAnnotation, err := p.parseTSTypeAnnotation()
-				if err != nil {
-					return nil, err
-				}
-				id.TypeAnnotation = typeAnnotation
-			}
-
-			if p.match(lexer.IN, lexer.OF) {
-				return p.parseForInOfStatement(start, kind, id, await)
-			}
-
-			// Not for-in/of, parse as regular variable declarator
-			var initExpr ast.Expression
-			if p.consume(lexer.ASSIGN) {
-				initExpr, err = p.parseAssignmentExpression()
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			declarator := &ast.VariableDeclarator{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeVariableDeclarator.String(),
-					Range:    &ast.Range{idStart, p.current.Pos},
-				},
-				ID:   id,
-				Init: initExpr,
-			}
-
-			init = &ast.VariableDeclaration{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeVariableDeclaration.String(),
-					Range:    &ast.Range{start, p.current.Pos},
-				},
-				Declarations: []ast.VariableDeclarator{*declarator},
-				Kind:         kind,
-			}
-		}
-	} else if !p.consume(lexer.SEMICOLON) {
-		// Expression
-		expr, err := p.parseExpression()
-		if err != nil {
-			return nil, err
-		}
-
-		// Check for for-in or for-of
-		if p.match(lexer.IN, lexer.OF) {
-			return p.parseForInOfStatement(start, "", expr, await)
-		}
-
-		init = expr
-		p.consume(lexer.SEMICOLON)
+	// Parse init part and check if it's for-in/for-of
+	init, isForInOf, err := p.parseForInit(start, await)
+	if err != nil {
+		return nil, err
 	}
 
-	// Regular for loop
+	// If it's for-in or for-of, return the result
+	if stmt, ok := init.(ast.Statement); ok && isForInOf {
+		return stmt, nil
+	}
+
+	// Regular for loop - parse test and update
+	return p.parseRegularForLoop(start, init)
+}
+
+// parseForInit parses the init part of a for statement and returns whether it's for-in/of.
+func (p *Parser) parseForInit(start int, await bool) (ast.Node, bool, error) {
+	if p.match(lexer.VAR, lexer.LET, lexer.CONST) {
+		return p.parseForVarInit(start, await)
+	}
+
+	if p.consume(lexer.SEMICOLON) {
+		return nil, false, nil
+	}
+
+	// Expression init
+	expr, err := p.parseExpression()
+	if err != nil {
+		return nil, false, err
+	}
+
+	// Check for for-in or for-of
+	if p.match(lexer.IN, lexer.OF) {
+		stmt, err := p.parseForInOfStatement(start, "", expr, await)
+		return stmt, true, err
+	}
+
+	p.consume(lexer.SEMICOLON)
+	return expr, false, nil
+}
+
+// parseForVarInit parses variable declaration in for statement init.
+func (p *Parser) parseForVarInit(start int, await bool) (ast.Node, bool, error) {
+	kind := p.current.Literal
+	p.nextToken()
+
+	if p.current.Type != lexer.IDENT {
+		return nil, false, p.errorAtCurrent("expected identifier")
+	}
+
+	idStart := p.current.Pos
+	id := &ast.Identifier{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeIdentifier.String(),
+			Range:    &ast.Range{idStart, p.current.End},
+		},
+		Name: p.current.Literal,
+	}
+	p.nextToken()
+
+	// Parse type annotation if present
+	if p.consume(lexer.COLON) {
+		typeAnnotation, err := p.parseTSTypeAnnotation()
+		if err != nil {
+			return nil, false, err
+		}
+		id.TypeAnnotation = typeAnnotation
+	}
+
+	// Check if it's for-in or for-of
+	if p.match(lexer.IN, lexer.OF) {
+		stmt, err := p.parseForInOfStatement(start, kind, id, await)
+		return stmt, true, err
+	}
+
+	// Regular variable declaration
+	return p.createForVarDeclaration(start, kind, idStart, id)
+}
+
+// createForVarDeclaration creates a variable declaration for regular for loop.
+func (p *Parser) createForVarDeclaration(start int, kind string, idStart int, id *ast.Identifier) (ast.Node, bool, error) {
+	var initExpr ast.Expression
+	var err error
+	if p.consume(lexer.ASSIGN) {
+		initExpr, err = p.parseAssignmentExpression()
+		if err != nil {
+			return nil, false, err
+		}
+	}
+
+	declarator := &ast.VariableDeclarator{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeVariableDeclarator.String(),
+			Range:    &ast.Range{idStart, p.current.Pos},
+		},
+		ID:   id,
+		Init: initExpr,
+	}
+
+	init := &ast.VariableDeclaration{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeVariableDeclaration.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Declarations: []ast.VariableDeclarator{*declarator},
+		Kind:         kind,
+	}
+
+	return init, false, nil
+}
+
+// parseRegularForLoop parses the test, update, and body of a regular for loop.
+func (p *Parser) parseRegularForLoop(start int, init ast.Node) (*ast.ForStatement, error) {
 	var test ast.Expression
+	var err error
 	if !p.match(lexer.SEMICOLON) {
 		test, err = p.parseExpression()
 		if err != nil {

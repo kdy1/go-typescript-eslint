@@ -326,159 +326,213 @@ func (p *Parser) parseMemberOrCallExpression() (ast.Expression, error) {
 	}
 
 	for {
-		switch p.current.Type {
-		case lexer.PERIOD:
-			p.nextToken()
-			if p.current.Type != lexer.IDENT {
-				return nil, p.errorAtCurrent("expected property name")
-			}
-			property := &ast.Identifier{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeIdentifier.String(),
-					Range:    &ast.Range{p.current.Pos, p.current.End},
-				},
-				Name: p.current.Literal,
-			}
-			p.nextToken()
-			expr = &ast.MemberExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeMemberExpression.String(),
-				},
-				Object:   expr,
-				Property: property,
-				Computed: false,
-			}
-
-		case lexer.LBRACK:
-			p.nextToken()
-			property, err := p.parseExpression()
-			if err != nil {
-				return nil, err
-			}
-			if err := p.expect(lexer.RBRACK); err != nil {
-				return nil, err
-			}
-			expr = &ast.MemberExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeMemberExpression.String(),
-				},
-				Object:   expr,
-				Property: property,
-				Computed: true,
-			}
-
-		case lexer.OPTIONAL:
-			// Optional chaining
-			p.nextToken()
-			if p.consume(lexer.LBRACK) {
-				property, err := p.parseExpression()
-				if err != nil {
-					return nil, err
-				}
-				if err := p.expect(lexer.RBRACK); err != nil {
-					return nil, err
-				}
-				expr = &ast.ChainExpression{
-					BaseNode: ast.BaseNode{
-						NodeType: ast.NodeTypeChainExpression.String(),
-					},
-					Expression: &ast.MemberExpression{
-						BaseNode: ast.BaseNode{
-							NodeType: ast.NodeTypeMemberExpression.String(),
-						},
-						Object:   expr,
-						Property: property,
-						Computed: true,
-						Optional: true,
-					},
-				}
-			} else if p.consume(lexer.LPAREN) {
-				args, err := p.parseArguments()
-				if err != nil {
-					return nil, err
-				}
-				expr = &ast.ChainExpression{
-					BaseNode: ast.BaseNode{
-						NodeType: ast.NodeTypeChainExpression.String(),
-					},
-					Expression: &ast.CallExpression{
-						BaseNode: ast.BaseNode{
-							NodeType: ast.NodeTypeCallExpression.String(),
-						},
-						Callee:    expr,
-						Arguments: args,
-						Optional:  true,
-					},
-				}
-			} else {
-				if p.current.Type != lexer.IDENT {
-					return nil, p.errorAtCurrent("expected property name")
-				}
-				property := &ast.Identifier{
-					BaseNode: ast.BaseNode{
-						NodeType: ast.NodeTypeIdentifier.String(),
-						Range:    &ast.Range{p.current.Pos, p.current.End},
-					},
-					Name: p.current.Literal,
-				}
-				p.nextToken()
-				expr = &ast.ChainExpression{
-					BaseNode: ast.BaseNode{
-						NodeType: ast.NodeTypeChainExpression.String(),
-					},
-					Expression: &ast.MemberExpression{
-						BaseNode: ast.BaseNode{
-							NodeType: ast.NodeTypeMemberExpression.String(),
-						},
-						Object:   expr,
-						Property: property,
-						Computed: false,
-						Optional: true,
-					},
-				}
-			}
-
-		case lexer.LPAREN:
-			p.nextToken()
-			args, err := p.parseArguments()
-			if err != nil {
-				return nil, err
-			}
-			expr = &ast.CallExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeCallExpression.String(),
-				},
-				Callee:    expr,
-				Arguments: args,
-			}
-
-		case lexer.TEMPLATE, lexer.TemplateHead:
-			// Tagged template expression
-			template, err := p.parseTemplateLiteral()
-			if err != nil {
-				return nil, err
-			}
-			expr = &ast.TaggedTemplateExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeTaggedTemplateExpression.String(),
-				},
-				Tag:   expr,
-				Quasi: template,
-			}
-
-		case lexer.NOT:
-			// Non-null assertion (TypeScript)
-			p.nextToken()
-			expr = &ast.TSNonNullExpression{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeTSNonNullExpression.String(),
-				},
-				Expression: expr,
-			}
-
-		default:
+		newExpr, done, err := p.parseMemberOrCallSuffix(expr)
+		if err != nil {
+			return nil, err
+		}
+		if done {
 			return expr, nil
 		}
+		expr = newExpr
+	}
+}
+
+// parseMemberOrCallSuffix parses one suffix operation (., [], (), etc.) on an expression.
+// Returns the new expression, whether we're done parsing, and any error.
+func (p *Parser) parseMemberOrCallSuffix(expr ast.Expression) (ast.Expression, bool, error) {
+	switch p.current.Type {
+	case lexer.PERIOD:
+		newExpr, err := p.parseDotMemberAccess(expr)
+		return newExpr, false, err
+	case lexer.LBRACK:
+		newExpr, err := p.parseBracketMemberAccess(expr)
+		return newExpr, false, err
+	case lexer.OPTIONAL:
+		newExpr, err := p.parseOptionalChaining(expr)
+		return newExpr, false, err
+	case lexer.LPAREN:
+		newExpr, err := p.parseCallExpression(expr)
+		return newExpr, false, err
+	case lexer.TEMPLATE, lexer.TemplateHead:
+		newExpr, err := p.parseTaggedTemplate(expr)
+		return newExpr, false, err
+	case lexer.NOT:
+		newExpr := p.parseNonNullAssertion(expr)
+		return newExpr, false, nil
+	default:
+		return expr, true, nil
+	}
+}
+
+// parseDotMemberAccess parses dot member access: obj.prop
+func (p *Parser) parseDotMemberAccess(expr ast.Expression) (ast.Expression, error) {
+	p.nextToken()
+	if p.current.Type != lexer.IDENT {
+		return nil, p.errorAtCurrent("expected property name")
+	}
+	property := &ast.Identifier{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeIdentifier.String(),
+			Range:    &ast.Range{p.current.Pos, p.current.End},
+		},
+		Name: p.current.Literal,
+	}
+	p.nextToken()
+	return &ast.MemberExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeMemberExpression.String(),
+		},
+		Object:   expr,
+		Property: property,
+		Computed: false,
+	}, nil
+}
+
+// parseBracketMemberAccess parses bracket member access: obj[expr]
+func (p *Parser) parseBracketMemberAccess(expr ast.Expression) (ast.Expression, error) {
+	p.nextToken()
+	property, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	if err := p.expect(lexer.RBRACK); err != nil {
+		return nil, err
+	}
+	return &ast.MemberExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeMemberExpression.String(),
+		},
+		Object:   expr,
+		Property: property,
+		Computed: true,
+	}, nil
+}
+
+// parseOptionalChaining parses optional chaining: obj?.prop, obj?.[expr], obj?.()
+func (p *Parser) parseOptionalChaining(expr ast.Expression) (ast.Expression, error) {
+	p.nextToken()
+	if p.consume(lexer.LBRACK) {
+		return p.parseOptionalBracketAccess(expr)
+	} else if p.consume(lexer.LPAREN) {
+		return p.parseOptionalCall(expr)
+	}
+	return p.parseOptionalDotAccess(expr)
+}
+
+// parseOptionalBracketAccess parses obj?.[expr]
+func (p *Parser) parseOptionalBracketAccess(expr ast.Expression) (ast.Expression, error) {
+	property, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	if err := p.expect(lexer.RBRACK); err != nil {
+		return nil, err
+	}
+	return &ast.ChainExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeChainExpression.String(),
+		},
+		Expression: &ast.MemberExpression{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeMemberExpression.String(),
+			},
+			Object:   expr,
+			Property: property,
+			Computed: true,
+			Optional: true,
+		},
+	}, nil
+}
+
+// parseOptionalCall parses obj?.()
+func (p *Parser) parseOptionalCall(expr ast.Expression) (ast.Expression, error) {
+	args, err := p.parseArguments()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.ChainExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeChainExpression.String(),
+		},
+		Expression: &ast.CallExpression{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeCallExpression.String(),
+			},
+			Callee:    expr,
+			Arguments: args,
+			Optional:  true,
+		},
+	}, nil
+}
+
+// parseOptionalDotAccess parses obj?.prop
+func (p *Parser) parseOptionalDotAccess(expr ast.Expression) (ast.Expression, error) {
+	if p.current.Type != lexer.IDENT {
+		return nil, p.errorAtCurrent("expected property name")
+	}
+	property := &ast.Identifier{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeIdentifier.String(),
+			Range:    &ast.Range{p.current.Pos, p.current.End},
+		},
+		Name: p.current.Literal,
+	}
+	p.nextToken()
+	return &ast.ChainExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeChainExpression.String(),
+		},
+		Expression: &ast.MemberExpression{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeMemberExpression.String(),
+			},
+			Object:   expr,
+			Property: property,
+			Computed: false,
+			Optional: true,
+		},
+	}, nil
+}
+
+// parseCallExpression parses function call: func()
+func (p *Parser) parseCallExpression(expr ast.Expression) (ast.Expression, error) {
+	p.nextToken()
+	args, err := p.parseArguments()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.CallExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeCallExpression.String(),
+		},
+		Callee:    expr,
+		Arguments: args,
+	}, nil
+}
+
+// parseTaggedTemplate parses tagged template expression: tag`template`
+func (p *Parser) parseTaggedTemplate(expr ast.Expression) (ast.Expression, error) {
+	template, err := p.parseTemplateLiteral()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.TaggedTemplateExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeTaggedTemplateExpression.String(),
+		},
+		Tag:   expr,
+		Quasi: template,
+	}, nil
+}
+
+// parseNonNullAssertion parses TypeScript non-null assertion: expr!
+func (p *Parser) parseNonNullAssertion(expr ast.Expression) ast.Expression {
+	p.nextToken()
+	return &ast.TSNonNullExpression{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeTSNonNullExpression.String(),
+		},
+		Expression: expr,
 	}
 }
 

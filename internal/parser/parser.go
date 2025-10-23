@@ -221,3 +221,60 @@ func (p *Parser) Errors() []ParseError {
 
 // ErrNotImplemented is returned when parsing is not yet fully implemented.
 var ErrNotImplemented = fmt.Errorf("parsing not yet implemented")
+
+// parseListInBraces is a helper function to parse comma-separated lists within braces.
+// It handles the pattern: { item1, item2, ... }
+// The parseItem function is called for each item in the list.
+func parseListInBraces[T any](p *Parser, parseItem func() (T, error)) ([]T, error) {
+	if err := p.expect(lexer.LBRACE); err != nil {
+		return nil, err
+	}
+
+	items := []T{}
+
+	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
+		item, err := parseItem()
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+
+		if !p.consume(lexer.COMMA) {
+			break
+		}
+	}
+
+	if err := p.expect(lexer.RBRACE); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+// parseKeyValueInBraces is a helper to parse key-value pairs or similar structures
+// It's used for import attributes and similar patterns
+func parseKeyValueInBraces[T any](p *Parser, parseKeyValue func() (T, error)) ([]T, error) {
+	if err := p.expect(lexer.LBRACE); err != nil {
+		return nil, err
+	}
+
+	items := []T{}
+
+	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
+		item, err := parseKeyValue()
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+
+		if !p.consume(lexer.COMMA) {
+			break
+		}
+	}
+
+	if err := p.expect(lexer.RBRACE); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}

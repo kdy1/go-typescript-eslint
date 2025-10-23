@@ -818,64 +818,19 @@ func (p *Parser) parseTSFunctionParams() ([]ast.Pattern, error) {
 	for !p.match(lexer.RPAREN) && !p.isAtEnd() {
 		// Handle rest parameter
 		if p.consume(lexer.ELLIPSIS) {
-			param, err := p.parseBindingPattern()
+			restParam, err := p.parseTSRestParameter()
 			if err != nil {
 				return nil, err
 			}
-
-			if id, ok := param.(*ast.Identifier); ok {
-				if p.consume(lexer.COLON) {
-					typeAnnotation, err := p.parseTSTypeAnnotation()
-					if err != nil {
-						return nil, err
-					}
-					id.TypeAnnotation = typeAnnotation
-				}
-			}
-
-			params = append(params, &ast.RestElement{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeRestElement.String(),
-				},
-				Argument: param,
-			})
+			params = append(params, restParam)
 			break
 		}
 
-		param, err := p.parseBindingPattern()
+		// Parse regular parameter
+		param, err := p.parseTSRegularParameter()
 		if err != nil {
 			return nil, err
 		}
-
-		// Parse type annotation (TypeScript)
-		if id, ok := param.(*ast.Identifier); ok {
-			if p.consume(lexer.QUESTION) {
-				id.Optional = true
-			}
-			if p.consume(lexer.COLON) {
-				typeAnnotation, err := p.parseTSTypeAnnotation()
-				if err != nil {
-					return nil, err
-				}
-				id.TypeAnnotation = typeAnnotation
-			}
-		}
-
-		// Parse default value
-		if p.consume(lexer.ASSIGN) {
-			init, err := p.parseAssignmentExpression()
-			if err != nil {
-				return nil, err
-			}
-			param = &ast.AssignmentPattern{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeAssignmentPattern.String(),
-				},
-				Left:  param,
-				Right: init,
-			}
-		}
-
 		params = append(params, param)
 
 		if !p.consume(lexer.COMMA) {
@@ -888,6 +843,85 @@ func (p *Parser) parseTSFunctionParams() ([]ast.Pattern, error) {
 	}
 
 	return params, nil
+}
+
+// parseTSRestParameter parses a rest parameter with TypeScript type annotation
+func (p *Parser) parseTSRestParameter() (ast.Pattern, error) {
+	param, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply type annotation for TypeScript
+	if err := p.applyTSTypeAnnotationToParam(param); err != nil {
+		return nil, err
+	}
+
+	return &ast.RestElement{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeRestElement.String(),
+		},
+		Argument: param,
+	}, nil
+}
+
+// parseTSRegularParameter parses a regular function parameter with TypeScript features
+func (p *Parser) parseTSRegularParameter() (ast.Pattern, error) {
+	param, err := p.parseBindingPattern()
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse optional marker and type annotation (TypeScript)
+	if err := p.parseTSParameterModifiers(param); err != nil {
+		return nil, err
+	}
+
+	// Parse default value
+	return p.applyDefaultValueToParam(param)
+}
+
+// parseTSParameterModifiers parses optional marker and type annotation
+func (p *Parser) parseTSParameterModifiers(param ast.Pattern) error {
+	if id, ok := param.(*ast.Identifier); ok {
+		if p.consume(lexer.QUESTION) {
+			id.Optional = true
+		}
+		return p.applyTSTypeAnnotationToParam(param)
+	}
+	return nil
+}
+
+// applyTSTypeAnnotationToParam applies type annotation to a parameter if present
+func (p *Parser) applyTSTypeAnnotationToParam(param ast.Pattern) error {
+	if id, ok := param.(*ast.Identifier); ok {
+		if p.consume(lexer.COLON) {
+			typeAnnotation, err := p.parseTSTypeAnnotation()
+			if err != nil {
+				return err
+			}
+			id.TypeAnnotation = typeAnnotation
+		}
+	}
+	return nil
+}
+
+// applyDefaultValueToParam wraps parameter with AssignmentPattern if default value is present
+func (p *Parser) applyDefaultValueToParam(param ast.Pattern) (ast.Pattern, error) {
+	if p.consume(lexer.ASSIGN) {
+		init, err := p.parseAssignmentExpression()
+		if err != nil {
+			return nil, err
+		}
+		return &ast.AssignmentPattern{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeAssignmentPattern.String(),
+			},
+			Left:  param,
+			Right: init,
+		}, nil
+	}
+	return param, nil
 }
 
 // parseTSTypeParameters parses type parameter declaration <T, U>.

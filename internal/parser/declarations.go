@@ -10,95 +10,17 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 	start := p.current.Pos
 	p.nextToken() // consume 'import'
 
-	// Handle import type (TypeScript)
-	importKind := "value"
-	if p.current.Type == lexer.TYPE {
-		importKind = "type"
-		p.nextToken()
-	}
+	importKind := p.parseImportKind()
 
-	specifiers := []interface{}{}
-
-	// Check for import 'module' (side-effect import)
+	// Check for side-effect import: import 'module'
 	if p.current.Type == lexer.STRING {
-		source := &ast.Literal{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeLiteral.String(),
-				Range:    &ast.Range{p.current.Pos, p.current.End},
-			},
-			Value: p.current.Literal,
-			Raw:   p.current.Literal,
-		}
-		p.nextToken()
-		p.consume(lexer.SEMICOLON)
-
-		return &ast.ImportDeclaration{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeImportDeclaration.String(),
-				Range:    &ast.Range{start, p.current.Pos},
-			},
-			Specifiers: specifiers,
-			Source:     source,
-			ImportKind: &importKind,
-		}, nil
+		return p.parseSideEffectImport(start, importKind)
 	}
 
-	// Parse default import
-	if p.current.Type == lexer.IDENT {
-		specifiers = append(specifiers, &ast.ImportDefaultSpecifier{
-			BaseNode: ast.BaseNode{
-				NodeType: ast.NodeTypeImportDefaultSpecifier.String(),
-				Range:    &ast.Range{p.current.Pos, p.current.End},
-			},
-			Local: &ast.Identifier{
-				BaseNode: ast.BaseNode{
-					NodeType: ast.NodeTypeIdentifier.String(),
-					Range:    &ast.Range{p.current.Pos, p.current.End},
-				},
-				Name: p.current.Literal,
-			},
-		})
-		p.nextToken()
-
-		// Check for additional imports after default
-		if p.consume(lexer.COMMA) {
-			switch p.current.Type {
-			case lexer.MUL:
-				// namespace import
-				spec, err := p.parseImportNamespaceSpecifier()
-				if err != nil {
-					return nil, err
-				}
-				specifiers = append(specifiers, spec)
-			case lexer.LBRACE:
-				// named imports
-				specs, err := p.parseImportSpecifiers()
-				if err != nil {
-					return nil, err
-				}
-				for _, spec := range specs {
-					specifiers = append(specifiers, spec)
-				}
-			}
-		}
-	} else if p.current.Type == lexer.MUL {
-		// Namespace import
-		spec, err := p.parseImportNamespaceSpecifier()
-		if err != nil {
-			return nil, err
-		}
-		specifiers = append(specifiers, spec)
-	} else if p.current.Type == lexer.LBRACE {
-		// Named imports
-		specs, err := p.parseImportSpecifiers()
-		if err != nil {
-			return nil, err
-		}
-		for _, spec := range specs {
-			specifiers = append(specifiers, spec)
-		}
-	} else {
-		return nil, p.errorAtCurrent("expected import specifier")
+	// Parse import specifiers
+	specifiers, err := p.parseImportSpecifierList()
+	if err != nil {
+		return nil, err
 	}
 
 	// Parse 'from' clause
@@ -106,6 +28,132 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 		return nil, err
 	}
 
+	source, err := p.parseModuleSpecifier()
+	if err != nil {
+		return nil, err
+	}
+
+	attributes := p.parseImportAttributesIfPresent()
+	p.consume(lexer.SEMICOLON)
+
+	return &ast.ImportDeclaration{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeImportDeclaration.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Specifiers: specifiers,
+		Source:     source,
+		ImportKind: &importKind,
+		Attributes: attributes,
+	}, nil
+}
+
+// parseImportKind checks for and parses the 'type' keyword in TypeScript imports.
+func (p *Parser) parseImportKind() string {
+	if p.current.Type == lexer.TYPE {
+		p.nextToken()
+		return "type"
+	}
+	return "value"
+}
+
+// parseSideEffectImport parses a side-effect import: import 'module'
+func (p *Parser) parseSideEffectImport(start int, importKind string) (*ast.ImportDeclaration, error) {
+	source := &ast.Literal{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeLiteral.String(),
+			Range:    &ast.Range{p.current.Pos, p.current.End},
+		},
+		Value: p.current.Literal,
+		Raw:   p.current.Literal,
+	}
+	p.nextToken()
+	p.consume(lexer.SEMICOLON)
+
+	return &ast.ImportDeclaration{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeImportDeclaration.String(),
+			Range:    &ast.Range{start, p.current.Pos},
+		},
+		Specifiers: []interface{}{},
+		Source:     source,
+		ImportKind: &importKind,
+	}, nil
+}
+
+// parseImportSpecifierList parses the list of import specifiers.
+func (p *Parser) parseImportSpecifierList() ([]interface{}, error) {
+	specifiers := []interface{}{}
+
+	// Parse default import
+	if p.current.Type == lexer.IDENT {
+		defaultSpec := p.parseDefaultImportSpecifier()
+		specifiers = append(specifiers, defaultSpec)
+		p.nextToken()
+
+		// Check for additional imports after default
+		if p.consume(lexer.COMMA) {
+			additionalSpecs, err := p.parseAdditionalImportSpecifiers()
+			if err != nil {
+				return nil, err
+			}
+			specifiers = append(specifiers, additionalSpecs...)
+		}
+	} else {
+		// Parse namespace or named imports
+		specs, err := p.parseAdditionalImportSpecifiers()
+		if err != nil {
+			return nil, err
+		}
+		specifiers = append(specifiers, specs...)
+	}
+
+	return specifiers, nil
+}
+
+// parseDefaultImportSpecifier creates a default import specifier from current token.
+func (p *Parser) parseDefaultImportSpecifier() *ast.ImportDefaultSpecifier {
+	return &ast.ImportDefaultSpecifier{
+		BaseNode: ast.BaseNode{
+			NodeType: ast.NodeTypeImportDefaultSpecifier.String(),
+			Range:    &ast.Range{p.current.Pos, p.current.End},
+		},
+		Local: &ast.Identifier{
+			BaseNode: ast.BaseNode{
+				NodeType: ast.NodeTypeIdentifier.String(),
+				Range:    &ast.Range{p.current.Pos, p.current.End},
+			},
+			Name: p.current.Literal,
+		},
+	}
+}
+
+// parseAdditionalImportSpecifiers parses namespace or named imports.
+func (p *Parser) parseAdditionalImportSpecifiers() ([]interface{}, error) {
+	switch p.current.Type {
+	case lexer.MUL:
+		spec, err := p.parseImportNamespaceSpecifier()
+		if err != nil {
+			return nil, err
+		}
+		return []interface{}{spec}, nil
+	case lexer.LBRACE:
+		specs, err := p.parseImportSpecifiers()
+		if err != nil {
+			return nil, err
+		}
+		result := make([]interface{}, len(specs))
+		for i, spec := range specs {
+			result[i] = spec
+		}
+		return result, nil
+	default:
+		return nil, p.errorAtCurrent("expected import specifier")
+	}
+}
+
+// parseModuleSpecifier parses the module specifier string.
+func (p *Parser) parseModuleSpecifier() (*ast.Literal, error) {
 	if p.current.Type != lexer.STRING {
 		return nil, p.errorAtCurrent("expected module specifier")
 	}
@@ -119,34 +167,22 @@ func (p *Parser) parseImportDeclaration() (*ast.ImportDeclaration, error) {
 		Raw:   p.current.Literal,
 	}
 	p.nextToken()
+	return source, nil
+}
 
-	// Parse import attributes (with clause)
+// parseImportAttributesIfPresent parses import attributes if 'with' clause is present.
+func (p *Parser) parseImportAttributesIfPresent() []ast.ImportAttribute {
 	var attributes []ast.ImportAttribute
 	if p.current.Type == lexer.IDENT && p.current.Literal == "with" {
 		p.nextToken()
-		var err error
 		attributesPtr, err := p.parseImportAttributes()
-		if err != nil {
-			return nil, err
-		}
-		// Convert []*ast.ImportAttribute to []ast.ImportAttribute
-		for _, attr := range attributesPtr {
-			attributes = append(attributes, *attr)
+		if err == nil {
+			for _, attr := range attributesPtr {
+				attributes = append(attributes, *attr)
+			}
 		}
 	}
-
-	p.consume(lexer.SEMICOLON)
-
-	return &ast.ImportDeclaration{
-		BaseNode: ast.BaseNode{
-			NodeType: ast.NodeTypeImportDeclaration.String(),
-			Range:    &ast.Range{start, p.current.Pos},
-		},
-		Specifiers: specifiers,
-		Source:     source,
-		ImportKind: &importKind,
-		Attributes: attributes,
-	}, nil
+	return attributes
 }
 
 // parseImportNamespaceSpecifier parses a namespace import (* as name).
@@ -182,29 +218,7 @@ func (p *Parser) parseImportNamespaceSpecifier() (*ast.ImportNamespaceSpecifier,
 
 // parseImportSpecifiers parses named import specifiers {a, b as c}.
 func (p *Parser) parseImportSpecifiers() ([]*ast.ImportSpecifier, error) {
-	if err := p.expect(lexer.LBRACE); err != nil {
-		return nil, err
-	}
-
-	specifiers := []*ast.ImportSpecifier{}
-
-	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
-		spec, err := p.parseImportSpecifier()
-		if err != nil {
-			return nil, err
-		}
-		specifiers = append(specifiers, spec)
-
-		if !p.consume(lexer.COMMA) {
-			break
-		}
-	}
-
-	if err := p.expect(lexer.RBRACE); err != nil {
-		return nil, err
-	}
-
-	return specifiers, nil
+	return parseListInBraces(p, p.parseImportSpecifier)
 }
 
 // parseImportSpecifier parses a single import specifier.
@@ -261,29 +275,7 @@ func (p *Parser) parseImportSpecifier() (*ast.ImportSpecifier, error) {
 
 // parseImportAttributes parses import attributes (with clause).
 func (p *Parser) parseImportAttributes() ([]*ast.ImportAttribute, error) {
-	if err := p.expect(lexer.LBRACE); err != nil {
-		return nil, err
-	}
-
-	attributes := []*ast.ImportAttribute{}
-
-	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
-		attr, err := p.parseImportAttribute()
-		if err != nil {
-			return nil, err
-		}
-		attributes = append(attributes, attr)
-
-		if !p.consume(lexer.COMMA) {
-			break
-		}
-	}
-
-	if err := p.expect(lexer.RBRACE); err != nil {
-		return nil, err
-	}
-
-	return attributes, nil
+	return parseListInBraces(p, p.parseImportAttribute)
 }
 
 // parseImportAttribute parses a single import attribute.
@@ -549,29 +541,7 @@ func (p *Parser) parseExportNamedDeclaration(start int, exportKind string) (*ast
 
 // parseExportSpecifiers parses export specifiers {a, b as c}.
 func (p *Parser) parseExportSpecifiers() ([]*ast.ExportSpecifier, error) {
-	if err := p.expect(lexer.LBRACE); err != nil {
-		return nil, err
-	}
-
-	specifiers := []*ast.ExportSpecifier{}
-
-	for !p.match(lexer.RBRACE) && !p.isAtEnd() {
-		spec, err := p.parseExportSpecifier()
-		if err != nil {
-			return nil, err
-		}
-		specifiers = append(specifiers, spec)
-
-		if !p.consume(lexer.COMMA) {
-			break
-		}
-	}
-
-	if err := p.expect(lexer.RBRACE); err != nil {
-		return nil, err
-	}
-
-	return specifiers, nil
+	return parseListInBraces(p, p.parseExportSpecifier)
 }
 
 // parseExportSpecifier parses a single export specifier.
