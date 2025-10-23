@@ -118,14 +118,14 @@ func Example_parseAndGenerateServices() {
 	result, err := typescriptestree.ParseAndGenerateServices(source, opts)
 	if err != nil {
 		// May fail without a tsconfig.json file
-		fmt.Println("Note: ParseAndGenerateServices requires a TypeScript project configuration")
+		fmt.Println("ParseAndGenerateServices requires a TypeScript project configuration")
 		return
 	}
 
 	fmt.Printf("Has AST: %t\n", result.AST != nil)
 	fmt.Printf("Has Services: %t\n", result.Services != nil)
 	// Output:
-	// Note: ParseAndGenerateServices requires a TypeScript project configuration
+	// ParseAndGenerateServices requires a TypeScript project configuration
 }
 
 // Example_nodeTypes demonstrates using AST_NODE_TYPES constants.
