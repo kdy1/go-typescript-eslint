@@ -83,7 +83,6 @@ func (s *Scanner) next() rune {
 	s.pos++
 
 	// Track line/column
-	//nolint:gocritic // ifElseChain: if-else is clearer than switch for line tracking
 	if ch == '\n' {
 		s.line++
 		s.column = 0
@@ -121,7 +120,6 @@ func (s *Scanner) nextRune() rune {
 	s.pos += size
 
 	// Track line/column
-	//nolint:gocritic // ifElseChain: if-else is clearer than switch for line tracking
 	if ch == '\n' {
 		s.line++
 		s.column = 0

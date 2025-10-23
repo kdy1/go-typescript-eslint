@@ -180,7 +180,6 @@ func (s *Scanner) scanString(quote rune) Token {
 			break
 		}
 
-		//nolint:gocritic // ifElseChain: if-else is clearer than switch for string scanning
 		if ch == '\\' {
 			// Escape sequence
 			s.next()
@@ -416,7 +415,6 @@ func (s *Scanner) scanRegExp() Token {
 			return s.createToken(ILLEGAL, s.source[start:s.pos])
 		}
 
-		//nolint:gocritic // ifElseChain: if-else is clearer than switch for regex scanning
 		if ch == '\\' {
 			// Escaped character
 			s.next()

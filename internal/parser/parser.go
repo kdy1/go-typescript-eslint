@@ -24,7 +24,6 @@ type ParseError struct {
 
 // New creates a new parser for the given source code.
 func New(_ string) *Parser {
-	//nolint:godox // TODO is intentional for unimplemented feature
 	// TODO: Initialize lexer and tokenize
 	return &Parser{
 		tokens:  []lexer.Token{},
@@ -37,7 +36,6 @@ func New(_ string) *Parser {
 //
 //nolint:ireturn // This returns an interface by design as it's the base node type for the AST
 func (p *Parser) Parse() (ast.Node, error) {
-	//nolint:godox // TODO is intentional for unimplemented feature
 	// TODO: Implement parsing logic
 	return nil, ErrNotImplemented
 }
