@@ -55,8 +55,6 @@ func Walk(node Node, visitor Visitor) {
 
 // traverseField handles traversal of a field value, which may be a node,
 // a slice of nodes, or a pointer to a node.
-//
-//nolint:cyclop // Complexity is inherent to reflection-based traversal
 func traverseField(field reflect.Value, visitor Visitor) {
 	//nolint:exhaustive // Only specific reflection kinds need handling
 	switch field.Kind() {
@@ -193,7 +191,6 @@ func walkWithContextInternal(node Node, visitor ContextVisitor, ctx *TraverseCon
 	}
 }
 
-//nolint:cyclop // Complexity is inherent to reflection-based traversal
 func traverseFieldWithContext(field reflect.Value, visitor ContextVisitor, ctx *TraverseContext) {
 	//nolint:exhaustive // Only specific reflection kinds need handling
 	switch field.Kind() {
@@ -326,8 +323,6 @@ func GetAncestors(root, target Node) []Node {
 
 // GetSiblings returns all sibling nodes of the target node.
 // If the target is not found or has no siblings, returns an empty slice.
-//
-//nolint:cyclop // Complexity is inherent to sibling extraction logic
 func GetSiblings(root, target Node) []Node {
 	var siblings []Node
 	targetCtx := findTargetContext(root, target)
@@ -375,6 +370,7 @@ func extractSiblings(parent Node, key string, targetIndex *int) []Node {
 	return siblings
 }
 
+//nolint:ireturn // Interface types are intentional for generic node extraction
 func extractNodeFromElement(elem reflect.Value) Node {
 	if elem.Kind() == reflect.Ptr && !elem.IsNil() {
 		if node, ok := elem.Interface().(Node); ok {

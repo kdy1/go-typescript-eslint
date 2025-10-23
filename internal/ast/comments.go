@@ -24,7 +24,7 @@ const (
 // AttachComments attaches comments to their associated nodes based on position.
 // This is typically called after parsing to associate comments with AST nodes.
 //
-//nolint:cyclop,gocyclo // Complexity is inherent to comment attachment logic
+//nolint:gocyclo // Complexity is inherent to comment attachment logic
 func AttachComments(root Node, comments []*Comment) []CommentAttachment {
 	if root == nil || len(comments) == 0 {
 		return nil
@@ -85,7 +85,9 @@ func attachNodeComments(node Node, sortedComments []*Comment, startIdx int, atta
 	return commentIdx
 }
 
-func attachLeadingComments(node Node, comments []*Comment, startIdx, nodeStart int, attachments *[]CommentAttachment) int {
+func attachLeadingComments(
+	node Node, comments []*Comment, startIdx, nodeStart int, attachments *[]CommentAttachment,
+) int {
 	idx := startIdx
 	for idx < len(comments) {
 		comment := comments[idx]
@@ -102,7 +104,9 @@ func attachLeadingComments(node Node, comments []*Comment, startIdx, nodeStart i
 	return idx
 }
 
-func attachInnerComments(node Node, comments []*Comment, startIdx, nodeStart, nodeEnd int, attachments *[]CommentAttachment) int {
+func attachInnerComments(
+	node Node, comments []*Comment, startIdx, nodeStart, nodeEnd int, attachments *[]CommentAttachment,
+) int {
 	idx := startIdx
 	for idx < len(comments) {
 		comment := comments[idx]
