@@ -96,11 +96,12 @@ const (
 	QUO // /
 	REM // %
 
-	AND // &
-	OR  // |
-	XOR // ^
-	SHL // <<
-	SHR // >>
+	AND  // &
+	OR   // |
+	XOR  // ^
+	BNOT // ~ (bitwise NOT)
+	SHL  // <<
+	SHR  // >>
 
 	AddAssign // +=
 	SubAssign // -=
@@ -149,6 +150,25 @@ const (
 	ELLIPSIS      // ...
 	OPTIONAL      // ?.
 	NullishAssign // ??=
+
+	// JSX Tokens
+	JSXText            // JSX text content
+	JSXTagStart        // <
+	JSXTagEnd          // >
+	JSXSelfClosingEnd  // />
+	JSXAttributeString // JSX attribute string value
+
+	// Additional operators
+	POWER             // **
+	PowerAssign       // **=
+	SHRUnsigned       // >>> (unsigned right shift)
+	ShrUnsignedAssign // >>>=
+
+	// Template literal tokens
+	TemplateHead   // `...${
+	TemplateMiddle // }...${
+	TemplateTail   // }...`
+	TemplateNoSub  // `...` (no substitution)
 )
 
 // Token represents a lexical token.
