@@ -909,9 +909,7 @@ func (p *Parser) parseProperty() (*ast.Property, error) {
 	}
 
 	// Parse type annotation if present (TypeScript)
-	if p.consume(lexer.QUESTION) {
-		// Optional property
-	}
+	_ = p.consume(lexer.QUESTION) // Optional property marker
 	if p.consume(lexer.COLON) && p.current.Type != lexer.COLON {
 		// Could be type annotation - try to parse it
 		_, _ = p.tryParseTSTypeAnnotation() //nolint:errcheck // Type annotation is optional, errors can be ignored
