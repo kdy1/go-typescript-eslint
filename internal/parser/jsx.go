@@ -178,7 +178,7 @@ func (p *Parser) parseJSXElementName() (ast.Node, error) {
 				NodeType: ast.NodeTypeJSXNamespacedName.String(),
 				Range:    &ast.Range{start, p.current.Pos},
 			},
-			Namespace: name.(*ast.JSXIdentifier),
+			Namespace: name.(*ast.JSXIdentifier), //nolint:errcheck // We know this is JSXIdentifier, type assertion is safe
 			Name:      namespaceName,
 		}, nil
 	}
@@ -273,7 +273,7 @@ func (p *Parser) parseJSXAttribute() (ast.Node, error) {
 				NodeType: ast.NodeTypeJSXNamespacedName.String(),
 				Range:    &ast.Range{start, p.current.Pos},
 			},
-			Namespace: name.(*ast.JSXIdentifier),
+			Namespace: name.(*ast.JSXIdentifier), //nolint:errcheck // We know this is JSXIdentifier, type assertion is safe
 			Name:      namespaceName,
 		}
 	}

@@ -376,7 +376,7 @@ func (p *Parser) parseExportWithDeclaration(start int, exportKind string) (ast.S
 	// Convert ast.Node to ast.Declaration
 	var decl ast.Declaration
 	if declaration != nil {
-		decl, _ = declaration.(ast.Declaration)
+		decl, _ = declaration.(ast.Declaration) //nolint:errcheck // Type assertion is optional, error can be ignored
 	}
 
 	return &ast.ExportNamedDeclaration{

@@ -161,7 +161,7 @@ func (p *Parser) createAssignmentExpression(left ast.Expression, operator string
 		// If it's not a pattern, we still need to assign it
 		// This might happen with member expressions, identifiers, etc.
 		// which implement both Expression and Pattern
-		leftPattern, _ = left.(ast.Pattern)
+		leftPattern, _ = left.(ast.Pattern) //nolint:errcheck // Type assertion is optional, error can be ignored
 	}
 
 	return &ast.AssignmentExpression{
@@ -914,7 +914,7 @@ func (p *Parser) parseProperty() (*ast.Property, error) {
 	}
 	if p.consume(lexer.COLON) && p.current.Type != lexer.COLON {
 		// Could be type annotation - try to parse it
-		_, _ = p.tryParseTSTypeAnnotation()
+		_, _ = p.tryParseTSTypeAnnotation() //nolint:errcheck // Type annotation is optional, errors can be ignored
 	}
 
 	// Check for method

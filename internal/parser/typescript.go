@@ -1139,7 +1139,7 @@ func (p *Parser) parseTSInterfaceHeritage() (*ast.TSInterfaceHeritage, error) {
 	}
 
 	// Cast to Expression - TSEntityName returns Identifier/TSQualifiedName which implement Expression
-	expression, _ := expressionNode.(ast.Expression)
+	expression, _ := expressionNode.(ast.Expression) //nolint:errcheck // Type assertion is optional, error can be ignored
 
 	var typeParameters *ast.TSTypeParameterInstantiation
 	if p.current.Type == lexer.LSS {
@@ -1433,7 +1433,7 @@ func (p *Parser) parseTSClassImplements() (*ast.TSClassImplements, error) {
 	}
 
 	// Cast to Expression - TSEntityName returns Identifier/TSQualifiedName which implement Expression
-	expression, _ := expressionNode.(ast.Expression)
+	expression, _ := expressionNode.(ast.Expression) //nolint:errcheck // Type assertion is optional, error can be ignored
 
 	var typeParameters *ast.TSTypeParameterInstantiation
 	if p.current.Type == lexer.LSS {

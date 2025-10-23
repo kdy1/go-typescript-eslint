@@ -267,7 +267,7 @@ func (p *Parser) parseObjectPatternProperty() (*ast.Property, error) {
 		}
 	} else {
 		// Cast Pattern to Expression - valid since Identifier implements both
-		value, _ = valuePat.(ast.Expression)
+		value, _ = valuePat.(ast.Expression) //nolint:errcheck // Type assertion is optional, error can be ignored
 	}
 
 	return &ast.Property{
